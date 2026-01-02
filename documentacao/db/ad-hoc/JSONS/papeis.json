@@ -1,0 +1,30 @@
+[
+ {
+  "id": "b7f53d6e-70b5-453b-b564-728aeb4635d5",
+  "nome": "aluno"
+ },
+ {
+  "id": "3a9c14a7-e727-44c1-8f17-e6b5429e2d40",
+  "nome": "colaborador"
+ },
+ {
+  "id": "337b5210-177a-4791-aac0-27d2ceff2929",
+  "nome": "secretaria"
+ },
+ {
+  "id": "3c4c1d8c-1ad8-4abc-9eea-12829ab7d7f1",
+  "nome": "professor"
+ },
+ {
+  "id": "d3410ac7-5a4a-4f02-8923-610b9fd87c4d",
+  "nome": "admin"
+ },
+ {
+  "id": "07028505-01d7-4986-800e-9d71cab5dd6c",
+  "nome": "professor_funcao_extra"
+ },
+ {
+  "id": "3ecbe197-4c01-4b25-8e8a-04f9adaff801",
+  "nome": "responsavel"
+ }
+]

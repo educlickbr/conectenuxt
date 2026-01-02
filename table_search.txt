@@ -1,0 +1,22 @@
+CREATE OR REPLACE FUNCTION "public"."fn_uep_definir_user_id"("p_id_user_expandido" "uuid", "p_user_id" "uuid") RETURNS TABLE("ok" boolean, "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."get_professores_certificados_departamento_v2"("p_func_extra" "text", "p_user_expandido_id" "uuid", "p_ano" "text", "p_id_professor" "uuid" DEFAULT NULL::"uuid", "p_busca_nome" "text" DEFAULT NULL::"text", "p_pendentes" boolean DEFAULT true, "p_enviados" boolean DEFAULT true, "p_em_andamento_diretor" boolean DEFAULT true, "p_em_andamento_supervisor" boolean DEFAULT true, "p_concluido_diretor" boolean DEFAULT true, "p_concluido_supervisor" boolean DEFAULT true, "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."onbdg_get_email_user_expandido"("p_id_user_expandido" "uuid") RETURNS "text"
+CREATE TABLE IF NOT EXISTS "public"."user_expandido" (
+ALTER TABLE "public"."user_expandido" OWNER TO "postgres";
+ALTER TABLE ONLY "public"."user_expandido"
+ALTER TABLE ONLY "public"."user_expandido"
+CREATE INDEX "idx_uep_id_empresa" ON "public"."user_expandido" USING "btree" ("id_empresa");
+CREATE INDEX "idx_uep_id_escola" ON "public"."user_expandido" USING "btree" ("id_escola");
+CREATE INDEX "idx_user_expandido_user_id" ON "public"."user_expandido" USING "btree" ("user_id");
+CREATE INDEX "user_expandido_user_id_idx" ON "public"."user_expandido" USING "btree" ("user_id");
+ALTER TABLE ONLY "public"."user_expandido"
+ALTER TABLE ONLY "public"."user_expandido"
+ALTER TABLE ONLY "public"."user_expandido"
+CREATE POLICY "Admin pode tudo nos professores da sua empresa" ON "public"."user_expandido" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Funcao extra: pode ler apenas professores da sua empresa" ON "public"."user_expandido" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor_funcao_extra'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa") AND (("papel_id" = '3c4c1d8c-1ad8-4abc-9eea-12829ab7d7f1'::"uuid") OR ("papel_id" = '07028505-01d7-4986-800e-9d71cab5dd6c'::"uuid"))));
+CREATE POLICY "Usuário autenticado acessa apenas seus próprios dados" ON "public"."user_expandido" TO "authenticated" USING (("auth"."uid"() = "user_id")) WITH CHECK (("auth"."uid"() = "user_id"));
+CREATE POLICY "professor_self" ON "public"."pontuacao_professores" USING (("id_professor" = (("auth"."jwt"() ->> 'user_expandido_id'::"text"))::"uuid"));
+ALTER TABLE "public"."user_expandido" ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE "public"."user_expandido" TO "anon";
+GRANT ALL ON TABLE "public"."user_expandido" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_expandido" TO "service_role";

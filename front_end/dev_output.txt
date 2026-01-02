@@ -1,0 +1,904 @@
+
+> dev
+> nuxt dev
+
+[90mÔöé[39m
+[34mÔùÅ[39m  [32mNuxt [1m4.2.2[22m[39m[90m (with [39m[90mNitro [1m2.12.9[22m[39m[90m, Vite [1m7.3.0[22m[39m[90m and Vue [1m3.5.26[22m[39m[90m)[39m
+[get-port] Unable to find an available port (tried 3000 on host "localhost"). Using alternative port 3002.
+
+[32m  Ô×£ Local:   [39m [36m[4mhttp://localhost:[1m3002[22m/[24m[39m
+[90m  Ô×£ Network:  use [37m--host[90m to expose[39m
+
+[90m[[90mnuxt:tailwindcss[90m][39m [36mÔä╣[39m Using default Tailwind CSS file
+[33m  Ô×£ DevTools: [39m[2mpress [22m[32mShift[39m[2m + [22m[32mAlt[39m[2m + [22m[32mD[39m[2m in the browser (v3.1.1)[22m
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite client built in 50ms
+
+ ERROR  WebSocket server error: Port 24678 is already in use
+
+[32mÔ£ö[39m Vite server built in 93ms
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 1527ms
+[36mÔä╣[39m Vite server warmed up in 1ms
+[36mÔä╣[39m Vite client warmed up in 3ms
+[36mÔä╣[39m [32mhmr update [39m[2m/app.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 8 files in 0.818ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/LoadingOverlay.vue?direct&vue&type=style&index=0&scoped=9b455262&lang.css, /components/LoadingOverlay.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/stores/app.ts[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/FullPageMenu.vue, /components/FullPageMenu.vue?direct&vue&type=style&index=0&scoped=741798c3&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 26 files in 1.238ms
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/login.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /pages/login.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/FullPageMenu.vue, /components/FullPageMenu.vue?direct&vue&type=style&index=0&scoped=741798c3&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/LoadingOverlay.vue?direct&vue&type=style&index=0&scoped=9b455262&lang.css, /components/LoadingOverlay.vue?vue&type=style&index=0&scoped=9b455262&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 23 files in 1.151ms
+[36mÔä╣[39m [32mhmr update [39m[2m/app.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/login.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /pages/login.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 15 files in 0.95ms
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 3294ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mpage reload [39m[2mvirtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Flayouts.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 12 files in 3.529ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+[32mÔ£ö[39m Vite server hmr 13 files in 1.193ms
+[43m[30m WARN [39m[49m [nuxt] Your project has pages but the [36m<NuxtPage />[39m component has not been used. You might be using the [36m<RouterView />[39m component instead, which will not work correctly in Nuxt. You can set [36mpages: false[39m in [36mnuxt.config[39m if you do not wish to use the Nuxt [36mvue-router[39m integration.
+[43m[30m WARN [39m[49m [nuxt] Your project has pages but the [36m<NuxtPage />[39m component has not been used. You might be using the [36m<RouterView />[39m component instead, which will not work correctly in Nuxt. You can set [36mpages: false[39m in [36mnuxt.config[39m if you do not wish to use the Nuxt [36mvue-router[39m integration.
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/abcd"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/abcd"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/abcd"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/abcd"
+[43m[30m WARN [39m[49m [nuxt] Your project has pages but the [36m<NuxtPage />[39m component has not been used. You might be using the [36m<RouterView />[39m component instead, which will not work correctly in Nuxt. You can set [36mpages: false[39m in [36mnuxt.config[39m if you do not wish to use the Nuxt [36mvue-router[39m integration.
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/lms"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/lms"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/lms"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/lms"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/usuarios"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/usuarios"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/usuarios"
+[43m[30m WARN [39m[49m [Vue Router warn]: No match found for location with path "/usuarios"
+[43m[30m WARN [39m[49m [nuxt] Your project has pages but the [36m<NuxtPage />[39m component has not been used. You might be using the [36m<RouterView />[39m component instead, which will not work correctly in Nuxt. You can set [36mpages: false[39m in [36mnuxt.config[39m if you do not wish to use the Nuxt [36mvue-router[39m integration.
+[43m[30m WARN [39m[49m [nuxt] Your project has pages but the [36m<NuxtPage />[39m component has not been used. You might be using the [36m<RouterView />[39m component instead, which will not work correctly in Nuxt. You can set [36mpages: false[39m in [36mnuxt.config[39m if you do not wish to use the Nuxt [36mvue-router[39m integration.
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+[36mÔä╣[39m [32mhmr update [39m[2m/app.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 619.85ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 643.63ms
+[32mÔ£ö[39m Vite server hmr 16 files in 1.363ms
+[36mÔä╣[39m [32mhmr update [39m[2m/stores/app.ts[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/app.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerView.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 24 files in 0.97ms
+[43m[30m WARN [39m[49m [Vue warn]: Property "store" was accessed during render but is not defined on instance. at <ManagerView>
+at <Index>
+at <RouteProvider>
+at <RouterView>
+at <NuxtPage>
+at <NuxtLayoutProvider>
+at <NuxtLayout>
+at <App>
+at <NuxtRoot>
+[41m[30m ERROR [39m[49m [request error] [unhandled] [GET] http://localhost:3002/infraestrutura
+
+ 
+[31mÔä╣ Error: Cannot read properties of undefined (reading 'isDark')[39m
+
+ Ôüâ at _sfc_ssrRender [33m(D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue:21:19)[39m
+
+   [2m16[22m [2mÔöâ[22m            [34m<[0mdiv [31mclass[0m[34m=[0m[32m"min-w-0"[0m[34m>[0m
+   [2m17[22m [2mÔöâ[22m              [34m<[0mh1 [31mclass[0m[34m=[0m[32m"text-lg font-bold text-text leading-none truncate"[0m[34m>[0m
+   [2m18[22m [2mÔöâ[22m                [34m<[0mslot name[34m=[0m[32m"header-title"[0m [34m/>[0m
+   [2m19[22m [2mÔöâ[22m              [34m</[0mh1[34m>[0m
+   [2m20[22m [2mÔöâ[22m              [34m<[0mp [31mclass[0m[34m=[0m[32m"text-xs text-secondary font-medium mt-0.5 whitespace-nowrap"[0m[34m>[0m
+ [41mÔØ» 21 Ôöâ                <slot name="header-subtitle" />[49m
+   [2m22[22m [2mÔöâ[22m              [34m</[0mp[34m>[0m
+   [2m23[22m [2mÔöâ[22m            [34m</[0mdiv[34m>[0m
+   [2m24[22m [2mÔöâ[22m          [34m</[0mdiv[34m>[0m
+   [2m25[22m [2mÔöâ[22m  
+   [2m26[22m [2mÔöâ[22m          [34m<!--[0m [33mRight[0m [33mSection[0m[34m:[0m [33mActions[0m [34m+[0m [33mTheme[0m [34m-->[0m
+
+ Ôüâ at renderComponentSubTree [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:737:9)[39m
+ Ôüâ at renderComponentVNode [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)[39m
+ Ôüâ at ssrRenderComponent [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:100:10)[39m
+ Ôüâ at _sfc_ssrRender [33m(D:/NUXT/conecte_nuxt/front_end/app/pages/infraestrutura/index.vue:147:53)[39m
+ Ôüâ at renderComponentSubTree [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:737:9)[39m
+ Ôüâ at renderComponentVNode [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)[39m
+ Ôüâ at renderVNode [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:801:14)[39m
+ Ôüâ at renderComponentSubTree [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:752:7)[39m
+ Ôüâ at renderComponentVNode [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)[39m
+
+[31m[CAUSE][39m
+TypeError {
+  stack: "Cannot read properties of undefined (reading 'isDark')\n" +
+  'at _sfc_ssrRender (D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue:21:19)\n' +
+  'at renderComponentSubTree (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:737:9)\n' +
+  'at renderComponentVNode (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)\n' +
+  'at ssrRenderComponent (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:100:10)\n' +
+  'at _sfc_ssrRender (D:/NUXT/conecte_nuxt/front_end/app/pages/infraestrutura/index.vue:147:53)\n' +
+  'at renderComponentSubTree (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:737:9)\n' +
+  'at renderComponentVNode (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)\n' +
+  'at renderVNode (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:801:14)\n' +
+  'at renderComponen'... 235 more characters,
+  message: "Cannot read properties of undefined (reading 'isDark')",
+}
+[41m[30m ERROR [39m[49m [request error] [unhandled] [GET] http://localhost:3002/infraestrutura
+
+ 
+[31mÔä╣ Error: Cannot read properties of undefined (reading 'isDark')[39m
+
+ Ôüâ at _sfc_ssrRender [33m(D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue:21:19)[39m
+
+   [2m16[22m [2mÔöâ[22m            [34m<[0mdiv [31mclass[0m[34m=[0m[32m"min-w-0"[0m[34m>[0m
+   [2m17[22m [2mÔöâ[22m              [34m<[0mh1 [31mclass[0m[34m=[0m[32m"text-lg font-bold text-text leading-none truncate"[0m[34m>[0m
+   [2m18[22m [2mÔöâ[22m                [34m<[0mslot name[34m=[0m[32m"header-title"[0m [34m/>[0m
+   [2m19[22m [2mÔöâ[22m              [34m</[0mh1[34m>[0m
+   [2m20[22m [2mÔöâ[22m              [34m<[0mp [31mclass[0m[34m=[0m[32m"text-xs text-secondary font-medium mt-0.5 whitespace-nowrap"[0m[34m>[0m
+ [41mÔØ» 21 Ôöâ                <slot name="header-subtitle" />[49m
+   [2m22[22m [2mÔöâ[22m              [34m</[0mp[34m>[0m
+   [2m23[22m [2mÔöâ[22m            [34m</[0mdiv[34m>[0m
+   [2m24[22m [2mÔöâ[22m          [34m</[0mdiv[34m>[0m
+   [2m25[22m [2mÔöâ[22m  
+   [2m26[22m [2mÔöâ[22m          [34m<!--[0m [33mRight[0m [33mSection[0m[34m:[0m [33mActions[0m [34m+[0m [33mTheme[0m [34m-->[0m
+
+ Ôüâ at renderComponentSubTree [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:737:9)[39m
+ Ôüâ at renderComponentVNode [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)[39m
+ Ôüâ at ssrRenderComponent [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:100:10)[39m
+ Ôüâ at _sfc_ssrRender [33m(D:/NUXT/conecte_nuxt/front_end/app/pages/infraestrutura/index.vue:147:53)[39m
+ Ôüâ at renderComponentSubTree [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:737:9)[39m
+ Ôüâ at renderComponentVNode [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)[39m
+ Ôüâ at renderVNode [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:801:14)[39m
+ Ôüâ at renderComponentSubTree [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:752:7)[39m
+ Ôüâ at renderComponentVNode [33m(D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)[39m
+
+[31m[CAUSE][39m
+TypeError {
+  stack: "Cannot read properties of undefined (reading 'isDark')\n" +
+  'at _sfc_ssrRender (D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue:21:19)\n' +
+  'at renderComponentSubTree (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:737:9)\n' +
+  'at renderComponentVNode (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)\n' +
+  'at ssrRenderComponent (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:100:10)\n' +
+  'at _sfc_ssrRender (D:/NUXT/conecte_nuxt/front_end/app/pages/infraestrutura/index.vue:147:53)\n' +
+  'at renderComponentSubTree (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:737:9)\n' +
+  'at renderComponentVNode (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:686:12)\n' +
+  'at renderVNode (D:/NUXT/conecte_nuxt/front_end/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:801:14)\n' +
+  'at renderComponen'... 235 more characters,
+  message: "Cannot read properties of undefined (reading 'isDark')",
+}
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerView.vue, /components/ManagerView.vue?direct&vue&type=style&index=0&scoped=79865e98&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 13 files in 0.531ms
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 11 files in 1.486ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerView.vue, /components/ManagerView.vue?direct&vue&type=style&index=0&scoped=79865e98&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 15 files in 1.041ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerView.vue, /components/ManagerView.vue?direct&vue&type=style&index=0&scoped=79865e98&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x2)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x3)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x4)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x5)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x6)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ManagerView.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x7)
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerView.vue, /components/ManagerView.vue?vue&type=style&index=0&scoped=79865e98&lang.css, /components/ManagerView.vue?direct&vue&type=style&index=0&scoped=79865e98&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 543.5ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 1594.75ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerListItem.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerView.vue, /components/ManagerView.vue?direct&vue&type=style&index=0&scoped=79865e98&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/layouts/manager.vue, /layouts/manager.vue?direct&vue&type=style&index=0&scoped=e24a62f1&lang.css, /layouts/manager.vue?vue&type=style&index=0&scoped=e24a62f1&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mruntime.vue-devtools-client.vIScru2Wcu8cehCnt3EznHcLBNAg0ZFuarRemPCO1zE.js[39m in 580.89ms
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 1232.58ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 1256.2ms
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+[32mÔ£ö[39m Vite server hmr 29 files in 1.201ms
+[36mÔä╣[39m [32mpage reload [39m[2mcomponents/ManagerView.vue[22m
+[32mÔ£ö[39m Vite server hmr 4 files in 0.004ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 1177ms
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 7 files in 3.054ms
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 1222ms
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 3318ms
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 873ms
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 2869ms
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 2476ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 824ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m[2m (x2)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m[2m (x3)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m[2m (x4)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m[2m (x5)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 12 files in 5.328ms
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerListItem.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerListItem.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m[2m (x2)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 12 files in 2.01ms
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[36mÔä╣[39m [32mhmr update [39m[2m/layouts/manager.vue, /layouts/manager.vue?direct&vue&type=style&index=0&scoped=e24a62f1&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEscola.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m[2m (x2)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/assets/css/style.css?direct, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/layouts/manager.vue, /layouts/manager.vue?direct&vue&type=style&index=0&scoped=e24a62f1&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerListItem.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 910.72ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalConfirmacao.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mruntime.vue-devtools-client.vIScru2Wcu8cehCnt3EznHcLBNAg0ZFuarRemPCO1zE.js[39m in 720.96ms
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 735.61ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 743.58ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEscola.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mruntime.vue-devtools-client.vIScru2Wcu8cehCnt3EznHcLBNAg0ZFuarRemPCO1zE.js[39m in 589.16ms
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 1196.31ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 1208.77ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarPredio.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 1192.95ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/FullPageMenu.vue, /components/FullPageMenu.vue?vue&type=style&index=0&scoped=741798c3&lang.css, /components/FullPageMenu.vue?direct&vue&type=style&index=0&scoped=741798c3&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/FullPageMenu.vue, /components/FullPageMenu.vue?direct&vue&type=style&index=0&scoped=741798c3&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/login.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /pages/login.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/login.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /pages/login.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m[2m (x2)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/inicio.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /pages/inicio.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mplugins.server.mjs[39m in 1267.27ms
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mplugins.client.mjs[39m in 1279.51ms
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/plugins.d.ts[39m in 1290.31ms
+[36mÔä╣[39m [32mhmr update [39m[2m/pages/infraestrutura/index.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /pages/infraestrutura/index.vue?macro=true, /@id/virtual:nuxt:D%3A%2FNUXT%2Fconecte_nuxt%2Ffront_end%2F.nuxt%2Froutes.mjs[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerDashboard.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/Toast.vue?direct&vue&type=style&index=0&scoped=3fc632e9&lang.css, /components/Toast.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerListItem.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 502.32ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 507.82ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerDashboard.vue, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 1237.11ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 47 files in 1.424ms
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+
+ WARN  "FunctionRegion", "FunctionsError", "FunctionsFetchError", "FunctionsHttpError" and "FunctionsRelayError" are imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/functions-js/dist/main/index.js" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+
+ WARN  "PostgrestError" is imported from external module "file://D:/NUXT/conecte_nuxt/front_end/node_modules/@supabase/postgrest-js/dist/index.mjs" but never used in "node_modules/@supabase/supabase-js/dist/index.mjs".
+
+[90m[[90mnitro[90m][39m [32mÔ£ö[39m Nuxt Nitro server built in 723ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m[2m (x2)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m[2m (x2)[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 8 files in 1.989ms
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 639.77ms
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 1945.73ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarPredio.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ManagerField.vue, /components/ManagerField.vue?direct&vue&type=style&index=0&scoped=cef5db8c&lang.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[36mÔä╣[39m [32mhmr update [39m[2m/assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mruntime.vue-devtools-client.vIScru2Wcu8cehCnt3EznHcLBNAg0ZFuarRemPCO1zE.js[39m in 626.05ms
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 630.42ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 638.93ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 17 files in 1.085ms
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarPredio.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mrouter.options.mjs[39m in 876.95ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[90m[[90mnuxt[90m][39m [36mÔä╣[39m Compiled [36mtypes/supabase-database.d.ts[39m in 885.73ms
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEscola.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x2)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x3)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x4)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x5)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x6)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x7)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x8)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x9)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x10)
+
+
+ ERROR  Internal server error: At least one <template> or <script> is required in a single file component. D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+  Plugin: vite:vue
+  File: D:/NUXT/conecte_nuxt/front_end/app/components/ModalGerenciarEscola.vue
+      at Object.parse$1 [as parse] (D:\NUXT\conecte_nuxt\front_end\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1894:7)
+      at createDescriptor (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:26019:28)
+      at async onHMRUpdate (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25555:35)
+      at async FSWatcher.<anonymous> (file:///D:/NUXT/conecte_nuxt/front_end/node_modules/vite/dist/node/chunks/config.js:25580:3) (x11)
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEscola.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[32mÔ£ö[39m Vite server hmr 14 files in 0.843ms
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarSala.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEstante.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarPredio.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[36mÔä╣[39m [32mhmr update [39m[2m/components/ModalGerenciarEscola.vue, /assets/css/style.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css, /@fs/D:/NUXT/conecte_nuxt/front_end/node_modules/tailwindcss/tailwind.css?direct, /assets/css/style.css?direct[22m
+
+[@nuxt/supabase]  WARN  Database types configured at "~/types/database.types.ts" but file not found at "D:/NUXT/conecte_nuxt/front_end/app/types/database.types.ts". Using "Database = unknown".
+
+[41m[30m ERROR [39m[49m [API Infra DELETE] Erro no RPC bbtk_dim_sala_delete: { code: 'PGRST202',
+  details:
+   'Searched for the function public.bbtk_dim_sala_delete with parameters p_id_empresa, p_uuid or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint:
+   'Perhaps you meant to call the function public.bbtk_dim_sala_delete(p_id, p_id_empresa)',
+  message:
+   'Could not find the function public.bbtk_dim_sala_delete(p_id_empresa, p_uuid) in the schema cache' }
+[41m[30m ERROR [39m[49m [API Infra DELETE] Erro ao excluir salas: { code: 'PGRST202',
+  details:
+   'Searched for the function public.bbtk_dim_sala_delete with parameters p_id_empresa, p_uuid or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint:
+   'Perhaps you meant to call the function public.bbtk_dim_sala_delete(p_id, p_id_empresa)',
+  message:
+   'Could not find the function public.bbtk_dim_sala_delete(p_id_empresa, p_uuid) in the schema cache' }
+[32mÔ£ö[39m Vite server hmr 14 files in 1.356ms
+[43m[30m WARN [39m[49m [h3] Please prefer using [36mmessage[39m for longer error messages instead of [36mstatusMessage[39m. In the future, [36mstatusMessage[39m will be sanitized by default.
+[41m[30m ERROR [39m[49m [API Infra DELETE] Erro no RPC bbtk_dim_sala_delete: { code: 'PGRST202',
+  details:
+   'Searched for the function public.bbtk_dim_sala_delete with parameters p_id_empresa, p_uuid or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint:
+   'Perhaps you meant to call the function public.bbtk_dim_sala_delete(p_id, p_id_empresa)',
+  message:
+   'Could not find the function public.bbtk_dim_sala_delete(p_id_empresa, p_uuid) in the schema cache' }
+[41m[30m ERROR [39m[49m [API Infra DELETE] Erro ao excluir salas: { code: 'PGRST202',
+  details:
+   'Searched for the function public.bbtk_dim_sala_delete with parameters p_id_empresa, p_uuid or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint:
+   'Perhaps you meant to call the function public.bbtk_dim_sala_delete(p_id, p_id_empresa)',
+  message:
+   'Could not find the function public.bbtk_dim_sala_delete(p_id_empresa, p_uuid) in the schema cache' }
+[41m[30m ERROR [39m[49m [API Infra DELETE] Erro no RPC bbtk_dim_sala_delete: { code: 'PGRST202',
+  details:
+   'Searched for the function public.bbtk_dim_sala_delete with parameters p_id_empresa, p_uuid or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint:
+   'Perhaps you meant to call the function public.bbtk_dim_sala_delete(p_id, p_id_empresa)',
+  message:
+   'Could not find the function public.bbtk_dim_sala_delete(p_id_empresa, p_uuid) in the schema cache' }
+[41m[30m ERROR [39m[49m [API Infra DELETE] Erro no RPC bbtk_dim_sala_delete: { code: 'PGRST202',
+  details:
+   'Searched for the function public.bbtk_dim_sala_delete with parameters p_id_empresa, p_uuid or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint:
+   'Perhaps you meant to call the function public.bbtk_dim_sala_delete(p_id, p_id_empresa)',
+  message:
+   'Could not find the function public.bbtk_dim_sala_delete(p_id_empresa, p_uuid) in the schema cache' }

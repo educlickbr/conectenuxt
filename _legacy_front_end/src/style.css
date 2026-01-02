@@ -1,0 +1,82 @@
+/* 
+  Global Design System & Tokens 
+  --------------------------------------------------------------------------
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 
+    1) Color Palette - Light Mode 
+    ----------------------------------------------------------------------
+  */
+
+  /* Primary */
+  --color-primary: #3571CB;
+  --color-primary-hover: #20447A;
+
+  /* Secondary */
+  --color-secondary: #6B82A7;
+  --color-secondary-hover: #40516C;
+  --color-secondary-surface: #6B82A715;
+  --color-secondary-surface-hover: #6B82A730;
+
+  /* State Colors */
+  --color-danger: #C33C54;
+  --color-danger-hover: #752432;
+
+  --color-success: #79AEA3;
+  --color-success-hover: #355951;
+
+  --color-warning: #E9D758;
+  --color-warning-hover: #E3CC2B;
+
+  /* Base Text & Background (Light) */
+  --color-text: #141616;
+  --color-background: #FFFFFF;
+  /* Adjusted for better contrast in light mode */
+
+  /* 
+    2) Base Typography & Resets 
+    ----------------------------------------------------------------------
+  */
+  font-family: Roboto, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 
+  3) Dark Mode Theme 
+  --------------------------------------------------------------------------
+*/
+[data-theme="dark"] {
+  /* Adjusted Base Colors */
+  --color-text: #E8E6E8;
+  --color-background: #16161E;
+
+  /* Adjusted Accents for Dark Mode (Slightly desaturated/adjusted for dark theme) */
+  /* Keeping original primary/secondary families but ensuring visibility */
+}
+
+/* 
+  4) Global Resets & Body 
+  --------------------------------------------------------------------------
+*/
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  transition: color 0.3s, background-color 0.3s;
+}
+
+/* 
+  END of Design System 
+*/

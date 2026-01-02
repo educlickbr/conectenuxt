@@ -1,0 +1,1306 @@
+CREATE EXTENSION IF NOT EXISTS "pg_net" WITH SCHEMA "public";
+CREATE EXTENSION IF NOT EXISTS "pgsodium";
+CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm" WITH SCHEMA "public";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
+CREATE EXTENSION IF NOT EXISTS "pgjwt" WITH SCHEMA "extensions";
+CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
+CREATE EXTENSION IF NOT EXISTS "unaccent" WITH SCHEMA "public";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+CREATE TYPE "public"."bbtk_funcao_autoria" AS ENUM (
+CREATE TYPE "public"."bbtk_status_copia" AS ENUM (
+CREATE TYPE "public"."bbtk_status_reserva" AS ENUM (
+CREATE TYPE "public"."bbtk_tipo_interacao" AS ENUM (
+CREATE TYPE "public"."bbtk_tipo_livro" AS ENUM (
+CREATE TYPE "public"."bbtk_tipo_publicacao" AS ENUM (
+CREATE TYPE "public"."bimestre_enum" AS ENUM (
+CREATE TYPE "public"."codigo_afastamento_licenca" AS ENUM (
+CREATE TYPE "public"."codigo_falta_professor" AS ENUM (
+CREATE TYPE "public"."enum_tipo_curso_certificado" AS ENUM (
+CREATE TYPE "public"."etapa_enum" AS ENUM (
+CREATE TYPE "public"."funcao_extra_enum" AS ENUM (
+CREATE TYPE "public"."liberacao_conteudo_enum" AS ENUM (
+CREATE TYPE "public"."lms_tipo_item" AS ENUM (
+CREATE TYPE "public"."lms_tipo_pergunta" AS ENUM (
+CREATE TYPE "public"."modalidade_horario" AS ENUM (
+CREATE TYPE "public"."periodo_escolar" AS ENUM (
+CREATE TYPE "public"."serie_enum" AS ENUM (
+CREATE TYPE "public"."sim_nao" AS ENUM (
+CREATE TYPE "public"."status_contrato" AS ENUM (
+CREATE TYPE "public"."status_pontuacao_professores" AS ENUM (
+CREATE TYPE "public"."tipo_afastamento" AS ENUM (
+CREATE TYPE "public"."tipo_ano_etapa" AS ENUM (
+CREATE TYPE "public"."tipo_contrato_professor" AS ENUM (
+CREATE TYPE "public"."tipo_ferias_enum" AS ENUM (
+CREATE OR REPLACE FUNCTION "public"."_touch_atualizado_em"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."acumular_pontuacao_ano"("p_ano_atual" integer) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."adiciona_user_papel_empresa"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."adiciona_user_papel_empresa_secretaria"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."admin_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "void"
+CREATE OR REPLACE FUNCTION "public"."admin_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT NULL::"text") RETURNS TABLE("id" "uuid", "nome_completo" "text", "email" "text", "telefone" "text", "matricula" "text", "status_contrato" "public"."status_contrato", "user_id" "uuid", "total_registros" bigint)
+CREATE OR REPLACE FUNCTION "public"."admin_upsert"("p_id_empresa" "uuid", "p_data" "jsonb") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."aluno_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text", "p_id_escola" "uuid" DEFAULT NULL::"uuid", "p_status" "text" DEFAULT NULL::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."aluno_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."ano_etapa_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."ano_etapa_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."ano_etapa_get_schema"("p_id_empresa" "uuid") RETURNS SETOF "jsonb"
+    -- Reutiliza a função genérica get_table_schema para a tabela 'ano_etapa'
+    select public.get_table_schema(p_id_empresa, 'ano_etapa');
+CREATE OR REPLACE FUNCTION "public"."ano_etapa_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."atualiza_at_professores"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."bbtk_copias_disponiveis_get"("p_id_empresa" "uuid", "p_edicao_uuid" "uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_autoria_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_autoria_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_autoria_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_categoria_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_categoria_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_categoria_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_cdu_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_cdu_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_cdu_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_doador_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_doador_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_doador_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_editora_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_editora_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_editora_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_estante_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_estante_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text", "p_sala_uuid" "uuid" DEFAULT NULL::"uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_estante_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_metadado_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_metadado_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_metadado_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_predio_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_predio_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text", "p_id_escola" "uuid" DEFAULT NULL::"uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_predio_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_sala_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_sala_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text", "p_predio_uuid" "uuid" DEFAULT NULL::"uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_dim_sala_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_edicao_get_detalhes"("p_uuid" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_edicao_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_termo_busca" "text" DEFAULT NULL::"text", "p_tipo_livro" "text" DEFAULT 'Impresso'::"text", "p_user_uuid" "uuid" DEFAULT NULL::"uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_inventario_copia_get_paginado"("p_id_empresa" "uuid", "p_edicao_uuid" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_termo_busca" "text" DEFAULT NULL::"text", "p_id_escola" "uuid" DEFAULT NULL::"uuid", "p_predio_uuid" "uuid" DEFAULT NULL::"uuid", "p_sala_uuid" "uuid" DEFAULT NULL::"uuid", "p_estante_uuid" "uuid" DEFAULT NULL::"uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_inventario_copia_upsert"("p_id_empresa" "uuid", "p_edicao_uuid" "uuid", "p_estante_uuid" "uuid", "p_status_copia" "text", "p_doacao_ou_compra" "text", "p_avaria_flag" boolean DEFAULT false, "p_descricao_avaria" "text" DEFAULT NULL::"text", "p_quantidade" integer DEFAULT 1, "p_uuid" "uuid" DEFAULT NULL::"uuid", "p_registro_bibliotecario" "text" DEFAULT NULL::"text", "p_soft_delete" boolean DEFAULT false) RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_obra_delete"("p_uuid" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_obra_get_detalhes_cpx"("p_uuid" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_obra_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_obra_upsert_cpx"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."bbtk_reserva_cancel"("p_id_empresa" "uuid", "p_user_uuid" "uuid", "p_edicao_uuid" "uuid") RETURNS boolean
+CREATE OR REPLACE FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid") RETURNS "uuid"
+ALTER FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid") OWNER TO "postgres";
+CREATE OR REPLACE FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid", "p_data_inicio" "date" DEFAULT CURRENT_DATE) RETURNS "uuid"
+ALTER FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid", "p_data_inicio" "date") OWNER TO "postgres";
+CREATE OR REPLACE FUNCTION "public"."bbtk_reserva_get_paginado"("p_id_empresa" "uuid", "p_offset" integer, "p_limit" integer, "p_filtro" "text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."bbtk_reserva_release"("p_interacao_uuid" "uuid") RETURNS boolean
+CREATE OR REPLACE FUNCTION "public"."bbtk_reserva_stats"("p_id_empresa" "uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."buscar_conteudos_da_turma"("p_id_turma" "text", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."buscar_empresa_por_dominio_publico"("p_dominio" "text" DEFAULT NULL::"text") RETURNS TABLE("empresa_id" "uuid", "nome" "text", "logo_pequeno" "text", "logo_grande" "text", "dominio" "text")
+CREATE OR REPLACE FUNCTION "public"."buscar_itens_do_conteudo"("p_id_lms_conteudo" "text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."buscar_perguntas_item_conteudo"("p_id_item_conteudo" "text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."calc_assiduidade_professor"("p_id_professor" "uuid", "p_id_empresa" "uuid", "p_ano_ref" integer) RETURNS numeric
+CREATE OR REPLACE FUNCTION "public"."calc_certificados_professor"("p_id_professor" "uuid", "p_id_empresa" "uuid", "p_ano_ref" integer) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."calc_concurso_professor"("p_id_professor" "uuid", "p_ano_ref" integer) RETURNS numeric
+CREATE OR REPLACE FUNCTION "public"."calc_funcao_extra_professor"("p_id_professor" "uuid", "p_id_empresa" "uuid", "p_ano_ref" integer) RETURNS numeric
+CREATE OR REPLACE FUNCTION "public"."calc_pontuacao_professor"("p_id_professor" "uuid", "p_id_empresa" "uuid", "p_ano_ref" integer) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."calc_pontuacao_todos_upsert"("p_id_empresa" "uuid", "p_ano" integer) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."calc_pontuacao_todos_upsert_job"("p_id_empresa" "uuid", "p_ano" integer, "p_job_id" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."calc_tempo_departamento_professor"("p_id_professor" "uuid", "p_id_empresa" "uuid", "p_ano_ref" integer) RETURNS numeric
+CREATE OR REPLACE FUNCTION "public"."calc_tempo_unidade_professor"("p_id_professor" "uuid", "p_id_empresa" "uuid", "p_ano_ref" integer) RETURNS numeric
+CREATE OR REPLACE FUNCTION "public"."classe_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."classe_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."classe_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+SET default_tablespace = '';
+SET default_table_access_method = "heap";
+CREATE TABLE IF NOT EXISTS "public"."componente" (
+    "created_at" timestamp with time zone DEFAULT "now"(),
+ALTER TABLE "public"."componente" OWNER TO "postgres";
+CREATE OR REPLACE FUNCTION "public"."componentes_get"("p_id_empresa" "uuid") RETURNS SETOF "public"."componente"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."confirmar_email_automaticamente"("p_user_id" "uuid") RETURNS "void"
+CREATE OR REPLACE FUNCTION "public"."crud_carga_horaria_p1"("p_envio" "jsonb") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."crud_carga_horaria_p3"("p_envio" "jsonb") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."custom_access_token"("event" "jsonb") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."delete_calendario_matriz_semana"("p_id_item" "uuid" DEFAULT NULL::"uuid", "p_id_turma" "uuid" DEFAULT NULL::"uuid", "p_id_empresa" "uuid" DEFAULT NULL::"uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."edicao_update_remover_arquivos_coluna"("p_edicao_uuid" "uuid", "p_coluna" "text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."escolas_com_predio_get"("p_id_empresa" "uuid") RETURNS TABLE("id" "uuid", "nome" "text")
+CREATE OR REPLACE FUNCTION "public"."escolas_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."escolas_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."escolas_get_schema"("p_id_empresa" "uuid") RETURNS SETOF "jsonb"
+    -- Reutiliza a função genérica get_table_schema para a tabela 'escolas'
+    select public.get_table_schema(p_id_empresa, 'escolas');
+CREATE OR REPLACE FUNCTION "public"."escolas_por_ano_etapa"("id_ano_etapa" "uuid") RETURNS TABLE("id_escola" "uuid")
+CREATE OR REPLACE FUNCTION "public"."escolas_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."exec_sql_safe"("p_query" "text") RETURNS "jsonb"
+    'insert', 'update', 'delete', 'drop', 'alter', 'create',
+CREATE OR REPLACE FUNCTION "public"."familia_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "void"
+CREATE OR REPLACE FUNCTION "public"."familia_get_detalhes"("p_id" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."familia_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT NULL::"text") RETURNS TABLE("id" "uuid", "nome_familia" "text", "responsavel_principal" "text", "qtd_alunos" bigint, "total_registros" bigint)
+CREATE OR REPLACE FUNCTION "public"."familia_upsert"("p_id_empresa" "uuid", "p_data" "jsonb") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."fn_uep_definir_user_id"("p_id_user_expandido" "uuid", "p_user_id" "uuid") RETURNS TABLE("ok" boolean, "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."gerar_unidades_para_ano"("p_ano" integer) RETURNS "void"
+CREATE OR REPLACE FUNCTION "public"."get_admins_by_produto_paginado"("p_produto_id" "uuid", "p_page" integer, "p_limit" integer, "p_nome" "text" DEFAULT NULL::"text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_atividades_infantil_paginada"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30, "p_busca" "text" DEFAULT NULL::"text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_atribuicoes_professor_detalhada"("p_id_professor" "uuid", "p_ano" integer) RETURNS TABLE("id_atribuicao" "uuid", "t_id" "uuid", "e_nome" "text", "ae_nome" "text", "c_nome" "text", "h_inicio" "text", "h_fim" "text", "nivel_substituicao" integer, "nome_completo" "text", "matricula" "text", "email" "text", "telefone" "text", "outros_professores" "jsonb")
+CREATE OR REPLACE FUNCTION "public"."get_auth_overview_empresa"("p_id_empresa" "uuid", "p_days" integer DEFAULT 30) RETURNS "jsonb"
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+  -- Só quem tem conta criada; puxa created_at do auth.users
+         (au.created_at at time zone 'America/Sao_Paulo')::date as dia_local
+CREATE OR REPLACE FUNCTION "public"."get_calendario_matriz_semana_por_turma_v2"("p_id_turma" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_carga_horaria_p1_paginada"("p_id_empresa" "uuid", "p_busca_ano_etapa" "text" DEFAULT NULL::"text", "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."get_carga_horaria_p1_paginada"("p_id_empresa" "uuid", "p_busca_ano_etapa" "text" DEFAULT NULL::"text", "p_busca_componente" "text" DEFAULT NULL::"text", "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."get_carga_horaria_p3_paginada"("p_id_empresa" "uuid", "p_busca_ano_etapa" "text" DEFAULT NULL::"text", "p_busca_componente" "text" DEFAULT NULL::"text", "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."get_certificados_contestacao_por_escola"("p_id_escola" "uuid") RETURNS "jsonb"
+CREATE TABLE IF NOT EXISTS "public"."professores_certificados_atribuicao" (
+ALTER TABLE "public"."professores_certificados_atribuicao" OWNER TO "postgres";
+CREATE OR REPLACE FUNCTION "public"."get_certificados_professor"("p_id_professor" "uuid", "p_ano" "text") RETURNS SETOF "public"."professores_certificados_atribuicao"
+    LANGUAGE "sql" STABLE
+CREATE OR REPLACE FUNCTION "public"."get_complete_schema"() RETURNS "jsonb"
+    -- Get all tables with their details
+            c.oid as table_oid,
+            c.relname as table_name,
+            c.oid as table_oid,
+                    'foreign_table', ft.relname,
+            c.oid as table_oid,
+            c.oid as table_oid,
+            c.oid as table_oid,
+    table_info AS (
+            c.table_oid,
+            c.table_name,
+        LEFT JOIN fk_info fk ON fk.table_oid = c.table_oid
+        LEFT JOIN index_info i ON i.table_oid = c.table_oid
+        LEFT JOIN policy_info p ON p.table_oid = c.table_oid
+        LEFT JOIN trigger_info t ON t.table_oid = c.table_oid
+        GROUP BY c.table_oid, c.table_name, fk.foreign_keys, i.indexes, p.policies, t.triggers
+        'tables',
+                    'name', table_name,
+    FROM table_info
+CREATE OR REPLACE FUNCTION "public"."get_componentes_por_turma"("p_id_turma" "uuid") RETURNS "jsonb"
+  order by p.created_at desc
+          order by pa.created_at desc
+CREATE OR REPLACE FUNCTION "public"."get_componentes_por_turma_v2"("p_id_turma" "uuid") RETURNS "jsonb"
+  ORDER BY p.created_at DESC
+          ORDER BY pa.created_at DESC
+CREATE OR REPLACE FUNCTION "public"."get_dados_professor_card"("p_nome_completo" "text", "p_id_escola" "text", "p_tipo_contrato" "text", "p_afastamento" "text", "p_acumulo" "text", "p_ano" integer, "p_tem_atribuicao" "text") RETURNS TABLE("id" "uuid", "nome_completo" "text", "matricula" "text", "email" "text", "telefone" "text", "tipo_contrato" "text", "afastamento" "text", "tempo_afastamento" "text", "habilitacao_infantil" "text", "acumulo" "text", "nome_escola" "text", "atribuicoes_ano" boolean, "pontuacao" "text", "pontuacao_unidade" "text", "pontuacao_departamento" "text")
+CREATE OR REPLACE FUNCTION "public"."get_dados_referencia_turmas"() RETURNS "jsonb"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."get_dados_referencia_turmas"("p_id_empresa" "uuid") RETURNS "jsonb"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."get_detalhe_professor_pontuacao"("p_id_professor" "uuid", "p_id_empresa" "uuid", "p_ano" integer) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_escolas_funcao_extra_abertas"("p_id_professor" "uuid") RETURNS "uuid"[]
+CREATE OR REPLACE FUNCTION "public"."get_funcao_extra_ativa"("p_user_id" "uuid") RETURNS TABLE("id" "uuid", "user_id" "uuid", "id_empresa" "uuid", "funcao" "text", "ano" "text", "data_inicio" "date", "data_fim" "date", "status" boolean, "observacao" "text", "id_escola" "uuid", "afastamento_funcao_extra" boolean, "data_inicio_licenca_func_extra" timestamp with time zone, "data_fim_licenca_func_extra" timestamp with time zone, "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."get_horarios_escola_formatado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_qtd_itens_pagina" integer DEFAULT 30) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_ou_cria_conteudo_turma"("p_id_turma" "uuid", "p_id_empresa" "uuid", "p_criado_por" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_professores_atribuicao_p1_paginada"("p_ano" integer, "p_id_empresa" "uuid", "p_nome_completo" "text" DEFAULT NULL::"text", "p_id_escola" "uuid" DEFAULT NULL::"uuid", "p_tipo_contrato" "text" DEFAULT NULL::"text", "p_afastamento" "text" DEFAULT NULL::"text", "p_acumulo" "text" DEFAULT NULL::"text", "p_tem_atribuicao" "text" DEFAULT NULL::"text", "p_tem_funcao_extra" "text" DEFAULT NULL::"text", "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."get_professores_certificados_departamento_v2"("p_func_extra" "text", "p_user_expandido_id" "uuid", "p_ano" "text", "p_id_professor" "uuid" DEFAULT NULL::"uuid", "p_busca_nome" "text" DEFAULT NULL::"text", "p_pendentes" boolean DEFAULT true, "p_enviados" boolean DEFAULT true, "p_em_andamento_diretor" boolean DEFAULT true, "p_em_andamento_supervisor" boolean DEFAULT true, "p_concluido_diretor" boolean DEFAULT true, "p_concluido_supervisor" boolean DEFAULT true, "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_professores_certificados_status_escola"("p_id_escola" "uuid", "p_ano" "text", "p_id_professor" "uuid" DEFAULT NULL::"uuid", "p_busca_nome" "text" DEFAULT NULL::"text", "p_pendentes" boolean DEFAULT true, "p_enviados" boolean DEFAULT true, "p_em_andamento_diretor" boolean DEFAULT true, "p_em_andamento_supervisor" boolean DEFAULT true, "p_concluido_diretor" boolean DEFAULT true, "p_concluido_supervisor" boolean DEFAULT true) RETURNS TABLE("nome_professor" "text", "id_professor" "uuid", "id_escola" "uuid", "nome_escola" "text", "matricula" "text", "quantidade_certificados_enviados" integer, "deferido_indeferido_diretor" "text", "deferido_indeferido_supervisor" "text", "deferido_geral" boolean, "mostrar_subitem" boolean, "tipo_contrato" "text", "data_admissao" "text")
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+CREATE OR REPLACE FUNCTION "public"."get_professores_funcoes_extras"("p_id_empresa" "uuid", "p_funcao" "text" DEFAULT NULL::"text", "p_escola" "uuid" DEFAULT NULL::"uuid", "p_nome" "text" DEFAULT NULL::"text", "p_soft_delete" boolean DEFAULT NULL::boolean, "p_pagina" integer DEFAULT 1, "p_tamanho_pagina" integer DEFAULT 30) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_professores_pontuacao_paginada"("p_id_empresa" "uuid", "p_ano" integer, "p_id_escola" "uuid" DEFAULT NULL::"uuid", "p_busca_nome" "text" DEFAULT NULL::"text", "p_id_componente" "uuid" DEFAULT NULL::"uuid", "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_professores_por_escola"("p_id_escola" "uuid") RETURNS "uuid"[]
+CREATE OR REPLACE FUNCTION "public"."get_resumo_certificados_professores"("p_professores" "uuid"[], "p_ano" "text") RETURNS TABLE("total_professores" integer, "professores_com_certificados" integer, "professores_sem_certificados" integer, "total_certificados" integer, "media_certificados_por_professor" numeric, "perc_professores_com_certificados" numeric, "perc_professores_sem_certificados" numeric, "perc_validados_diretor" numeric, "perc_validados_supervisor" numeric)
+CREATE OR REPLACE FUNCTION "public"."get_table_schema"("p_id_empresa" "uuid", "p_table_name" "text") RETURNS SETOF "jsonb"
+            from information_schema.table_constraints tc
+            where tc.table_schema = 'public' 
+              and tc.table_name = p_table_name
+            join information_schema.table_constraints tc on kcu.constraint_name = tc.constraint_name
+              and kcu.table_name = p_table_name
+where c.table_schema = 'public' 
+  and c.table_name = p_table_name
+ALTER FUNCTION "public"."get_table_schema"("p_id_empresa" "uuid", "p_table_name" "text") OWNER TO "postgres";
+CREATE OR REPLACE FUNCTION "public"."get_turmas_com_atribuicoes_filtrada_paginada"("p_id_empresa" "uuid", "p_ano" integer DEFAULT NULL::integer, "p_id_escola" "uuid" DEFAULT NULL::"uuid", "p_id_ano_etapa" "text" DEFAULT NULL::"text", "p_id_classe" "text" DEFAULT NULL::"text", "p_id_horario" "text" DEFAULT NULL::"text", "p_status_atribuicao" "text" DEFAULT 'Todos'::"text", "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."get_turmas_do_professor"("p_id_professor" "uuid", "p_somente_ativas" boolean DEFAULT false, "p_ano" smallint DEFAULT NULL::smallint) RETURNS TABLE("atribuicao_id" "uuid", "turma_id" "uuid", "ano_turma" "text", "papel" "text", "nivel_substituicao" integer, "data_inicio" "date", "data_fim" "date", "ativa" boolean, "escola_id" "uuid", "escola" "text", "ano_etapa_id" "uuid", "ano_etapa" "text", "horario_id" "uuid", "horario" "text", "classe_id" "uuid", "classe" "text")
+CREATE OR REPLACE FUNCTION "public"."get_turmas_por_escola_rotina_semanal"("p_envio" "jsonb") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_unidades_atribuicao_paginada"("p_id_empresa" "uuid", "p_id_escola" "uuid" DEFAULT NULL::"uuid", "p_id_ano_etapa" "uuid" DEFAULT NULL::"uuid", "p_id_componente" "uuid" DEFAULT NULL::"uuid", "p_id_horario" "uuid" DEFAULT NULL::"uuid", "p_ano" "text" DEFAULT NULL::"text", "p_pagina" integer DEFAULT 1, "p_itens_por_pagina" integer DEFAULT 30) RETURNS "jsonb"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."horarios_escola_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."horarios_escola_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."horarios_escola_get_schema"("p_id_empresa" "uuid") RETURNS SETOF "jsonb"
+    -- Reutiliza a função genérica get_table_schema para a tabela 'horarios_escola'
+    select public.get_table_schema(p_id_empresa, 'horarios_escola');
+CREATE OR REPLACE FUNCTION "public"."horarios_escola_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."inserir_papel_usuario"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."inserir_respostas_user_componente"("p_id_user" "uuid", "p_id_papel" "uuid", "p_id_empresa" "uuid", "p_respostas" "jsonb", "p_id_componente" "uuid" DEFAULT NULL::"uuid", "p_perguntas_data" "uuid"[] DEFAULT '{}'::"uuid"[]) RETURNS "void"
+CREATE OR REPLACE FUNCTION "public"."lms_avaliacao_upsert"("p_id_empresa" "uuid", "p_user_id" "uuid", "p_id_submissao" "uuid", "p_nota" numeric, "p_comentario" "text", "p_status" "text" DEFAULT 'avaliado'::"text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."lms_avaliacoes_get"("p_id_empresa" "uuid", "p_user_id" "uuid", "p_filtro_status" "text" DEFAULT NULL::"text", "p_filtro_turma_id" "uuid" DEFAULT NULL::"uuid", "p_filtro_aluno_id" "uuid" DEFAULT NULL::"uuid", "p_filtro_escopo" "text" DEFAULT NULL::"text") RETURNS TABLE("id_submissao" "uuid", "id_aluno" "uuid", "aluno_nome" "text", "aluno_avatar" "text", "id_turma" "uuid", "turma_nome" "text", "id_conteudo" "uuid", "conteudo_titulo" "text", "escopo" "text", "id_item" "uuid", "item_titulo" "text", "data_envio" timestamp with time zone, "status" "text", "nota" numeric, "pontuacao_maxima" numeric, "comentario_professor" "text")
+CREATE OR REPLACE FUNCTION "public"."lms_consumo_get"("p_id_empresa" "uuid", "p_user_id" "uuid") RETURNS TABLE("id" "uuid", "titulo" "text", "descricao" "text", "escopo" "text", "ordem" integer)
+CREATE OR REPLACE FUNCTION "public"."lms_conteudo_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer, "p_limite_itens_pagina" integer, "p_termo_busca" "text" DEFAULT NULL::"text", "p_id_turma" "uuid" DEFAULT NULL::"uuid", "p_id_aluno" "uuid" DEFAULT NULL::"uuid", "p_id_meta_turma" "uuid" DEFAULT NULL::"uuid", "p_somente_ativos" boolean DEFAULT true) RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."lms_conteudo_upsert"("p_id" "uuid", "p_id_empresa" "uuid", "p_criado_por" "uuid", "p_id_turma" "uuid", "p_id_aluno" "uuid", "p_id_meta_turma" "uuid", "p_id_componente" "uuid", "p_escopo" "text", "p_titulo" "text", "p_descricao" "text", "p_data_referencia" "date", "p_json_itens" "jsonb", "p_visivel_para_alunos" boolean DEFAULT true, "p_data_disponivel" timestamp with time zone DEFAULT NULL::timestamp with time zone, "p_liberar_por" "text" DEFAULT 'Conteúdo'::"text") RETURNS "uuid"
+CREATE OR REPLACE FUNCTION "public"."lms_criar_respostas_padrao"("p_id_pergunta" "uuid", "p_id_empresa" "uuid", "p_sobrescrever" boolean DEFAULT false) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."lms_item_get_detalhes"("p_id_item" "uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."lms_item_upsert"("p_id" "uuid", "p_id_empresa" "uuid", "p_criado_por" "uuid", "p_id_lms_conteudo" "uuid", "p_tipo" "text", "p_titulo" "text", "p_caminho_arquivo" "text", "p_url_externa" "text", "p_video_link" "text", "p_rich_text" "text", "p_pontuacao_maxima" numeric, "p_id_bbtk_edicao" "uuid", "p_ordem" integer, "p_data_disponivel" timestamp with time zone, "p_data_entrega_limite" timestamp with time zone, "p_perguntas" "jsonb" DEFAULT NULL::"jsonb") RETURNS "uuid"
+CREATE OR REPLACE FUNCTION "public"."lms_item_upsert"("p_id" "uuid", "p_id_empresa" "uuid", "p_criado_por" "uuid", "p_id_lms_conteudo" "uuid", "p_tipo" "text", "p_titulo" "text", "p_caminho_arquivo" "text", "p_url_externa" "text", "p_video_link" "text", "p_rich_text" "text", "p_pontuacao_maxima" numeric, "p_id_bbtk_edicao" "uuid", "p_ordem" integer, "p_data_disponivel" timestamp with time zone, "p_data_entrega_limite" timestamp with time zone, "p_tempo_questionario" integer DEFAULT NULL::integer, "p_perguntas" "jsonb" DEFAULT NULL::"jsonb") RETURNS "uuid"
+CREATE OR REPLACE FUNCTION "public"."lms_itens_get"("p_id_empresa" "uuid", "p_user_id" "uuid", "p_conteudo_id" "uuid") RETURNS TABLE("id" "uuid", "titulo" "text", "tipo" "public"."lms_tipo_item", "rich_text" "text", "url_externa" "text", "caminho_arquivo" "text", "video_link" "text", "duracao_minutos" integer, "pontuacao_maxima" numeric, "data_disponivel" timestamp with time zone, "data_entrega_limite" timestamp with time zone, "submissao" "jsonb", "livro" "jsonb")
+CREATE OR REPLACE FUNCTION "public"."lms_listar_respostas_por_pergunta"("p_id_pergunta" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."lms_pergunta_tem_respostas"("p_pergunta" "uuid") RETURNS boolean
+CREATE OR REPLACE FUNCTION "public"."lms_quiz_get_content"("p_item_id" "uuid", "p_user_id" "uuid", "p_id_empresa" "uuid" DEFAULT NULL::"uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."lms_quiz_reset"("p_user_id" "uuid", "p_item_id" "uuid", "p_id_empresa" "uuid") RETURNS "void"
+CREATE OR REPLACE FUNCTION "public"."lms_quiz_start"("p_user_id" "uuid", "p_item_id" "uuid", "p_id_empresa" "uuid") RETURNS "json"
+        -- Create new submission
+        v_status := 'created';
+CREATE OR REPLACE FUNCTION "public"."lms_quiz_submit"("p_user_id" "uuid", "p_item_id" "uuid", "p_id_empresa" "uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."lms_quiz_submit_batch"("p_user_id" "uuid", "p_item_id" "uuid", "p_respostas" "json", "p_id_empresa" "uuid" DEFAULT NULL::"uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."lms_reordenar_conteudos_objetos"("p_itens" "jsonb", "p_start_at_one" boolean DEFAULT true) RETURNS TABLE("id" "uuid", "ordem" integer)
+CREATE OR REPLACE FUNCTION "public"."lms_reordenar_itens_conteudo"("p_itens" "jsonb", "p_start_at_one" boolean DEFAULT true, "p_id_lms_conteudo" "uuid" DEFAULT NULL::"uuid") RETURNS TABLE("id" "uuid", "ordem" integer)
+CREATE OR REPLACE FUNCTION "public"."lms_reordenar_perguntas_objetos"("p_id_item_conteudo" "text", "p_itens" "jsonb", "p_start" integer DEFAULT 1) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."lms_reordenar_respostas_possiveis"("p_id_pergunta" "uuid", "p_itens" "jsonb", "p_start_at_one" boolean DEFAULT true) RETURNS TABLE("id" "uuid", "ordem" integer)
+CREATE OR REPLACE FUNCTION "public"."lms_resposta_possivel_tem_resposta"("p_id" "uuid") RETURNS boolean
+    LANGUAGE "sql" STABLE
+CREATE OR REPLACE FUNCTION "public"."lms_resposta_upsert"("p_user_id" "uuid", "p_id_item" "uuid", "p_id_pergunta" "uuid", "p_id_resposta_possivel" "uuid" DEFAULT NULL::"uuid", "p_texto_resposta" "text" DEFAULT NULL::"text", "p_id_empresa" "uuid" DEFAULT NULL::"uuid") RETURNS "void"
+    -- If no active submission, CREATE ONE naturally (Auto-recovery)
+CREATE OR REPLACE FUNCTION "public"."log_update_papeis_user_auth"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."onbdg_check_email_in_auth"("p_email" "text", "p_id_empresa" "uuid" DEFAULT NULL::"uuid") RETURNS TABLE("tem_conta_auth" boolean, "matricula" "text", "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."onbdg_emitir_codigo_email_e_enviar"("p_id_user" "uuid", "p_email" "text", "p_nome" "text", "p_expires_in_minutes" integer DEFAULT 2) RETURNS "uuid"
+CREATE OR REPLACE FUNCTION "public"."onbdg_get_auth_email_by_matricula"("p_matricula" "text", "p_id_empresa" "uuid") RETURNS TABLE("found" boolean, "tem_conta_auth" boolean, "email" "text", "id_user" "uuid", "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."onbdg_get_email"("p_id_user" "uuid") RETURNS TABLE("found" boolean, "email" "text", "conflito" boolean, "conflito_matricula" "text", "conflito_user_id" "uuid", "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."onbdg_get_email_user_expandido"("p_id_user_expandido" "uuid") RETURNS "text"
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+CREATE OR REPLACE FUNCTION "public"."onbdg_get_user_by_matricula"("p_matricula" "text", "p_id_empresa" "uuid") RETURNS TABLE("found" boolean, "id_user" "uuid", "nome_completo" "text", "primeiro_nome" "text", "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."onbdg_update_email_if_no_auth"("p_id_user" "uuid", "p_email_novo" "text") RETURNS TABLE("ok" boolean, "mensagem" "text", "email" "text", "tem_conta_auth" boolean)
+CREATE OR REPLACE FUNCTION "public"."onbdg_validar_codigo_por_id"("p_codigo_id" "uuid", "p_codigo" "text", "p_consumir" boolean DEFAULT true) RETURNS TABLE("ok" boolean, "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."onbdg_validar_nome_contem"("p_id_user" "uuid", "p_fragmento_nome" "text") RETURNS TABLE("ok" boolean, "mensagem" "text", "trecho_encontrado" "text", "nome_completo" "text")
+CREATE OR REPLACE FUNCTION "public"."onbdg_validar_ultimo_nome"("p_id_user" "uuid", "p_ultimo_nome_informado" "text") RETURNS TABLE("ok" boolean, "mensagem" "text", "ultimo_nome_cadastrado" "text")
+CREATE OR REPLACE FUNCTION "public"."onbdg_verifica_funcao_extra_ativa"("p_id_user" "uuid") RETURNS TABLE("possui_funcao_extra" boolean, "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."papeis_user_auth_get_my_role"() RETURNS TABLE("papel_id" "uuid", "nome" "text")
+CREATE TABLE IF NOT EXISTS "public"."perguntas_user" (
+ALTER TABLE "public"."perguntas_user" OWNER TO "postgres";
+CREATE OR REPLACE FUNCTION "public"."perguntas_get"("p_id_empresa" "uuid", "p_papeis" "jsonb") RETURNS SETOF "public"."perguntas_user"
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."processar_fila_pontuacao"("p_job_id" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."professor_delete"("p_id" "uuid", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."professor_get_detalhes_cpx"("p_id_empresa" "uuid", "p_id_professor" "uuid") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."professor_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT ''::"text", "p_id_escola" "uuid" DEFAULT NULL::"uuid", "p_status" "text" DEFAULT NULL::"text") RETURNS "json"
+CREATE OR REPLACE FUNCTION "public"."professor_upsert"("p_data" "jsonb", "p_id_empresa" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."reset_pontuacao_ano"("p_id_empresa" "uuid", "p_ano" integer) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."salvar_resposta_user"("p_id_user" "uuid", "p_id_pergunta" "uuid", "p_tipo" "text", "p_resposta" "text" DEFAULT NULL::"text", "p_nome_arquivo_original" "text" DEFAULT NULL::"text", "p_criado_por" "uuid" DEFAULT NULL::"uuid", "p_atualizado_por" "uuid" DEFAULT NULL::"uuid", "p_id_empresa" "uuid" DEFAULT NULL::"uuid") RETURNS "uuid"
+CREATE OR REPLACE FUNCTION "public"."seed_pontuacao_faltantes"("p_id_empresa" "uuid", "p_ano" integer, "p_job_id" "uuid") RETURNS integer
+CREATE OR REPLACE FUNCTION "public"."set_created_modified_by"() RETURNS "trigger"
+    if new.created_by is null then
+      new.created_by := auth.uid();
+ALTER FUNCTION "public"."set_created_modified_by"() OWNER TO "postgres";
+CREATE OR REPLACE FUNCTION "public"."sync_papel_professor_funcao_extra"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."sync_status_professor_funcao_extra"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."to_hhmm_from_minutes"("p_min" integer) RETURNS "text"
+CREATE OR REPLACE FUNCTION "public"."to_minutes_from_text"("p_txt" "text") RETURNS integer
+CREATE OR REPLACE FUNCTION "public"."total_escolas"() RETURNS integer
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."total_professores"() RETURNS integer
+    LANGUAGE "plpgsql" STABLE
+CREATE OR REPLACE FUNCTION "public"."trg_cal_matriz_set_defaults"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."trg_registrar_pontuacao_excedente"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "public"."turmas_delete"("p_id_empresa" "uuid", "p_id" "uuid") RETURNS boolean
+CREATE OR REPLACE FUNCTION "public"."turmas_get_paginado"("p_id_empresa" "uuid", "p_pagina" integer DEFAULT 1, "p_limite_itens_pagina" integer DEFAULT 10, "p_busca" "text" DEFAULT NULL::"text") RETURNS TABLE("id" "uuid", "id_escola" "uuid", "id_ano_etapa" "uuid", "id_classe" "uuid", "id_horario" "uuid", "ano" "text", "nome_escola" "text", "nome_turma" "text", "periodo" "text", "hora_inicio" "text", "hora_fim" "text", "hora_completo" "text", "total_registros" bigint)
+CREATE OR REPLACE FUNCTION "public"."turmas_upsert"("p_id_empresa" "uuid", "p_turma" "jsonb") RETURNS "uuid"
+CREATE OR REPLACE FUNCTION "public"."upsert_calendario_matriz_semana_v3"("p_array" "jsonb") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."upsert_horario_escolar"("_p_envio" "jsonb") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."verificar_email_existe"("p_email" "text") RETURNS TABLE("existe" boolean, "mensagem" "text")
+CREATE OR REPLACE FUNCTION "public"."verificar_matricula_existente"("p_matricula" "text") RETURNS TABLE("existe" boolean, "mensagem" "text")
+CREATE TABLE IF NOT EXISTS "public"."adicional_noturno_professor" (
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "created_by" "uuid",
+ALTER TABLE "public"."adicional_noturno_professor" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."ano_etapa" (
+ALTER TABLE "public"."ano_etapa" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."atividades_infantil" (
+ALTER TABLE "public"."atividades_infantil" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."atividades_infantil_duracao" (
+ALTER TABLE "public"."atividades_infantil_duracao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."atividades_infantil_vinculos" (
+ALTER TABLE "public"."atividades_infantil_vinculos" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_autoria" (
+ALTER TABLE "public"."bbtk_dim_autoria" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_categoria" (
+ALTER TABLE "public"."bbtk_dim_categoria" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_cdu" (
+ALTER TABLE "public"."bbtk_dim_cdu" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_doador" (
+ALTER TABLE "public"."bbtk_dim_doador" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_editora" (
+ALTER TABLE "public"."bbtk_dim_editora" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_estante" (
+ALTER TABLE "public"."bbtk_dim_estante" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_metadado" (
+ALTER TABLE "public"."bbtk_dim_metadado" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_predio" (
+ALTER TABLE "public"."bbtk_dim_predio" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_dim_sala" (
+ALTER TABLE "public"."bbtk_dim_sala" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_edicao" (
+ALTER TABLE "public"."bbtk_edicao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_historico_interacao" (
+ALTER TABLE "public"."bbtk_historico_interacao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_inventario_copia" (
+ALTER TABLE "public"."bbtk_inventario_copia" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_juncao_edicao_autoria" (
+ALTER TABLE "public"."bbtk_juncao_edicao_autoria" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_juncao_edicao_metadado" (
+ALTER TABLE "public"."bbtk_juncao_edicao_metadado" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."bbtk_obra" (
+ALTER TABLE "public"."bbtk_obra" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."calendario_eventos" (
+ALTER TABLE "public"."calendario_eventos" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."calendario_matriz_semana" (
+ALTER TABLE "public"."calendario_matriz_semana" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."carga_horaria_p1" (
+ALTER TABLE "public"."carga_horaria_p1" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."carga_horaria_p3" (
+ALTER TABLE "public"."carga_horaria_p3" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."carga_suplementar_professor" (
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "created_by" "uuid",
+ALTER TABLE "public"."carga_suplementar_professor" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."classe" (
+ALTER TABLE "public"."classe" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."crm_mensagens" (
+ALTER TABLE "public"."crm_mensagens" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."diario_presenca" (
+ALTER TABLE "public"."diario_presenca" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."empresa" (
+    "created_at" timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+ALTER TABLE "public"."empresa" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."escolas" (
+ALTER TABLE "public"."escolas" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."faltas_professores" (
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "created_by" "uuid",
+ALTER TABLE "public"."faltas_professores" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."feriados" (
+ALTER TABLE "public"."feriados" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."ferias_professor" (
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "created_by" "uuid",
+ALTER TABLE "public"."ferias_professor" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."fila_processamento_pontuacao" (
+ALTER TABLE "public"."fila_processamento_pontuacao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."horario_aula" (
+ALTER TABLE "public"."horario_aula" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."horarios_escola" (
+ALTER TABLE "public"."horarios_escola" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."licenca_saude" (
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "created_by" "uuid",
+ALTER TABLE "public"."licenca_saude" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."lms_configuracao_empresa" (
+ALTER TABLE "public"."lms_configuracao_empresa" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."lms_conteudo" (
+ALTER TABLE "public"."lms_conteudo" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."lms_item_conteudo" (
+ALTER TABLE "public"."lms_item_conteudo" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."lms_pergunta" (
+ALTER TABLE "public"."lms_pergunta" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."lms_resposta" (
+ALTER TABLE "public"."lms_resposta" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."lms_resposta_possivel" (
+ALTER TABLE "public"."lms_resposta_possivel" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."lms_submissao" (
+ALTER TABLE "public"."lms_submissao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."materiais_sed" (
+ALTER TABLE "public"."materiais_sed" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."matriculas" (
+ALTER TABLE "public"."matriculas" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."meta_turma" (
+ALTER TABLE "public"."meta_turma" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."onbdg_codigos_email" (
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+ALTER TABLE "public"."onbdg_codigos_email" OWNER TO "postgres";
+CREATE OR REPLACE VIEW "public"."onbdg_codigos_email_status" WITH ("security_invoker"='on') AS
+    "c"."created_at",
+ALTER TABLE "public"."onbdg_codigos_email_status" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."papeis_user" (
+ALTER TABLE "public"."papeis_user" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."papeis_user_auth" (
+ALTER TABLE "public"."papeis_user_auth" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."pontuacao_professores" (
+ALTER TABLE "public"."pontuacao_professores" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."professor_componente" (
+ALTER TABLE "public"."professor_componente" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."professor_componentes_atribuicao" (
+    "created_at" timestamp with time zone DEFAULT "now"(),
+ALTER TABLE "public"."professor_componentes_atribuicao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."professor_funcao_extra" (
+ALTER TABLE "public"."professor_funcao_extra" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."professor_tempo_unidade" (
+ALTER TABLE "public"."professor_tempo_unidade" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."respostas_user" (
+ALTER TABLE "public"."respostas_user" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."staging_professor_escola" (
+ALTER TABLE "public"."staging_professor_escola" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_alunos" (
+ALTER TABLE "public"."stg_alunos" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_autoria" (
+    "created_date" "text",
+ALTER TABLE "public"."stg_autoria" OWNER TO "postgres";
+CREATE SEQUENCE IF NOT EXISTS "public"."stg_autoria_id_seq"
+ALTER TABLE "public"."stg_autoria_id_seq" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_excedentes" (
+ALTER TABLE "public"."stg_excedentes" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_obra_edicao" (
+ALTER TABLE "public"."stg_obra_edicao" OWNER TO "postgres";
+CREATE SEQUENCE IF NOT EXISTS "public"."stg_obra_edicao_id_seq"
+ALTER TABLE "public"."stg_obra_edicao_id_seq" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_ocorrencias" (
+ALTER TABLE "public"."stg_ocorrencias" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_ocorrencias_intermediaria" (
+ALTER TABLE "public"."stg_ocorrencias_intermediaria" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_ocorrencias_log" (
+ALTER TABLE "public"."stg_ocorrencias_log" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_pontuacao" (
+ALTER TABLE "public"."stg_pontuacao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."stg_professor_atribuicao" (
+ALTER TABLE "public"."stg_professor_atribuicao" OWNER TO "postgres";
+CREATE SEQUENCE IF NOT EXISTS "public"."stg_professor_atribuicao_id_seq"
+ALTER TABLE "public"."stg_professor_atribuicao_id_seq" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."teste_23" (
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+ALTER TABLE "public"."teste_23" OWNER TO "postgres";
+COMMENT ON TABLE "public"."teste_23" IS 'asd';
+ALTER TABLE "public"."teste_23" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+CREATE TABLE IF NOT EXISTS "public"."turma_professor_atribuicao" (
+    "created_at" timestamp with time zone DEFAULT "now"(),
+ALTER TABLE "public"."turma_professor_atribuicao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."turmas" (
+ALTER TABLE "public"."turmas" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."unidade_atribuicao" (
+ALTER TABLE "public"."unidade_atribuicao" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."user_expandido" (
+ALTER TABLE "public"."user_expandido" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."user_familia" (
+ALTER TABLE "public"."user_familia" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."user_responsavel_aluno" (
+ALTER TABLE "public"."user_responsavel_aluno" OWNER TO "postgres";
+CREATE TABLE IF NOT EXISTS "public"."versao_app" (
+ALTER TABLE "public"."versao_app" OWNER TO "postgres";
+ALTER TABLE "public"."versao_app" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+CREATE OR REPLACE VIEW "public"."view_professores_escola" WITH ("security_invoker"='on') AS
+ALTER TABLE "public"."view_professores_escola" OWNER TO "postgres";
+CREATE OR REPLACE VIEW "public"."view_professores_pontuacao_por_ano" WITH ("security_invoker"='on') AS
+ALTER TABLE "public"."view_professores_pontuacao_por_ano" OWNER TO "postgres";
+CREATE OR REPLACE VIEW "public"."view_respostas_professor_json" WITH ("security_invoker"='on') AS
+ALTER TABLE "public"."view_respostas_professor_json" OWNER TO "postgres";
+CREATE OR REPLACE VIEW "public"."vw_materiais_sed_dropdowns" WITH ("security_invoker"='on') AS
+ALTER TABLE "public"."vw_materiais_sed_dropdowns" OWNER TO "postgres";
+CREATE OR REPLACE VIEW "public"."vw_professores_funcoes_extras" WITH ("security_invoker"='on') AS
+ALTER TABLE "public"."vw_professores_funcoes_extras" OWNER TO "postgres";
+CREATE OR REPLACE VIEW "public"."vw_resumo_turmas_atribuicao" WITH ("security_invoker"='on') AS
+ALTER TABLE "public"."vw_resumo_turmas_atribuicao" OWNER TO "postgres";
+CREATE OR REPLACE VIEW "public"."vw_turmas_por_ano_etapa_escola" WITH ("security_invoker"='on') AS
+ALTER TABLE "public"."vw_turmas_por_ano_etapa_escola" OWNER TO "postgres";
+ALTER TABLE ONLY "public"."stg_autoria" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."stg_autoria_id_seq"'::"regclass");
+ALTER TABLE ONLY "public"."stg_obra_edicao" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."stg_obra_edicao_id_seq"'::"regclass");
+ALTER TABLE ONLY "public"."stg_professor_atribuicao" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."stg_professor_atribuicao_id_seq"'::"regclass");
+ALTER TABLE ONLY "public"."adicional_noturno_professor"
+ALTER TABLE ONLY "public"."ano_etapa"
+ALTER TABLE ONLY "public"."atividades_infantil_duracao"
+ALTER TABLE ONLY "public"."atividades_infantil"
+ALTER TABLE ONLY "public"."atividades_infantil_vinculos"
+ALTER TABLE ONLY "public"."bbtk_dim_autoria"
+ALTER TABLE ONLY "public"."bbtk_dim_categoria"
+ALTER TABLE ONLY "public"."bbtk_dim_categoria"
+ALTER TABLE ONLY "public"."bbtk_dim_cdu"
+ALTER TABLE ONLY "public"."bbtk_dim_cdu"
+ALTER TABLE ONLY "public"."bbtk_dim_doador"
+ALTER TABLE ONLY "public"."bbtk_dim_editora"
+ALTER TABLE ONLY "public"."bbtk_dim_estante"
+ALTER TABLE ONLY "public"."bbtk_dim_metadado"
+ALTER TABLE ONLY "public"."bbtk_dim_predio"
+ALTER TABLE ONLY "public"."bbtk_dim_sala"
+ALTER TABLE ONLY "public"."bbtk_edicao"
+ALTER TABLE ONLY "public"."bbtk_edicao"
+ALTER TABLE ONLY "public"."bbtk_historico_interacao"
+ALTER TABLE ONLY "public"."bbtk_inventario_copia"
+ALTER TABLE ONLY "public"."bbtk_inventario_copia"
+ALTER TABLE ONLY "public"."bbtk_juncao_edicao_autoria"
+ALTER TABLE ONLY "public"."bbtk_juncao_edicao_metadado"
+ALTER TABLE ONLY "public"."bbtk_obra"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."calendario_eventos"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."carga_horaria_p1"
+ALTER TABLE ONLY "public"."carga_horaria_p3"
+ALTER TABLE ONLY "public"."carga_suplementar_professor"
+ALTER TABLE ONLY "public"."classe"
+ALTER TABLE ONLY "public"."componente"
+ALTER TABLE ONLY "public"."crm_mensagens"
+ALTER TABLE ONLY "public"."diario_presenca"
+ALTER TABLE ONLY "public"."diario_presenca"
+ALTER TABLE ONLY "public"."empresa"
+ALTER TABLE ONLY "public"."escolas"
+ALTER TABLE ONLY "public"."faltas_professores"
+ALTER TABLE ONLY "public"."feriados"
+ALTER TABLE ONLY "public"."ferias_professor"
+ALTER TABLE ONLY "public"."fila_processamento_pontuacao"
+ALTER TABLE ONLY "public"."horario_aula"
+ALTER TABLE ONLY "public"."horarios_escola"
+ALTER TABLE ONLY "public"."licenca_saude"
+ALTER TABLE ONLY "public"."lms_configuracao_empresa"
+ALTER TABLE ONLY "public"."lms_conteudo"
+ALTER TABLE ONLY "public"."lms_item_conteudo"
+ALTER TABLE ONLY "public"."lms_pergunta"
+ALTER TABLE ONLY "public"."lms_resposta"
+ALTER TABLE ONLY "public"."lms_resposta_possivel"
+ALTER TABLE ONLY "public"."lms_resposta"
+ALTER TABLE ONLY "public"."lms_submissao"
+ALTER TABLE ONLY "public"."lms_submissao"
+ALTER TABLE ONLY "public"."materiais_sed"
+ALTER TABLE ONLY "public"."matriculas"
+ALTER TABLE ONLY "public"."meta_turma"
+ALTER TABLE ONLY "public"."onbdg_codigos_email"
+ALTER TABLE ONLY "public"."papeis_user_auth"
+ALTER TABLE ONLY "public"."papeis_user_auth"
+ALTER TABLE ONLY "public"."papeis_user"
+ALTER TABLE ONLY "public"."papeis_user"
+ALTER TABLE ONLY "public"."perguntas_user"
+ALTER TABLE ONLY "public"."perguntas_user"
+ALTER TABLE ONLY "public"."pontuacao_professores"
+ALTER TABLE ONLY "public"."professor_componente"
+ALTER TABLE ONLY "public"."professor_componentes_atribuicao"
+ALTER TABLE ONLY "public"."professor_tempo_unidade"
+ALTER TABLE ONLY "public"."professor_funcao_extra"
+ALTER TABLE ONLY "public"."professores_certificados_atribuicao"
+ALTER TABLE ONLY "public"."respostas_user"
+ALTER TABLE ONLY "public"."respostas_user"
+ALTER TABLE ONLY "public"."staging_professor_escola"
+ALTER TABLE ONLY "public"."stg_alunos"
+ALTER TABLE ONLY "public"."stg_autoria"
+ALTER TABLE ONLY "public"."stg_excedentes"
+ALTER TABLE ONLY "public"."stg_obra_edicao"
+ALTER TABLE ONLY "public"."stg_ocorrencias_intermediaria"
+ALTER TABLE ONLY "public"."stg_ocorrencias_log"
+ALTER TABLE ONLY "public"."stg_ocorrencias"
+ALTER TABLE ONLY "public"."stg_pontuacao"
+ALTER TABLE ONLY "public"."stg_professor_atribuicao"
+ALTER TABLE ONLY "public"."teste_23"
+ALTER TABLE ONLY "public"."turma_professor_atribuicao"
+ALTER TABLE ONLY "public"."turmas"
+ALTER TABLE ONLY "public"."unidade_atribuicao"
+ALTER TABLE ONLY "public"."user_expandido"
+ALTER TABLE ONLY "public"."user_expandido"
+ALTER TABLE ONLY "public"."user_familia"
+ALTER TABLE ONLY "public"."user_responsavel_aluno"
+ALTER TABLE ONLY "public"."user_responsavel_aluno"
+ALTER TABLE ONLY "public"."versao_app"
+CREATE INDEX "atp_id_turma_id_empresa_data_fim_idx" ON "public"."turma_professor_atribuicao" USING "btree" ("id_turma", "id_empresa", "data_fim");
+CREATE INDEX "idx_atp_id_professor" ON "public"."turma_professor_atribuicao" USING "btree" ("id_professor");
+CREATE INDEX "idx_atp_id_turma_nivel" ON "public"."turma_professor_atribuicao" USING "btree" ("id_turma", "nivel_substituicao");
+CREATE INDEX "idx_calendario_eventos_empresa" ON "public"."calendario_eventos" USING "btree" ("id_empresa");
+CREATE INDEX "idx_calendario_eventos_turma_data" ON "public"."calendario_eventos" USING "btree" ("id_turma", "data");
+CREATE INDEX "idx_diario_data" ON "public"."diario_presenca" USING "btree" ("data");
+CREATE INDEX "idx_diario_empresa" ON "public"."diario_presenca" USING "btree" ("id_empresa");
+CREATE INDEX "idx_diario_matricula" ON "public"."diario_presenca" USING "btree" ("id_matricula");
+CREATE INDEX "idx_feriados_data" ON "public"."feriados" USING "btree" ("data_feriado");
+CREATE INDEX "idx_feriados_empresa" ON "public"."feriados" USING "btree" ("id_empresa");
+CREATE INDEX "idx_fila_emp_ano" ON "public"."fila_processamento_pontuacao" USING "btree" ("id_empresa", "ano" DESC);
+CREATE INDEX "idx_horario_aula_empresa" ON "public"."horario_aula" USING "btree" ("id_empresa");
+CREATE INDEX "idx_horario_aula_ordem" ON "public"."horario_aula" USING "btree" ("ordem");
+CREATE INDEX "idx_lms_conteudo_escopo_ids" ON "public"."lms_conteudo" USING "btree" ("escopo", "id_turma", "id_aluno", "id_meta_turma");
+CREATE INDEX "idx_lms_submissao_item_aluno" ON "public"."lms_submissao" USING "btree" ("id_item_conteudo", "id_aluno");
+CREATE INDEX "idx_matriculas_aluno" ON "public"."matriculas" USING "btree" ("id_aluno");
+CREATE INDEX "idx_matriculas_empresa" ON "public"."matriculas" USING "btree" ("id_empresa");
+CREATE INDEX "idx_matriculas_status" ON "public"."matriculas" USING "btree" ("status");
+CREATE INDEX "idx_matriculas_turma" ON "public"."matriculas" USING "btree" ("id_turma");
+CREATE INDEX "idx_onbdg_codigos_email_numero" ON "public"."onbdg_codigos_email" USING "btree" ("numero");
+CREATE INDEX "idx_onbdg_codigos_email_user_valid" ON "public"."onbdg_codigos_email" USING "btree" ("id_user", "expires_at" DESC);
+CREATE INDEX "idx_pt_id_professor_ano" ON "public"."pontuacao_professores" USING "btree" ("id_professor", "ano" DESC);
+CREATE INDEX "idx_pua_user_empresa_papel" ON "public"."papeis_user_auth" USING "btree" ("user_id", "empresa_id", "papel_id");
+CREATE INDEX "idx_uep_id_empresa" ON "public"."user_expandido" USING "btree" ("id_empresa");
+CREATE INDEX "idx_uep_id_escola" ON "public"."user_expandido" USING "btree" ("id_escola");
+CREATE INDEX "idx_user_expandido_user_id" ON "public"."user_expandido" USING "btree" ("user_id");
+CREATE INDEX "idx_user_familia_empresa" ON "public"."user_familia" USING "btree" ("id_empresa");
+CREATE INDEX "idx_user_familia_responsavel" ON "public"."user_familia" USING "btree" ("id_responsavel_principal");
+CREATE INDEX "idx_user_responsavel_aluno_aluno" ON "public"."user_responsavel_aluno" USING "btree" ("id_aluno");
+CREATE INDEX "idx_user_responsavel_aluno_familia" ON "public"."user_responsavel_aluno" USING "btree" ("id_familia");
+CREATE INDEX "idx_user_responsavel_aluno_responsavel" ON "public"."user_responsavel_aluno" USING "btree" ("id_responsavel");
+CREATE INDEX "ix_cal_matriz_componente" ON "public"."calendario_matriz_semana" USING "btree" ("id_componente");
+CREATE INDEX "ix_cal_matriz_empresa" ON "public"."calendario_matriz_semana" USING "btree" ("id_empresa");
+CREATE INDEX "ix_cal_matriz_tipo" ON "public"."calendario_matriz_semana" USING "btree" ("tipo");
+CREATE INDEX "ix_cal_matriz_turma_dia" ON "public"."calendario_matriz_semana" USING "btree" ("id_turma", "dia_semana");
+CREATE INDEX "ix_chp1_ano" ON "public"."carga_horaria_p1" USING "btree" ("id_ano_etapa");
+CREATE INDEX "ix_chp1_comp" ON "public"."carga_horaria_p1" USING "btree" ("id_componente");
+CREATE INDEX "ix_chp1_empresa" ON "public"."carga_horaria_p1" USING "btree" ("id_empresa");
+CREATE INDEX "ix_chp3_ano" ON "public"."carga_horaria_p3" USING "btree" ("id_ano_etapa");
+CREATE INDEX "ix_chp3_comp" ON "public"."carga_horaria_p3" USING "btree" ("id_componente");
+CREATE INDEX "ix_unid_chp3" ON "public"."unidade_atribuicao" USING "btree" ("id_ch_p3");
+CREATE INDEX "ix_unid_turma" ON "public"."unidade_atribuicao" USING "btree" ("id_turma");
+CREATE INDEX "lms_conteudo_id_turma_idx" ON "public"."lms_conteudo" USING "btree" ("id_turma");
+CREATE INDEX "lms_item_conteudo_id_conteudo_idx" ON "public"."lms_item_conteudo" USING "btree" ("id_lms_conteudo");
+CREATE INDEX "lms_item_conteudo_id_empresa_idx" ON "public"."lms_item_conteudo" USING "btree" ("id_empresa");
+CREATE INDEX "lms_item_conteudo_id_lms_conteudo_idx" ON "public"."lms_item_conteudo" USING "btree" ("id_lms_conteudo");
+CREATE INDEX "lms_pergunta_id_empresa_idx" ON "public"."lms_pergunta" USING "btree" ("id_empresa");
+CREATE INDEX "lms_pergunta_id_item_conteudo_idx" ON "public"."lms_pergunta" USING "btree" ("id_item_conteudo");
+CREATE INDEX "lms_resposta_id_pergunta_idx" ON "public"."lms_resposta" USING "btree" ("id_pergunta");
+CREATE INDEX "lms_resposta_id_resposta_possivel_idx" ON "public"."lms_resposta" USING "btree" ("id_resposta_possivel");
+CREATE INDEX "lms_resposta_id_user_idx" ON "public"."lms_resposta" USING "btree" ("id_user");
+CREATE INDEX "lms_resposta_possivel_id_empresa_idx" ON "public"."lms_resposta_possivel" USING "btree" ("id_empresa");
+CREATE INDEX "lms_resposta_possivel_id_pergunta_idx" ON "public"."lms_resposta_possivel" USING "btree" ("id_pergunta");
+CREATE INDEX "meta_turma_criado_por_idx" ON "public"."meta_turma" USING "btree" ("criado_por");
+CREATE INDEX "meta_turma_id_empresa_idx" ON "public"."meta_turma" USING "btree" ("id_empresa");
+CREATE INDEX "pca_prof_empresa_idx" ON "public"."professor_componentes_atribuicao" USING "btree" ("id_professor", "id_empresa");
+CREATE INDEX "pca_prof_idx" ON "public"."professor_componentes_atribuicao" USING "btree" ("id_professor");
+CREATE INDEX "pca_unid_emp_fim_idx" ON "public"."professor_componentes_atribuicao" USING "btree" ("id_unidade_atribuicao", "id_empresa", "data_fim");
+CREATE INDEX "pca_unid_empresa_idx" ON "public"."professor_componentes_atribuicao" USING "btree" ("id_unidade_atribuicao", "id_empresa");
+CREATE INDEX "pca_unid_nivel_idx" ON "public"."professor_componentes_atribuicao" USING "btree" ("id_unidade_atribuicao", "nivel_substituicao");
+CREATE INDEX "professor_funcao_extra_empresa_status_datafim_idx" ON "public"."professor_funcao_extra" USING "btree" ("id_empresa", "status", "data_fim");
+CREATE INDEX "professor_funcao_extra_user_empresa_idx" ON "public"."professor_funcao_extra" USING "btree" ("user_id", "id_empresa");
+CREATE INDEX "turma_prof_atrib_prof_empresa_idx" ON "public"."turma_professor_atribuicao" USING "btree" ("id_professor", "id_empresa");
+CREATE INDEX "turma_prof_atrib_turma_empresa_idx" ON "public"."turma_professor_atribuicao" USING "btree" ("id_turma", "id_empresa");
+CREATE INDEX "user_expandido_user_id_idx" ON "public"."user_expandido" USING "btree" ("user_id");
+CREATE UNIQUE INDEX "ux_ai_empresa_nome_norm" ON "public"."atividades_infantil" USING "btree" ("id_empresa", "lower"(TRIM(BOTH FROM "nome")));
+CREATE UNIQUE INDEX "ux_aid_empresa_atividade_duracao" ON "public"."atividades_infantil_duracao" USING "btree" ("id_empresa", "id_atividade_infantil", "duracao_minutos");
+CREATE UNIQUE INDEX "ux_pontuacao_professor_ano_soft" ON "public"."pontuacao_professores" USING "btree" ("id_professor", "ano", "soft_delete");
+CREATE OR REPLACE TRIGGER "tg_registrar_pontuacao_excedente" AFTER UPDATE ON "public"."professor_tempo_unidade" FOR EACH ROW WHEN ((("new"."excedente" IS TRUE) AND ("new"."data_fim" IS DISTINCT FROM "old"."data_fim"))) EXECUTE FUNCTION "public"."trg_registrar_pontuacao_excedente"();
+CREATE OR REPLACE TRIGGER "trg_atualiza_at_professores" BEFORE INSERT OR UPDATE ON "public"."turmas" FOR EACH ROW EXECUTE FUNCTION "public"."atualiza_at_professores"();
+CREATE OR REPLACE TRIGGER "trg_log_papeis_user_auth" BEFORE UPDATE ON "public"."papeis_user_auth" FOR EACH ROW EXECUTE FUNCTION "public"."log_update_papeis_user_auth"();
+CREATE OR REPLACE TRIGGER "trg_set_created_modified_by_insert" BEFORE INSERT ON "public"."faltas_professores" FOR EACH ROW EXECUTE FUNCTION "public"."set_created_modified_by"();
+CREATE OR REPLACE TRIGGER "trg_set_created_modified_by_insert" BEFORE INSERT ON "public"."licenca_saude" FOR EACH ROW EXECUTE FUNCTION "public"."set_created_modified_by"();
+CREATE OR REPLACE TRIGGER "trg_set_modified_by_update" BEFORE UPDATE ON "public"."faltas_professores" FOR EACH ROW EXECUTE FUNCTION "public"."set_created_modified_by"();
+CREATE OR REPLACE TRIGGER "trg_set_modified_by_update" BEFORE UPDATE ON "public"."licenca_saude" FOR EACH ROW EXECUTE FUNCTION "public"."set_created_modified_by"();
+CREATE OR REPLACE TRIGGER "trg_touch_fila_pont" BEFORE UPDATE ON "public"."fila_processamento_pontuacao" FOR EACH ROW EXECUTE FUNCTION "public"."_touch_atualizado_em"();
+CREATE OR REPLACE TRIGGER "trigger_sync_papel" AFTER INSERT OR UPDATE ON "public"."professor_funcao_extra" FOR EACH ROW EXECUTE FUNCTION "public"."sync_papel_professor_funcao_extra"();
+CREATE OR REPLACE TRIGGER "trigger_sync_status" BEFORE INSERT OR UPDATE ON "public"."professor_funcao_extra" FOR EACH ROW EXECUTE FUNCTION "public"."sync_status_professor_funcao_extra"();
+ALTER TABLE ONLY "public"."adicional_noturno_professor"
+ALTER TABLE ONLY "public"."adicional_noturno_professor"
+ALTER TABLE ONLY "public"."ano_etapa"
+ALTER TABLE ONLY "public"."atividades_infantil"
+ALTER TABLE ONLY "public"."atividades_infantil_duracao"
+ALTER TABLE ONLY "public"."atividades_infantil_duracao"
+ALTER TABLE ONLY "public"."atividades_infantil"
+ALTER TABLE ONLY "public"."atividades_infantil_vinculos"
+ALTER TABLE ONLY "public"."atividades_infantil_vinculos"
+ALTER TABLE ONLY "public"."atividades_infantil_vinculos"
+ALTER TABLE ONLY "public"."bbtk_dim_autoria"
+ALTER TABLE ONLY "public"."bbtk_dim_categoria"
+ALTER TABLE ONLY "public"."bbtk_dim_cdu"
+ALTER TABLE ONLY "public"."bbtk_dim_doador"
+ALTER TABLE ONLY "public"."bbtk_dim_editora"
+ALTER TABLE ONLY "public"."bbtk_dim_estante"
+ALTER TABLE ONLY "public"."bbtk_dim_metadado"
+ALTER TABLE ONLY "public"."bbtk_dim_predio"
+ALTER TABLE ONLY "public"."bbtk_dim_predio"
+ALTER TABLE ONLY "public"."bbtk_dim_sala"
+ALTER TABLE ONLY "public"."bbtk_edicao"
+ALTER TABLE ONLY "public"."bbtk_edicao"
+ALTER TABLE ONLY "public"."bbtk_edicao"
+ALTER TABLE ONLY "public"."bbtk_edicao"
+ALTER TABLE ONLY "public"."bbtk_historico_interacao"
+ALTER TABLE ONLY "public"."bbtk_historico_interacao"
+ALTER TABLE ONLY "public"."bbtk_inventario_copia"
+ALTER TABLE ONLY "public"."bbtk_inventario_copia"
+ALTER TABLE ONLY "public"."bbtk_inventario_copia"
+ALTER TABLE ONLY "public"."bbtk_juncao_edicao_autoria"
+ALTER TABLE ONLY "public"."bbtk_juncao_edicao_autoria"
+ALTER TABLE ONLY "public"."bbtk_juncao_edicao_autoria"
+ALTER TABLE ONLY "public"."bbtk_juncao_edicao_metadado"
+ALTER TABLE ONLY "public"."bbtk_juncao_edicao_metadado"
+ALTER TABLE ONLY "public"."bbtk_juncao_edicao_metadado"
+ALTER TABLE ONLY "public"."bbtk_obra"
+ALTER TABLE ONLY "public"."bbtk_obra"
+ALTER TABLE ONLY "public"."bbtk_obra"
+ALTER TABLE ONLY "public"."bbtk_obra"
+ALTER TABLE ONLY "public"."calendario_eventos"
+ALTER TABLE ONLY "public"."calendario_eventos"
+ALTER TABLE ONLY "public"."calendario_eventos"
+ALTER TABLE ONLY "public"."calendario_eventos"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."calendario_matriz_semana"
+ALTER TABLE ONLY "public"."carga_horaria_p1"
+ALTER TABLE ONLY "public"."carga_horaria_p1"
+ALTER TABLE ONLY "public"."carga_horaria_p1"
+ALTER TABLE ONLY "public"."carga_horaria_p1"
+ALTER TABLE ONLY "public"."carga_horaria_p1"
+ALTER TABLE ONLY "public"."carga_horaria_p3"
+ALTER TABLE ONLY "public"."carga_horaria_p3"
+ALTER TABLE ONLY "public"."carga_horaria_p3"
+ALTER TABLE ONLY "public"."carga_horaria_p3"
+ALTER TABLE ONLY "public"."carga_horaria_p3"
+ALTER TABLE ONLY "public"."carga_suplementar_professor"
+ALTER TABLE ONLY "public"."carga_suplementar_professor"
+ALTER TABLE ONLY "public"."classe"
+ALTER TABLE ONLY "public"."componente"
+ALTER TABLE ONLY "public"."diario_presenca"
+ALTER TABLE ONLY "public"."diario_presenca"
+ALTER TABLE ONLY "public"."diario_presenca"
+ALTER TABLE ONLY "public"."diario_presenca"
+ALTER TABLE ONLY "public"."diario_presenca"
+ALTER TABLE ONLY "public"."escolas"
+ALTER TABLE ONLY "public"."faltas_professores"
+ALTER TABLE ONLY "public"."faltas_professores"
+ALTER TABLE ONLY "public"."feriados"
+ALTER TABLE ONLY "public"."ferias_professor"
+ALTER TABLE ONLY "public"."ferias_professor"
+ALTER TABLE ONLY "public"."fila_processamento_pontuacao"
+ALTER TABLE ONLY "public"."fila_processamento_pontuacao"
+ALTER TABLE ONLY "public"."horario_aula"
+ALTER TABLE ONLY "public"."horario_aula"
+ALTER TABLE ONLY "public"."horarios_escola"
+ALTER TABLE ONLY "public"."licenca_saude"
+ALTER TABLE ONLY "public"."licenca_saude"
+ALTER TABLE ONLY "public"."lms_configuracao_empresa"
+ALTER TABLE ONLY "public"."lms_conteudo"
+ALTER TABLE ONLY "public"."lms_conteudo"
+ALTER TABLE ONLY "public"."lms_conteudo"
+ALTER TABLE ONLY "public"."lms_conteudo"
+ALTER TABLE ONLY "public"."lms_conteudo"
+ALTER TABLE ONLY "public"."lms_conteudo"
+ALTER TABLE ONLY "public"."lms_item_conteudo"
+ALTER TABLE ONLY "public"."lms_item_conteudo"
+ALTER TABLE ONLY "public"."lms_item_conteudo"
+ALTER TABLE ONLY "public"."lms_pergunta"
+ALTER TABLE ONLY "public"."lms_pergunta"
+ALTER TABLE ONLY "public"."lms_resposta"
+ALTER TABLE ONLY "public"."lms_resposta"
+ALTER TABLE ONLY "public"."lms_resposta"
+ALTER TABLE ONLY "public"."lms_resposta"
+ALTER TABLE ONLY "public"."lms_resposta"
+ALTER TABLE ONLY "public"."lms_resposta_possivel"
+ALTER TABLE ONLY "public"."lms_resposta_possivel"
+ALTER TABLE ONLY "public"."lms_submissao"
+ALTER TABLE ONLY "public"."lms_submissao"
+ALTER TABLE ONLY "public"."matriculas"
+ALTER TABLE ONLY "public"."matriculas"
+ALTER TABLE ONLY "public"."matriculas"
+ALTER TABLE ONLY "public"."meta_turma"
+ALTER TABLE ONLY "public"."meta_turma"
+ALTER TABLE ONLY "public"."meta_turma"
+ALTER TABLE ONLY "public"."meta_turma"
+ALTER TABLE ONLY "public"."onbdg_codigos_email"
+ALTER TABLE ONLY "public"."papeis_user_auth"
+ALTER TABLE ONLY "public"."papeis_user_auth"
+ALTER TABLE ONLY "public"."papeis_user_auth"
+ALTER TABLE ONLY "public"."professor_componentes_atribuicao"
+ALTER TABLE ONLY "public"."professor_componentes_atribuicao"
+ALTER TABLE ONLY "public"."professor_componentes_atribuicao"
+ALTER TABLE ONLY "public"."perguntas_user"
+ALTER TABLE ONLY "public"."pontuacao_professores"
+ALTER TABLE ONLY "public"."pontuacao_professores"
+ALTER TABLE ONLY "public"."pontuacao_professores"
+ALTER TABLE ONLY "public"."pontuacao_professores"
+ALTER TABLE ONLY "public"."professor_componente"
+ALTER TABLE ONLY "public"."professor_componente"
+ALTER TABLE ONLY "public"."professor_componente"
+ALTER TABLE ONLY "public"."professor_componente"
+ALTER TABLE ONLY "public"."professor_funcao_extra"
+ALTER TABLE ONLY "public"."professor_funcao_extra"
+ALTER TABLE ONLY "public"."professor_funcao_extra"
+ALTER TABLE ONLY "public"."professor_funcao_extra"
+ALTER TABLE ONLY "public"."professor_funcao_extra"
+ALTER TABLE ONLY "public"."professor_tempo_unidade"
+ALTER TABLE ONLY "public"."professor_tempo_unidade"
+ALTER TABLE ONLY "public"."professor_tempo_unidade"
+ALTER TABLE ONLY "public"."professores_certificados_atribuicao"
+ALTER TABLE ONLY "public"."professores_certificados_atribuicao"
+ALTER TABLE ONLY "public"."professores_certificados_atribuicao"
+ALTER TABLE ONLY "public"."professores_certificados_atribuicao"
+ALTER TABLE ONLY "public"."respostas_user"
+ALTER TABLE ONLY "public"."respostas_user"
+ALTER TABLE ONLY "public"."respostas_user"
+ALTER TABLE ONLY "public"."respostas_user"
+ALTER TABLE ONLY "public"."stg_ocorrencias_log"
+ALTER TABLE ONLY "public"."turma_professor_atribuicao"
+ALTER TABLE ONLY "public"."turma_professor_atribuicao"
+ALTER TABLE ONLY "public"."turma_professor_atribuicao"
+ALTER TABLE ONLY "public"."turmas"
+ALTER TABLE ONLY "public"."turmas"
+ALTER TABLE ONLY "public"."turmas"
+ALTER TABLE ONLY "public"."turmas"
+ALTER TABLE ONLY "public"."turmas"
+ALTER TABLE ONLY "public"."turmas"
+ALTER TABLE ONLY "public"."turmas"
+ALTER TABLE ONLY "public"."unidade_atribuicao"
+ALTER TABLE ONLY "public"."unidade_atribuicao"
+ALTER TABLE ONLY "public"."unidade_atribuicao"
+ALTER TABLE ONLY "public"."unidade_atribuicao"
+ALTER TABLE ONLY "public"."unidade_atribuicao"
+ALTER TABLE ONLY "public"."user_expandido"
+ALTER TABLE ONLY "public"."user_expandido"
+ALTER TABLE ONLY "public"."user_expandido"
+ALTER TABLE ONLY "public"."user_familia"
+ALTER TABLE ONLY "public"."user_familia"
+ALTER TABLE ONLY "public"."user_responsavel_aluno"
+ALTER TABLE ONLY "public"."user_responsavel_aluno"
+ALTER TABLE ONLY "public"."user_responsavel_aluno"
+CREATE POLICY "Admin acesso total" ON "public"."carga_horaria_p3" TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text")) WITH CHECK ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin acesso total" ON "public"."lms_configuracao_empresa" TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text")) WITH CHECK ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin acesso total" ON "public"."lms_conteudo" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin acesso total" ON "public"."lms_item_conteudo" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin acesso total" ON "public"."lms_resposta_possivel" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin acesso total" ON "public"."unidade_atribuicao" TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text")) WITH CHECK ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin acesso total 3" ON "public"."ano_etapa" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin acesso total_2" ON "public"."pontuacao_professores" TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text")) WITH CHECK ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin edita componentes da sua empresa" ON "public"."componente" FOR UPDATE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin insere componentes da sua empresa" ON "public"."componente" FOR INSERT TO "authenticated" WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode atualizar professor_funcao_extra" ON "public"."professor_funcao_extra" FOR UPDATE TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text")) WITH CHECK ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin pode deletar professor_funcao_extra" ON "public"."professor_funcao_extra" FOR DELETE TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin pode gerenciar atividades infantis da sua empresa" ON "public"."atividades_infantil" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar carga_horaria_p1 da sua empresa" ON "public"."carga_horaria_p1" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar diário da sua empresa" ON "public"."diario_presenca" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar durações infantis da sua empresa" ON "public"."atividades_infantil_duracao" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar eventos da sua empresa" ON "public"."calendario_eventos" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar famílias da sua empresa" ON "public"."user_familia" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar feriados da sua empresa" ON "public"."feriados" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar horários da sua empresa" ON "public"."horario_aula" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar matrículas da sua empresa" ON "public"."matriculas" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode gerenciar vínculos infantis da sua empresa" ON "public"."atividades_infantil_vinculos" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode inserir professor_funcao_extra" ON "public"."professor_funcao_extra" FOR INSERT TO "authenticated" WITH CHECK ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin pode ler professor_funcao_extra" ON "public"."professor_funcao_extra" FOR SELECT TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin pode tudo" ON "public"."papeis_user_auth" TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text")) WITH CHECK ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Admin pode tudo em escolas da sua empresa" ON "public"."escolas" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo na carga suplementar" ON "public"."carga_suplementar_professor" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nas atribuições da sua empresa" ON "public"."turma_professor_atribuicao" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nas classes da sua empresa" ON "public"."classe" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nas faltas da sua empresa" ON "public"."faltas_professores" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nas ferias da sua empresa" ON "public"."ferias_professor" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nas licenças da sua empresa" ON "public"."licenca_saude" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nas respostas da sua empresa" ON "public"."respostas_user" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nas turmas da sua empresa" ON "public"."turmas" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo no adicional noturno" ON "public"."adicional_noturno_professor" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo no tempo_unidade da sua empresa" ON "public"."professor_tempo_unidade" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nos certificados dos professores da sua empresa" ON "public"."professores_certificados_atribuicao" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nos componentes da sua empresa" ON "public"."professor_componente" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nos horários da sua empresa" ON "public"."horarios_escola" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin pode tudo nos professores da sua empresa" ON "public"."user_expandido" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admin vê apenas sua empresa" ON "public"."empresa" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id")));
+CREATE POLICY "Admin vê componentes da sua empresa" ON "public"."componente" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Admins podem ler mensagens" ON "public"."crm_mensagens" FOR SELECT TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "Funcao extra pode editar todos os certificados" ON "public"."professores_certificados_atribuicao" FOR UPDATE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor_funcao_extra'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor_funcao_extra'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Funcao extra pode inserir certificados" ON "public"."professores_certificados_atribuicao" FOR INSERT TO "authenticated" WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor_funcao_extra'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Funcao extra pode ver todos os certificados" ON "public"."professores_certificados_atribuicao" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor_funcao_extra'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Funcao extra: pode ler apenas professores da sua empresa" ON "public"."user_expandido" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor_funcao_extra'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa") AND (("papel_id" = '3c4c1d8c-1ad8-4abc-9eea-12829ab7d7f1'::"uuid") OR ("papel_id" = '07028505-01d7-4986-800e-9d71cab5dd6c'::"uuid"))));
+CREATE POLICY "Leitura pública de materiais_sed" ON "public"."materiais_sed" FOR SELECT USING (true);
+CREATE POLICY "Professor pode gerenciar seus próprios certificados" ON "public"."professores_certificados_atribuicao" TO "authenticated" USING ((EXISTS ( SELECT 1
+CREATE POLICY "Professor vê apenas seus próprios componentes" ON "public"."professor_componente" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor'::"text") AND ("auth"."uid"() = "id_professor"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor'::"text") AND ("auth"."uid"() = "id_professor")));
+CREATE POLICY "Professor vê apenas suas respostas" ON "public"."respostas_user" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor'::"text") AND ("auth"."uid"() = "id_user"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor'::"text") AND ("auth"."uid"() = "id_user")));
+CREATE POLICY "Professor(es) podem ver ano_etapa da sua empresa" ON "public"."ano_etapa" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Professor(es) podem ver classe da sua empresa" ON "public"."classe" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Professor(es) podem ver escolas da sua empresa" ON "public"."escolas" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Professor(es) podem ver horarios_escola da sua empresa" ON "public"."horarios_escola" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "Professor(es) podem ver turmas da sua empresa" ON "public"."turmas" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "RLS: Admin/Admin_Biblio full access" ON "public"."stg_autoria" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") OR (("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin_biblio'::"text")));
+CREATE POLICY "RLS: Authenticated users can read" ON "public"."stg_autoria" FOR SELECT TO "authenticated" USING (true);
+CREATE POLICY "Usuário acessa seus próprios papeis" ON "public"."papeis_user_auth" TO "authenticated" USING (("user_id" = "auth"."uid"()));
+CREATE POLICY "Usuário autenticado acessa apenas seus próprios dados" ON "public"."user_expandido" TO "authenticated" USING (("auth"."uid"() = "user_id")) WITH CHECK (("auth"."uid"() = "user_id"));
+CREATE POLICY "Usuário autenticado vê apenas sua empresa" ON "public"."empresa" TO "authenticated" USING (((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id"));
+ALTER TABLE "public"."adicional_noturno_professor" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "admin pode tudo em submissao" ON "public"."lms_submissao" TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text")) WITH CHECK ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text"));
+CREATE POLICY "admin_all" ON "public"."pontuacao_professores" USING ((("auth"."jwt"() ->> 'user_role'::"text") = 'admin'::"text"));
+CREATE POLICY "admin_atualiza_resposta_lms" ON "public"."lms_resposta" FOR UPDATE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((EXISTS ( SELECT 1
+CREATE POLICY "admin_cria_resposta_lms" ON "public"."lms_resposta" FOR INSERT TO "authenticated" WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND (EXISTS ( SELECT 1
+CREATE POLICY "admin_deleta_pergunta_lms" ON "public"."lms_pergunta" FOR DELETE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (NOT "public"."lms_pergunta_tem_respostas"("id"))));
+CREATE POLICY "admin_deleta_resposta_lms" ON "public"."lms_resposta" FOR DELETE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((EXISTS ( SELECT 1
+CREATE POLICY "admin_ler_respostas_lms" ON "public"."lms_resposta" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((EXISTS ( SELECT 1
+CREATE POLICY "admin_tpa_all" ON "public"."turma_professor_atribuicao" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'admin'::"text") AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+ALTER TABLE "public"."ano_etapa" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "asdasd" ON "public"."teste_23" USING (true) WITH CHECK (true);
+ALTER TABLE "public"."atividades_infantil" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."atividades_infantil_duracao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."atividades_infantil_vinculos" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_autoria" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_categoria" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_cdu" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_doador" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_editora" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_estante" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])) AND ("sala_uuid" IN ( SELECT "s"."uuid"
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_metadado" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_predio" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_dim_sala" TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])) AND ("predio_uuid" IN ( SELECT "bbtk_dim_predio"."uuid"
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_edicao" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_historico_interacao" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_inventario_copia" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_juncao_edicao_autoria" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_juncao_edicao_metadado" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_crud_admin" ON "public"."bbtk_obra" TO "authenticated" USING ((("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid") AND (("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['admin'::"text", 'admin_biblio'::"text"])))) WITH CHECK (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+ALTER TABLE "public"."bbtk_dim_autoria" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_dim_categoria" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_dim_cdu" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_dim_doador" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_dim_editora" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_dim_estante" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_dim_metadado" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_dim_predio" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_dim_sala" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_edicao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_historico_interacao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_inventario_copia" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_juncao_edicao_autoria" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_juncao_edicao_metadado" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bbtk_obra" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_autoria" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_categoria" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_cdu" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_doador" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_editora" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_estante" FOR SELECT TO "authenticated" USING (("sala_uuid" IN ( SELECT "s"."uuid"
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_metadado" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_predio" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_dim_sala" FOR SELECT TO "authenticated" USING (("predio_uuid" IN ( SELECT "bbtk_dim_predio"."uuid"
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_edicao" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_historico_interacao" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_inventario_copia" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_juncao_edicao_autoria" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_juncao_edicao_metadado" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+CREATE POLICY "bbtk_read_authenticated" ON "public"."bbtk_obra" FOR SELECT TO "authenticated" USING (("id_empresa" = (("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid"));
+ALTER TABLE "public"."calendario_eventos" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."calendario_matriz_semana" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."carga_horaria_p1" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."carga_horaria_p3" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."carga_suplementar_professor" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."classe" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."componente" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."crm_mensagens" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."diario_presenca" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."empresa" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."escolas" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."faltas_professores" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."feriados" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."ferias_professor" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."fila_processamento_pontuacao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."horario_aula" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."horarios_escola" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."licenca_saude" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."lms_configuracao_empresa" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."lms_conteudo" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "lms_conteudo_delete" ON "public"."lms_conteudo" FOR DELETE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "lms_conteudo_insert" ON "public"."lms_conteudo" FOR INSERT TO "authenticated" WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "lms_conteudo_select" ON "public"."lms_conteudo" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa") AND (EXISTS ( SELECT 1
+CREATE POLICY "lms_conteudo_update" ON "public"."lms_conteudo" FOR UPDATE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+ALTER TABLE "public"."lms_item_conteudo" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "lms_item_conteudo_delete" ON "public"."lms_item_conteudo" FOR DELETE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "lms_item_conteudo_insert" ON "public"."lms_item_conteudo" FOR INSERT TO "authenticated" WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "lms_item_conteudo_select" ON "public"."lms_item_conteudo" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa") AND (EXISTS ( SELECT 1
+CREATE POLICY "lms_item_conteudo_update" ON "public"."lms_item_conteudo" FOR UPDATE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+ALTER TABLE "public"."lms_pergunta" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "lms_pergunta_delete" ON "public"."lms_pergunta" FOR DELETE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "lms_pergunta_insert" ON "public"."lms_pergunta" FOR INSERT TO "authenticated" WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "lms_pergunta_select" ON "public"."lms_pergunta" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa") AND (EXISTS ( SELECT 1
+CREATE POLICY "lms_pergunta_update" ON "public"."lms_pergunta" FOR UPDATE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+ALTER TABLE "public"."lms_resposta" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."lms_resposta_possivel" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "lms_resposta_possivel_delete" ON "public"."lms_resposta_possivel" FOR DELETE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "lms_resposta_possivel_insert" ON "public"."lms_resposta_possivel" FOR INSERT TO "authenticated" WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+CREATE POLICY "lms_resposta_possivel_select" ON "public"."lms_resposta_possivel" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa") AND (EXISTS ( SELECT 1
+CREATE POLICY "lms_resposta_possivel_update" ON "public"."lms_resposta_possivel" FOR UPDATE TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa"))) WITH CHECK (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa")));
+ALTER TABLE "public"."lms_submissao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."materiais_sed" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."matriculas" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."onbdg_codigos_email" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."papeis_user" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."papeis_user_auth" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."perguntas_user" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."pontuacao_professores" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "prof_ler_respostas_lms" ON "public"."lms_resposta" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor'::"text") AND ((EXISTS ( SELECT 1
+CREATE POLICY "prof_ver_suas_atribuicoes" ON "public"."turma_professor_atribuicao" FOR SELECT TO "authenticated" USING (((("auth"."jwt"() ->> 'papeis_user'::"text") = ANY (ARRAY['professor'::"text", 'professor_funcao_extra'::"text"])) AND ((("auth"."jwt"() ->> 'empresa_id'::"text"))::"uuid" = "id_empresa") AND ("id_professor" IN ( SELECT "ue"."id"
+ALTER TABLE "public"."professor_componente" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."professor_componentes_atribuicao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."professor_funcao_extra" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "professor_funcao_extra pode selecionar" ON "public"."professor_funcao_extra" FOR SELECT TO "authenticated" USING ((("auth"."jwt"() ->> 'papeis_user'::"text") = 'professor_funcao_extra'::"text"));
+CREATE POLICY "professor_self" ON "public"."pontuacao_professores" USING (("id_professor" = (("auth"."jwt"() ->> 'user_expandido_id'::"text"))::"uuid"));
+ALTER TABLE "public"."professor_tempo_unidade" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."professores_certificados_atribuicao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."respostas_user" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."stg_autoria" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."teste_23" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "todo_veem" ON "public"."papeis_user" FOR SELECT TO "authenticated" USING (true);
+CREATE POLICY "todos escrevem" ON "public"."crm_mensagens" FOR INSERT WITH CHECK (true);
+CREATE POLICY "todos selecionam" ON "public"."fila_processamento_pontuacao" FOR SELECT TO "authenticated" USING (true);
+CREATE POLICY "todos veem" ON "public"."versao_app" FOR SELECT USING (true);
+CREATE POLICY "todos_podem_insert" ON "public"."fila_processamento_pontuacao" FOR INSERT TO "authenticated" WITH CHECK (true);
+CREATE POLICY "todos_veem_perguntas" ON "public"."perguntas_user" FOR SELECT USING (true);
+ALTER TABLE "public"."turma_professor_atribuicao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."turmas" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."unidade_atribuicao" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."user_expandido" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."user_familia" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."versao_app" ENABLE ROW LEVEL SECURITY;
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."adicional_noturno_professor";
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."faltas_professores";
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."fila_processamento_pontuacao";
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."licenca_saude";
+GRANT ALL ON FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid", "p_data_inicio" "date") TO "anon";
+GRANT ALL ON FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid", "p_data_inicio" "date") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."bbtk_reserva_create"("p_copia_uuid" "uuid", "p_user_uuid" "uuid", "p_id_empresa" "uuid", "p_data_inicio" "date") TO "service_role";
+GRANT ALL ON TABLE "public"."componente" TO "anon";
+GRANT ALL ON TABLE "public"."componente" TO "authenticated";
+GRANT ALL ON TABLE "public"."componente" TO "service_role";
+GRANT ALL ON TABLE "public"."professores_certificados_atribuicao" TO "anon";
+GRANT ALL ON TABLE "public"."professores_certificados_atribuicao" TO "authenticated";
+GRANT ALL ON TABLE "public"."professores_certificados_atribuicao" TO "service_role";
+GRANT ALL ON FUNCTION "public"."get_table_schema"("p_id_empresa" "uuid", "p_table_name" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."get_table_schema"("p_id_empresa" "uuid", "p_table_name" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_table_schema"("p_id_empresa" "uuid", "p_table_name" "text") TO "service_role";
+GRANT ALL ON TABLE "public"."perguntas_user" TO "anon";
+GRANT ALL ON TABLE "public"."perguntas_user" TO "authenticated";
+GRANT ALL ON TABLE "public"."perguntas_user" TO "service_role";
+GRANT ALL ON FUNCTION "public"."set_created_modified_by"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_created_modified_by"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_created_modified_by"() TO "service_role";
+GRANT ALL ON TABLE "public"."adicional_noturno_professor" TO "anon";
+GRANT ALL ON TABLE "public"."adicional_noturno_professor" TO "authenticated";
+GRANT ALL ON TABLE "public"."adicional_noturno_professor" TO "service_role";
+GRANT ALL ON TABLE "public"."ano_etapa" TO "anon";
+GRANT ALL ON TABLE "public"."ano_etapa" TO "authenticated";
+GRANT ALL ON TABLE "public"."ano_etapa" TO "service_role";
+GRANT ALL ON TABLE "public"."atividades_infantil" TO "anon";
+GRANT ALL ON TABLE "public"."atividades_infantil" TO "authenticated";
+GRANT ALL ON TABLE "public"."atividades_infantil" TO "service_role";
+GRANT ALL ON TABLE "public"."atividades_infantil_duracao" TO "anon";
+GRANT ALL ON TABLE "public"."atividades_infantil_duracao" TO "authenticated";
+GRANT ALL ON TABLE "public"."atividades_infantil_duracao" TO "service_role";
+GRANT ALL ON TABLE "public"."atividades_infantil_vinculos" TO "anon";
+GRANT ALL ON TABLE "public"."atividades_infantil_vinculos" TO "authenticated";
+GRANT ALL ON TABLE "public"."atividades_infantil_vinculos" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_autoria" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_autoria" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_autoria" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_categoria" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_categoria" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_categoria" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_cdu" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_cdu" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_cdu" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_doador" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_doador" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_doador" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_editora" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_editora" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_editora" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_estante" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_estante" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_estante" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_metadado" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_metadado" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_metadado" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_predio" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_predio" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_predio" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_dim_sala" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_dim_sala" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_dim_sala" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_edicao" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_edicao" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_edicao" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_historico_interacao" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_historico_interacao" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_historico_interacao" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_inventario_copia" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_inventario_copia" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_inventario_copia" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_juncao_edicao_autoria" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_juncao_edicao_autoria" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_juncao_edicao_autoria" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_juncao_edicao_metadado" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_juncao_edicao_metadado" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_juncao_edicao_metadado" TO "service_role";
+GRANT ALL ON TABLE "public"."bbtk_obra" TO "anon";
+GRANT ALL ON TABLE "public"."bbtk_obra" TO "authenticated";
+GRANT ALL ON TABLE "public"."bbtk_obra" TO "service_role";
+GRANT ALL ON TABLE "public"."calendario_eventos" TO "anon";
+GRANT ALL ON TABLE "public"."calendario_eventos" TO "authenticated";
+GRANT ALL ON TABLE "public"."calendario_eventos" TO "service_role";
+GRANT ALL ON TABLE "public"."calendario_matriz_semana" TO "anon";
+GRANT ALL ON TABLE "public"."calendario_matriz_semana" TO "authenticated";
+GRANT ALL ON TABLE "public"."calendario_matriz_semana" TO "service_role";
+GRANT ALL ON TABLE "public"."carga_horaria_p1" TO "anon";
+GRANT ALL ON TABLE "public"."carga_horaria_p1" TO "authenticated";
+GRANT ALL ON TABLE "public"."carga_horaria_p1" TO "service_role";
+GRANT ALL ON TABLE "public"."carga_horaria_p3" TO "anon";
+GRANT ALL ON TABLE "public"."carga_horaria_p3" TO "authenticated";
+GRANT ALL ON TABLE "public"."carga_horaria_p3" TO "service_role";
+GRANT ALL ON TABLE "public"."carga_suplementar_professor" TO "anon";
+GRANT ALL ON TABLE "public"."carga_suplementar_professor" TO "authenticated";
+GRANT ALL ON TABLE "public"."carga_suplementar_professor" TO "service_role";
+GRANT ALL ON TABLE "public"."classe" TO "anon";
+GRANT ALL ON TABLE "public"."classe" TO "authenticated";
+GRANT ALL ON TABLE "public"."classe" TO "service_role";
+GRANT ALL ON TABLE "public"."crm_mensagens" TO "anon";
+GRANT ALL ON TABLE "public"."crm_mensagens" TO "authenticated";
+GRANT ALL ON TABLE "public"."crm_mensagens" TO "service_role";
+GRANT ALL ON TABLE "public"."diario_presenca" TO "anon";
+GRANT ALL ON TABLE "public"."diario_presenca" TO "authenticated";
+GRANT ALL ON TABLE "public"."diario_presenca" TO "service_role";
+GRANT ALL ON TABLE "public"."empresa" TO "anon";
+GRANT ALL ON TABLE "public"."empresa" TO "authenticated";
+GRANT ALL ON TABLE "public"."empresa" TO "service_role";
+GRANT SELECT ON TABLE "public"."empresa" TO "supabase_auth_admin";
+GRANT ALL ON TABLE "public"."escolas" TO "anon";
+GRANT ALL ON TABLE "public"."escolas" TO "authenticated";
+GRANT ALL ON TABLE "public"."escolas" TO "service_role";
+GRANT ALL ON TABLE "public"."faltas_professores" TO "anon";
+GRANT ALL ON TABLE "public"."faltas_professores" TO "authenticated";
+GRANT ALL ON TABLE "public"."faltas_professores" TO "service_role";
+GRANT ALL ON TABLE "public"."feriados" TO "anon";
+GRANT ALL ON TABLE "public"."feriados" TO "authenticated";
+GRANT ALL ON TABLE "public"."feriados" TO "service_role";
+GRANT ALL ON TABLE "public"."ferias_professor" TO "anon";
+GRANT ALL ON TABLE "public"."ferias_professor" TO "authenticated";
+GRANT ALL ON TABLE "public"."ferias_professor" TO "service_role";
+GRANT ALL ON TABLE "public"."fila_processamento_pontuacao" TO "anon";
+GRANT ALL ON TABLE "public"."fila_processamento_pontuacao" TO "authenticated";
+GRANT ALL ON TABLE "public"."fila_processamento_pontuacao" TO "service_role";
+GRANT ALL ON TABLE "public"."horario_aula" TO "anon";
+GRANT ALL ON TABLE "public"."horario_aula" TO "authenticated";
+GRANT ALL ON TABLE "public"."horario_aula" TO "service_role";
+GRANT ALL ON TABLE "public"."horarios_escola" TO "anon";
+GRANT ALL ON TABLE "public"."horarios_escola" TO "authenticated";
+GRANT ALL ON TABLE "public"."horarios_escola" TO "service_role";
+GRANT ALL ON TABLE "public"."licenca_saude" TO "anon";
+GRANT ALL ON TABLE "public"."licenca_saude" TO "authenticated";
+GRANT ALL ON TABLE "public"."licenca_saude" TO "service_role";
+GRANT ALL ON TABLE "public"."lms_configuracao_empresa" TO "anon";
+GRANT ALL ON TABLE "public"."lms_configuracao_empresa" TO "authenticated";
+GRANT ALL ON TABLE "public"."lms_configuracao_empresa" TO "service_role";
+GRANT ALL ON TABLE "public"."lms_conteudo" TO "anon";
+GRANT ALL ON TABLE "public"."lms_conteudo" TO "authenticated";
+GRANT ALL ON TABLE "public"."lms_conteudo" TO "service_role";
+GRANT ALL ON TABLE "public"."lms_item_conteudo" TO "anon";
+GRANT ALL ON TABLE "public"."lms_item_conteudo" TO "authenticated";
+GRANT ALL ON TABLE "public"."lms_item_conteudo" TO "service_role";
+GRANT ALL ON TABLE "public"."lms_pergunta" TO "anon";
+GRANT ALL ON TABLE "public"."lms_pergunta" TO "authenticated";
+GRANT ALL ON TABLE "public"."lms_pergunta" TO "service_role";
+GRANT ALL ON TABLE "public"."lms_resposta" TO "anon";
+GRANT ALL ON TABLE "public"."lms_resposta" TO "authenticated";
+GRANT ALL ON TABLE "public"."lms_resposta" TO "service_role";
+GRANT ALL ON TABLE "public"."lms_resposta_possivel" TO "anon";
+GRANT ALL ON TABLE "public"."lms_resposta_possivel" TO "authenticated";
+GRANT ALL ON TABLE "public"."lms_resposta_possivel" TO "service_role";
+GRANT ALL ON TABLE "public"."lms_submissao" TO "anon";
+GRANT ALL ON TABLE "public"."lms_submissao" TO "authenticated";
+GRANT ALL ON TABLE "public"."lms_submissao" TO "service_role";
+GRANT ALL ON TABLE "public"."materiais_sed" TO "anon";
+GRANT ALL ON TABLE "public"."materiais_sed" TO "authenticated";
+GRANT ALL ON TABLE "public"."materiais_sed" TO "service_role";
+GRANT ALL ON TABLE "public"."matriculas" TO "anon";
+GRANT ALL ON TABLE "public"."matriculas" TO "authenticated";
+GRANT ALL ON TABLE "public"."matriculas" TO "service_role";
+GRANT ALL ON TABLE "public"."meta_turma" TO "anon";
+GRANT ALL ON TABLE "public"."meta_turma" TO "authenticated";
+GRANT ALL ON TABLE "public"."meta_turma" TO "service_role";
+GRANT ALL ON TABLE "public"."onbdg_codigos_email" TO "anon";
+GRANT ALL ON TABLE "public"."onbdg_codigos_email" TO "authenticated";
+GRANT ALL ON TABLE "public"."onbdg_codigos_email" TO "service_role";
+GRANT ALL ON TABLE "public"."onbdg_codigos_email_status" TO "anon";
+GRANT ALL ON TABLE "public"."onbdg_codigos_email_status" TO "authenticated";
+GRANT ALL ON TABLE "public"."onbdg_codigos_email_status" TO "service_role";
+GRANT ALL ON TABLE "public"."papeis_user" TO "anon";
+GRANT ALL ON TABLE "public"."papeis_user" TO "authenticated";
+GRANT ALL ON TABLE "public"."papeis_user" TO "service_role";
+GRANT SELECT ON TABLE "public"."papeis_user" TO "supabase_auth_admin";
+GRANT ALL ON TABLE "public"."papeis_user_auth" TO "anon";
+GRANT ALL ON TABLE "public"."papeis_user_auth" TO "authenticated";
+GRANT ALL ON TABLE "public"."papeis_user_auth" TO "service_role";
+GRANT SELECT ON TABLE "public"."papeis_user_auth" TO "supabase_auth_admin";
+GRANT ALL ON TABLE "public"."pontuacao_professores" TO "anon";
+GRANT ALL ON TABLE "public"."pontuacao_professores" TO "authenticated";
+GRANT ALL ON TABLE "public"."pontuacao_professores" TO "service_role";
+GRANT ALL ON TABLE "public"."professor_componente" TO "anon";
+GRANT ALL ON TABLE "public"."professor_componente" TO "authenticated";
+GRANT ALL ON TABLE "public"."professor_componente" TO "service_role";
+GRANT ALL ON TABLE "public"."professor_componentes_atribuicao" TO "anon";
+GRANT ALL ON TABLE "public"."professor_componentes_atribuicao" TO "authenticated";
+GRANT ALL ON TABLE "public"."professor_componentes_atribuicao" TO "service_role";
+GRANT ALL ON TABLE "public"."professor_funcao_extra" TO "anon";
+GRANT ALL ON TABLE "public"."professor_funcao_extra" TO "authenticated";
+GRANT ALL ON TABLE "public"."professor_funcao_extra" TO "service_role";
+GRANT ALL ON TABLE "public"."professor_tempo_unidade" TO "anon";
+GRANT ALL ON TABLE "public"."professor_tempo_unidade" TO "authenticated";
+GRANT ALL ON TABLE "public"."professor_tempo_unidade" TO "service_role";
+GRANT ALL ON TABLE "public"."respostas_user" TO "anon";
+GRANT ALL ON TABLE "public"."respostas_user" TO "authenticated";
+GRANT ALL ON TABLE "public"."respostas_user" TO "service_role";
+GRANT ALL ON TABLE "public"."staging_professor_escola" TO "anon";
+GRANT ALL ON TABLE "public"."staging_professor_escola" TO "authenticated";
+GRANT ALL ON TABLE "public"."staging_professor_escola" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_alunos" TO "anon";
+GRANT ALL ON TABLE "public"."stg_alunos" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_alunos" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_autoria" TO "anon";
+GRANT ALL ON TABLE "public"."stg_autoria" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_autoria" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_excedentes" TO "anon";
+GRANT ALL ON TABLE "public"."stg_excedentes" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_excedentes" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_obra_edicao" TO "anon";
+GRANT ALL ON TABLE "public"."stg_obra_edicao" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_obra_edicao" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_ocorrencias" TO "anon";
+GRANT ALL ON TABLE "public"."stg_ocorrencias" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_ocorrencias" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_ocorrencias_intermediaria" TO "anon";
+GRANT ALL ON TABLE "public"."stg_ocorrencias_intermediaria" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_ocorrencias_intermediaria" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_ocorrencias_log" TO "anon";
+GRANT ALL ON TABLE "public"."stg_ocorrencias_log" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_ocorrencias_log" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_pontuacao" TO "anon";
+GRANT ALL ON TABLE "public"."stg_pontuacao" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_pontuacao" TO "service_role";
+GRANT ALL ON TABLE "public"."stg_professor_atribuicao" TO "anon";
+GRANT ALL ON TABLE "public"."stg_professor_atribuicao" TO "authenticated";
+GRANT ALL ON TABLE "public"."stg_professor_atribuicao" TO "service_role";
+GRANT ALL ON TABLE "public"."teste_23" TO "anon";
+GRANT ALL ON TABLE "public"."teste_23" TO "authenticated";
+GRANT ALL ON TABLE "public"."teste_23" TO "service_role";
+GRANT ALL ON TABLE "public"."turma_professor_atribuicao" TO "anon";
+GRANT ALL ON TABLE "public"."turma_professor_atribuicao" TO "authenticated";
+GRANT ALL ON TABLE "public"."turma_professor_atribuicao" TO "service_role";
+GRANT ALL ON TABLE "public"."turmas" TO "anon";
+GRANT ALL ON TABLE "public"."turmas" TO "authenticated";
+GRANT ALL ON TABLE "public"."turmas" TO "service_role";
+GRANT ALL ON TABLE "public"."unidade_atribuicao" TO "anon";
+GRANT ALL ON TABLE "public"."unidade_atribuicao" TO "authenticated";
+GRANT ALL ON TABLE "public"."unidade_atribuicao" TO "service_role";
+GRANT ALL ON TABLE "public"."user_expandido" TO "anon";
+GRANT ALL ON TABLE "public"."user_expandido" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_expandido" TO "service_role";
+GRANT ALL ON TABLE "public"."user_familia" TO "anon";
+GRANT ALL ON TABLE "public"."user_familia" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_familia" TO "service_role";
+GRANT ALL ON TABLE "public"."user_responsavel_aluno" TO "anon";
+GRANT ALL ON TABLE "public"."user_responsavel_aluno" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_responsavel_aluno" TO "service_role";
+GRANT ALL ON TABLE "public"."versao_app" TO "anon";
+GRANT ALL ON TABLE "public"."versao_app" TO "authenticated";
+GRANT ALL ON TABLE "public"."versao_app" TO "service_role";
+GRANT ALL ON TABLE "public"."view_professores_escola" TO "anon";
+GRANT ALL ON TABLE "public"."view_professores_escola" TO "authenticated";
+GRANT ALL ON TABLE "public"."view_professores_escola" TO "service_role";
+GRANT ALL ON TABLE "public"."view_professores_pontuacao_por_ano" TO "anon";
+GRANT ALL ON TABLE "public"."view_professores_pontuacao_por_ano" TO "authenticated";
+GRANT ALL ON TABLE "public"."view_professores_pontuacao_por_ano" TO "service_role";
+GRANT ALL ON TABLE "public"."view_respostas_professor_json" TO "anon";
+GRANT ALL ON TABLE "public"."view_respostas_professor_json" TO "authenticated";
+GRANT ALL ON TABLE "public"."view_respostas_professor_json" TO "service_role";
+GRANT ALL ON TABLE "public"."vw_materiais_sed_dropdowns" TO "anon";
+GRANT ALL ON TABLE "public"."vw_materiais_sed_dropdowns" TO "authenticated";
+GRANT ALL ON TABLE "public"."vw_materiais_sed_dropdowns" TO "service_role";
+GRANT ALL ON TABLE "public"."vw_professores_funcoes_extras" TO "anon";
+GRANT ALL ON TABLE "public"."vw_professores_funcoes_extras" TO "authenticated";
+GRANT ALL ON TABLE "public"."vw_professores_funcoes_extras" TO "service_role";
+GRANT ALL ON TABLE "public"."vw_resumo_turmas_atribuicao" TO "anon";
+GRANT ALL ON TABLE "public"."vw_resumo_turmas_atribuicao" TO "authenticated";
+GRANT ALL ON TABLE "public"."vw_resumo_turmas_atribuicao" TO "service_role";
+GRANT ALL ON TABLE "public"."vw_turmas_por_ano_etapa_escola" TO "anon";
+GRANT ALL ON TABLE "public"."vw_turmas_por_ano_etapa_escola" TO "authenticated";
+GRANT ALL ON TABLE "public"."vw_turmas_por_ano_etapa_escola" TO "service_role";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
+create extension if not exists "pg_net" with schema "public";
+CREATE OR REPLACE FUNCTION public.get_professores_certificados_status_escola(p_id_escola uuid, p_ano text, p_id_professor uuid DEFAULT NULL::uuid, p_busca_nome text DEFAULT NULL::text, p_pendentes boolean DEFAULT true, p_enviados boolean DEFAULT true, p_em_andamento_diretor boolean DEFAULT true, p_em_andamento_supervisor boolean DEFAULT true, p_concluido_diretor boolean DEFAULT true, p_concluido_supervisor boolean DEFAULT true)
+ RETURNS TABLE(nome_professor text, id_professor uuid, id_escola uuid, nome_escola text, matricula text, quantidade_certificados_enviados integer, deferido_indeferido_diretor text, deferido_indeferido_supervisor text, deferido_geral boolean, mostrar_subitem boolean, tipo_contrato text, data_admissao text)
+ STABLE SECURITY DEFINER
+  create policy "autenticados podem deletar plxbd0_0"
+  create policy "autenticados podem enviar"
+  create policy "autenticados podem ler plxbd0_0"
