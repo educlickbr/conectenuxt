@@ -2,7 +2,12 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event) as any
-    const user = await serverSupabaseUser(event)
+    let user = null
+    try {
+        user = await serverSupabaseUser(event)
+    } catch (error) {
+        // Token might be expired or invalid
+    }
 
     // Auth fallback
     let altUser = null

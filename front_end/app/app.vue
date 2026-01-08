@@ -12,6 +12,19 @@ const { data: bffData, refresh: refreshBff, status: bffStatus } = useFetch('/api
 // Client-side session sync: Refresh BFF data when the Supabase user changes
 if (import.meta.client) {
   watch(user, async (newUser, oldUser) => {
+    // DEBUG: Time Check
+    if (newUser) {
+      const now = Date.now() / 1000
+      const exp = newUser.exp || 0
+      const diff = exp - now
+      console.log('[DEBUG] Auth Change:', { 
+        clientTime: new Date().toISOString(),
+        tokenExp: new Date(exp * 1000).toISOString(),
+        diffSeconds: diff,
+        isExpired: diff < 0
+      })
+    }
+
     // Only refresh if the identity actually changed to avoid redundant calls
     if (newUser?.id !== oldUser?.id) {
       await refreshBff()

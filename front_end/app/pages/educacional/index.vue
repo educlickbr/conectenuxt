@@ -107,17 +107,40 @@ const handleDelete = (item) => {
 
 const confirmDelete = async () => {
     if (!itemToDelete.value) return
-  if (currentTabId.value === 'classes') {
-    isModalClassesOpen.value = true
-  } else if (currentTabId.value === 'ano_etapa') {
-    isModalAnoEtapaOpen.value = true
-  } else if (currentTabId.value === 'horarios') {
-    isModalHorarioOpen.value = true
-  } else if (currentTabId.value === 'turmas') {
-    isModalTurmaOpen.value = true
-  } else {
-    toast.showToast('Funcionalidade "Novo" em desenvolvimento para esta aba.', 'info')
-  }
+
+    isDeleting.value = true
+    try {
+        const { success, message } = await $fetch(`/api/educacional/${currentTabId.value}`, {
+            method: 'DELETE',
+            body: {
+                id: itemToDelete.value.id || itemToDelete.value.uuid,
+                id_empresa: appStore.company.empresa_id
+            }
+        })
+
+        if (success) {
+            toast.showToast(message || 'Registro excluído com sucesso!')
+            isConfirmOpen.value = false
+            itemToDelete.value = null
+            // Refresh logic
+            if (page.value === 1) {
+                await execute() // Wait for refresh
+            } else {
+                page.value = 1
+            }
+        }
+    } catch (err) {
+        console.error('Erro ao excluir:', err)
+        const msg = err.data?.message || err.message || 'Erro ao excluir o registro.'
+        toast.showToast(msg, 'error')
+    } finally {
+        isDeleting.value = false
+        // Ensure modal closes on error if desired, but usually we keep it open so user can retry or cancel.
+        // Actually, for errors like "dependency exists", we might want to keep it open or close it?
+        // Standard behavior: close specifically on success, keep open on error (so user sees context), OR close and show toast.
+        // The previous implementation kept it open on error. Let's stick to that or let user cancel.
+        // Wait, if error is "cannot delete", user must cancel manually. That's fine.
+    }
 }
 
 const handleEdit = (item) => {
