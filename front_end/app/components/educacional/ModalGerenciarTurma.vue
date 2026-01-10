@@ -144,10 +144,10 @@ const handleSave = async () => {
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="handleCancel"></div>
             
             <!-- Modal Content -->
-            <div class="relative bg-background w-full max-w-lg flex flex-col rounded shadow-2xl border border-secondary/10 overflow-hidden transform transition-all">
+            <div class="relative bg-background w-full max-w-lg flex flex-col rounded shadow-2xl border border-[#6B82A71A] overflow-hidden transform transition-all">
                 
                 <!-- Header -->
-                <div class="px-6 py-4 border-b border-secondary/10 flex items-center justify-between bg-div-15">
+                <div class="px-6 py-4 border-b border-[#6B82A71A] flex items-center justify-between bg-div-15">
                     <div>
                         <h2 class="text-xl font-bold text-text">{{ initialData ? 'Editar Turma' : 'Nova Turma' }}</h2>
                         <p class="text-xs text-secondary mt-0.5">Vincule classe, alunos e horários.</p>
@@ -161,7 +161,7 @@ const handleSave = async () => {
                 <div class="p-6 flex flex-col gap-4">
                      <!-- Loading Deps State -->
                     <div v-if="isLoadingDependencies" class="absolute inset-0 z-10 bg-white/80 dark:bg-black/80 flex items-center justify-center">
-                         <div class="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                         <div class="w-8 h-8 border-2 border-[#3571CB33] border-t-primary rounded-full animate-spin"></div>
                     </div>
 
                      <!-- Error Alert -->
@@ -220,7 +220,7 @@ const handleSave = async () => {
                 </div>
 
                 <!-- Footer -->
-                <div class="px-6 py-4 border-t border-secondary/10 flex items-center justify-end gap-3 bg-div-15">
+                <div class="px-6 py-4 border-t border-[#6B82A71A] flex items-center justify-end gap-3 bg-div-15">
                     <button 
                         @click="handleCancel"
                         class="px-4 py-2 rounded text-secondary font-semibold hover:bg-div-30 transition-colors"

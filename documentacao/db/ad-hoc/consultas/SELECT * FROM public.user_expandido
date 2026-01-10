@@ -1,0 +1,3 @@
+SELECT * FROM public.user_expandido 
+WHERE id = '925b1365-f0ac-4708-b899-c239d50f0350' 
+AND id_empresa = '0709fe87-3b42-4f1d-9919-51dea9228cfd';

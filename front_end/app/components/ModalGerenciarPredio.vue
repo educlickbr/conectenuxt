@@ -93,9 +93,9 @@ const handleSave = async () => {
         <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="$emit('close')"></div>
             
-            <div class="relative bg-background w-full max-w-lg rounded shadow-2xl border border-secondary/10 overflow-hidden transform transition-all">
+            <div class="relative bg-background w-full max-w-lg rounded shadow-2xl border border-[#6B82A71A] overflow-hidden transform transition-all">
                 <!-- Header -->
-                <div class="px-6 py-4 border-b border-secondary/10 flex items-center justify-between bg-div-15">
+                <div class="px-6 py-4 border-b border-[#6B82A71A] flex items-center justify-between bg-div-15">
                     <h2 class="text-xl font-bold text-text">{{ initialData ? 'Editar Prédio' : 'Novo Prédio' }}</h2>
                     <button @click="$emit('close')" class="p-2 rounded-full hover:bg-div-30 text-secondary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -126,12 +126,12 @@ const handleSave = async () => {
                 </div>
 
                 <!-- Footer -->
-                <div class="px-6 py-4 border-t border-secondary/10 flex items-center justify-end gap-3 bg-div-15">
+                <div class="px-6 py-4 border-t border-[#6B82A71A] flex items-center justify-end gap-3 bg-div-15">
                     <button @click="$emit('close')" class="px-5 py-2.5 rounded text-secondary font-semibold text-sm hover:bg-div-30 transition-colors">Cancelar</button>
                     <button 
                         @click="handleSave" 
                         :disabled="isSaving" 
-                        class="px-8 py-2.5 rounded bg-primary text-white font-bold text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:active:scale-100 transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
+                        class="px-8 py-2.5 rounded bg-primary text-white font-bold text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:active:scale-100 transition-all flex items-center gap-2 shadow-lg shadow-[#3571CB33]"
                     >
                         <svg v-if="isSaving" class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         {{ isSaving ? 'Salvando...' : 'Salvar Prédio' }}

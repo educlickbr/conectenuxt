@@ -1,20 +1,9 @@
-CREATE OR REPLACE FUNCTION public.familia_get_paginado(
-    p_id_empresa uuid,
-    p_pagina integer DEFAULT 1,
-    p_limite_itens_pagina integer DEFAULT 10,
-    p_busca text DEFAULT NULL::text
-)
-RETURNS TABLE(
-    id uuid,
-    nome_familia text,
-    responsavel_principal text,
-    qtd_alunos bigint,
-    total_registros bigint
-)
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
+CREATE OR REPLACE FUNCTION public.familia_get_paginado(p_id_empresa uuid, p_pagina integer DEFAULT 1, p_limite_itens_pagina integer DEFAULT 10, p_busca text DEFAULT NULL::text)
+ RETURNS TABLE(id uuid, nome_familia text, responsavel_principal text, qtd_alunos bigint, total_registros bigint)
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
 DECLARE
     v_offset integer;
 BEGIN
@@ -69,7 +58,4 @@ BEGIN
     OFFSET
         v_offset;
 END;
-$$;
-
-ALTER FUNCTION public.familia_get_paginado(uuid, integer, integer, text)
-    OWNER TO postgres;
+$function$

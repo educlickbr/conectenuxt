@@ -1,15 +1,7 @@
-CREATE OR REPLACE FUNCTION public.professor_get_paginado(
-	p_id_empresa uuid,
-	p_pagina integer DEFAULT 1,
-	p_limite_itens_pagina integer DEFAULT 10,
-	p_busca text DEFAULT ''::text,
-    p_id_escola uuid DEFAULT NULL,
-    p_status text DEFAULT NULL)
-    RETURNS json
-    LANGUAGE plpgsql
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
+CREATE OR REPLACE FUNCTION public.professor_get_paginado(p_id_empresa uuid, p_pagina integer DEFAULT 1, p_limite_itens_pagina integer DEFAULT 10, p_busca text DEFAULT ''::text, p_id_escola uuid DEFAULT NULL::uuid, p_status text DEFAULT NULL::text)
+ RETURNS json
+ LANGUAGE plpgsql
+AS $function$
 DECLARE
     v_offset integer;
     v_busca_like text := '%' || UPPER(p_busca) || '%';
@@ -93,6 +85,4 @@ BEGIN
         'itens', v_itens
     );
 END;
-$BODY$;
-
-
+$function$

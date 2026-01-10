@@ -1,23 +1,9 @@
-CREATE OR REPLACE FUNCTION public.admin_get_paginado(
-    p_id_empresa uuid,
-    p_pagina integer DEFAULT 1,
-    p_limite_itens_pagina integer DEFAULT 10,
-    p_busca text DEFAULT NULL::text
-)
-RETURNS TABLE(
-    id uuid,
-    nome_completo text,
-    email text,
-    telefone text,
-    matricula text,
-    status_contrato public.status_contrato,
-    user_id uuid,
-    total_registros bigint
-)
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
+CREATE OR REPLACE FUNCTION public.admin_get_paginado(p_id_empresa uuid, p_pagina integer DEFAULT 1, p_limite_itens_pagina integer DEFAULT 10, p_busca text DEFAULT NULL::text)
+ RETURNS TABLE(id uuid, nome_completo text, email text, telefone text, matricula text, status_contrato status_contrato, user_id uuid, total_registros bigint)
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
 DECLARE
     v_offset integer;
     v_role_admin uuid := 'd3410ac7-5a4a-4f02-8923-610b9fd87c4d';
@@ -70,7 +56,4 @@ BEGIN
     OFFSET
         v_offset;
 END;
-$$;
-
-ALTER FUNCTION public.admin_get_paginado(uuid, integer, integer, text)
-    OWNER TO postgres;
+$function$

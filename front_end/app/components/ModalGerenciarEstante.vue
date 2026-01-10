@@ -131,8 +131,8 @@ const handleSave = async () => {
     <Teleport to="body">
         <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="$emit('close')"></div>
-            <div class="relative bg-background w-full max-w-lg rounded shadow-2xl overflow-hidden border border-secondary/10">
-                <div class="px-6 py-4 bg-div-15 border-b border-secondary/10 flex justify-between items-center">
+            <div class="relative bg-background w-full max-w-lg rounded shadow-2xl overflow-hidden border border-[#6B82A71A]">
+                <div class="px-6 py-4 bg-div-15 border-b border-[#6B82A71A] flex justify-between items-center">
                     <h2 class="text-xl font-bold text-text">{{ initialData ? 'Editar Estante' : 'Nova Estante' }}</h2>
                     <button @click="$emit('close')" class="p-2 rounded-full hover:bg-div-30 text-secondary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -155,7 +155,7 @@ const handleSave = async () => {
 
                     <div class="flex flex-col gap-1.5">
                         <label class="text-[10px] font-black text-secondary uppercase tracking-[0.15em] ml-1">Prédio</label>
-                        <div v-if="formData.predio_uuid && selectedPredioName" class="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded">
+                        <div v-if="formData.predio_uuid && selectedPredioName" class="flex items-center gap-2 p-3 bg-[#3571CB0D] border border-[#3571CB33] rounded">
                             <span class="flex-1 text-sm font-bold text-text">{{ selectedPredioName }}</span>
                             <button @click="formData.predio_uuid = null; formData.sala_uuid = null; selectedPredioName = ''; selectedSalaName = ''; fetchPredios()" class="p-1.5 rounded hover:bg-red-500/10 text-red-500 transition-colors" title="Trocar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -178,7 +178,7 @@ const handleSave = async () => {
 
                     <div class="flex flex-col gap-1.5">
                         <label class="text-[10px] font-black text-secondary uppercase tracking-[0.15em] ml-1">Sala</label>
-                        <div v-if="formData.sala_uuid && selectedSalaName" class="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded">
+                        <div v-if="formData.sala_uuid && selectedSalaName" class="flex items-center gap-2 p-3 bg-[#3571CB0D] border border-[#3571CB33] rounded">
                             <span class="flex-1 text-sm font-bold text-text">{{ selectedSalaName }}</span>
                             <button @click="formData.sala_uuid = null; selectedSalaName = ''; fetchSalas()" class="p-1.5 rounded hover:bg-red-500/10 text-red-500 transition-colors" title="Trocar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -205,9 +205,9 @@ const handleSave = async () => {
                         placeholder="Ex: Estante 01..."
                     />
                 </div>
-                <div class="px-6 py-4 bg-div-15 border-t border-secondary/10 flex justify-end gap-3">
+                <div class="px-6 py-4 bg-div-15 border-t border-[#6B82A71A] flex justify-end gap-3">
                     <button @click="$emit('close')" class="px-5 py-2.5 rounded text-secondary font-semibold text-sm hover:bg-div-30 transition-colors">Cancelar</button>
-                    <button @click="handleSave" :disabled="isSaving" class="px-8 py-2.5 bg-primary text-white font-bold rounded shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all text-sm">
+                    <button @click="handleSave" :disabled="isSaving" class="px-8 py-2.5 bg-primary text-white font-bold rounded shadow-lg shadow-[#3571CB33] hover:brightness-110 active:scale-95 transition-all text-sm">
                         {{ isSaving ? 'Salvando...' : 'Salvar Estante' }}
                     </button>
                 </div>

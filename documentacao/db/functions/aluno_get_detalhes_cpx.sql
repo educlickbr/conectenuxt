@@ -1,12 +1,9 @@
-CREATE OR REPLACE FUNCTION public.aluno_get_detalhes_cpx(
+CREATE OR REPLACE FUNCTION public.aluno_get_detalhes_cpx (
     p_id_empresa uuid,
     p_id_aluno uuid -- user_expandido.id
-)
-RETURNS json
-LANGUAGE plpgsql
-COST 100
-VOLATILE PARALLEL UNSAFE
-AS $BODY$
+) RETURNS json LANGUAGE plpgsql SECURITY DEFINER
+SET
+    search_path = public COST 100 VOLATILE PARALLEL UNSAFE AS $BODY$
 DECLARE
     v_dados_gerais json;
     v_respostas json;
@@ -62,5 +59,4 @@ BEGIN
 END;
 $BODY$;
 
-ALTER FUNCTION public.aluno_get_detalhes_cpx(uuid, uuid)
-    OWNER TO postgres;
+ALTER FUNCTION public.aluno_get_detalhes_cpx (uuid, uuid) OWNER TO postgres;
