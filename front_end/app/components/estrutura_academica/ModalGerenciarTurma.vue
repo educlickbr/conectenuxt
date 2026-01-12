@@ -40,9 +40,9 @@ const fetchDependencies = async () => {
         // Fetch in parallel
         const [resEscolas, resClasses, resAnos, resHorarios] = await Promise.all([
             $fetch('/api/infra/escolas', { query: { id_empresa: companyId, limite: 100 } }),
-            $fetch('/api/educacional/classes', { query: { id_empresa: companyId, limite: 100 } }),
-            $fetch('/api/educacional/ano_etapa', { query: { id_empresa: companyId, limite: 100 } }),
-            $fetch('/api/educacional/horarios', { query: { id_empresa: companyId, limite: 100 } })
+            $fetch('/api/estrutura_academica/classes', { query: { id_empresa: companyId, limite: 100 } }),
+            $fetch('/api/estrutura_academica/ano_etapa', { query: { id_empresa: companyId, limite: 100 } }),
+            $fetch('/api/estrutura_academica/horarios', { query: { id_empresa: companyId, limite: 100 } })
         ])
 
         escolas.value = resEscolas.items || []
@@ -112,7 +112,7 @@ const handleSave = async () => {
             id_horario: formData.value.id_horario
         }
 
-        const { success, message, error } = await $fetch('/api/educacional/turmas', {
+        const { success, message, error } = await $fetch('/api/estrutura_academica/turmas', {
             method: 'POST',
             body: {
                 id_empresa: appStore.company.empresa_id,

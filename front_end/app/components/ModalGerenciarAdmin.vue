@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useToastStore } from '@/stores/toast'
 
@@ -14,6 +14,22 @@ const toast = useToastStore()
 
 const isSaving = ref(false)
 const form = ref({ id: null, nome_completo: '', email: '', telefone: '' })
+
+// onMounted: Handle when modal is created with v-if already in open state
+onMounted(() => {
+    if (props.isOpen) {
+        if (props.initialData) {
+            form.value = {
+                id: props.initialData.id,
+                nome_completo: props.initialData.nome_completo,
+                email: props.initialData.email,
+                telefone: props.initialData.telefone
+            }
+        } else {
+            form.value = { id: null, nome_completo: '', email: '', telefone: '' }
+        }
+    }
+})
 
 watch(() => props.isOpen, (val) => {
     if (val) {

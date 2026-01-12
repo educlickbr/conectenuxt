@@ -10,7 +10,12 @@ export default defineEventHandler(async (event) => {
         classes: 'classe_delete',
         ano_etapa: 'ano_etapa_delete',
         horarios: 'horarios_escola_delete',
-        turmas: 'turmas_delete'
+        turmas: 'turmas_delete',
+        componentes: 'componente_delete',
+        carga_horaria: 'carga_horaria_delete',
+        feriados: 'mtz_feriados_delete',
+        eventos: 'mtz_eventos_delete',
+        matriz_curricular: 'mtz_matriz_curricular_delete'
     }
 
     const rpcName = rpcMap[resource as string]
@@ -43,23 +48,27 @@ export default defineEventHandler(async (event) => {
         p_id_empresa: id_empresa
     }
 
+    // Special case handling if needed for param names, but usually named params work best
+    // Feriados/Eventos follow (p_id, p_id_empresa) which fits the standard mapping if using positional,
+    // but with named params (object) supabase handles it cleanly.
+
     try {
         const { data, error } = await (client as any).rpc(rpcName, rpcParams)
 
         if (error) {
-            console.error(`[API Educacional DELETE] Erro no RPC ${rpcName}:`, error)
-             // Create a user-friendly error from the database error if possible
+            console.error(`[API Estrutura Acadêmica DELETE] Erro no RPC ${rpcName}:`, error)
+            // Create a user-friendly error from the database error if possible
             throw error
         }
 
         // The RPC returns a JSONB object: { status, message, id }
         // We pass this through to the frontend
-        
+
         if (data && data.status === 'error') {
-             throw createError({
+            throw createError({
                 statusCode: 400,
                 // We use data.message to pass the specific dependency error (e.g., "Turma vinculada")
-                message: data.message, 
+                message: data.message,
                 data: data // Pass full data object
             })
         }
@@ -71,8 +80,8 @@ export default defineEventHandler(async (event) => {
         }
 
     } catch (err: any) {
-        console.error(`[API Educacional DELETE] Erro ao processar ${resource}:`, err)
-        
+        console.error(`[API Estrutura Acadêmica DELETE] Erro ao processar ${resource}:`, err)
+
         // Ensure we propagate the specific message from the RPC if it was thrown above
         const statusCode = err.statusCode || 500
         const message = err.message || `Erro ao excluir ${resource}`

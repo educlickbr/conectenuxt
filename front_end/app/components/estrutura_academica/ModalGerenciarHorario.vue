@@ -15,7 +15,10 @@ const toast = useToastStore()
 
 const formData = ref({
     nome: '',
-    ordem: 0
+    descricao: '',
+    periodo: 'Matutino',
+    hora_inicio: '',
+    hora_fim: ''
 })
 const isSaving = ref(false)
 const errorMessage = ref('')
@@ -26,12 +29,18 @@ const initForm = () => {
         formData.value = { 
             id: props.initialData.id || props.initialData.uuid,
             nome: props.initialData.nome || '',
-            ordem: props.initialData.ordem || 0
+            descricao: props.initialData.descricao || '',
+            periodo: props.initialData.periodo || 'Matutino',
+            hora_inicio: props.initialData.hora_inicio || '',
+            hora_fim: props.initialData.hora_fim || ''
         }
     } else {
         formData.value = {
             nome: '',
-            ordem: 0
+            descricao: '',
+            periodo: 'Matutino',
+            hora_inicio: '',
+            hora_fim: ''
         }
     }
 }
@@ -49,7 +58,11 @@ const handleCancel = () => {
 
 const handleSave = async () => {
     if (!formData.value.nome.trim()) {
-        errorMessage.value = 'O nome da classe é obrigatório.'
+        errorMessage.value = 'O nome do horário é obrigatório.'
+        return
+    }
+    if (!formData.value.hora_inicio || !formData.value.hora_fim) {
+         errorMessage.value = 'Defina a hora de início e fim.'
         return
     }
 
@@ -60,10 +73,14 @@ const handleSave = async () => {
         const payload = {
             id: formData.value.id,
             nome: formData.value.nome,
-            ordem: Number(formData.value.ordem)
+            descricao: formData.value.descricao,
+            periodo: formData.value.periodo,
+            hora_inicio: formData.value.hora_inicio,
+            hora_fim: formData.value.hora_fim,
+            hora_completo: `${formData.value.hora_inicio} - ${formData.value.hora_fim}`
         }
 
-        const { success, message, error } = await $fetch('/api/educacional/classes', {
+        const { success, message, error } = await $fetch('/api/estrutura_academica/horarios', {
             method: 'POST',
             body: {
                 id_empresa: appStore.company.empresa_id,
@@ -72,7 +89,7 @@ const handleSave = async () => {
         })
 
         if (success) {
-            toast.showToast(message || 'Classe salva com sucesso!')
+            toast.showToast(message || 'Horário salvo com sucesso!')
             emit('success')
             emit('close')
         } else {
@@ -80,7 +97,7 @@ const handleSave = async () => {
         }
 
     } catch (err) {
-        console.error('Erro ao salvar classe:', err)
+        console.error('Erro ao salvar horário:', err)
         errorMessage.value = err.data?.message || err.message || 'Erro ao comunicar com o servidor.'
     } finally {
         isSaving.value = false
@@ -95,13 +112,13 @@ const handleSave = async () => {
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="handleCancel"></div>
             
             <!-- Modal Content -->
-            <div class="relative bg-background w-full max-w-md flex flex-col rounded shadow-2xl border border-secondary/10 overflow-hidden transform transition-all">
+            <div class="relative bg-background w-full max-w-lg flex flex-col rounded shadow-2xl border border-secondary/10 overflow-hidden transform transition-all">
                 
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-secondary/10 flex items-center justify-between bg-div-15">
                     <div>
-                        <h2 class="text-xl font-bold text-text">{{ initialData ? 'Editar Classe' : 'Nova Classe' }}</h2>
-                        <p class="text-xs text-secondary mt-0.5">Defina o nome e a ordem da classe.</p>
+                        <h2 class="text-xl font-bold text-text">{{ initialData ? 'Editar Horário' : 'Novo Horário' }}</h2>
+                        <p class="text-xs text-secondary mt-0.5">Configure os turnos e horários escolares.</p>
                     </div>
                      <button @click="handleCancel" class="p-2 rounded-full hover:bg-div-30 text-secondary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -115,19 +132,45 @@ const handleSave = async () => {
                         <span>{{ errorMessage }}</span>
                     </div>
 
-                    <ManagerField 
-                        label="Nome da Classe"
-                        v-model="formData.nome"
-                        placeholder="Ex: 1º Ano, Jardim II"
-                        required
-                    />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ManagerField 
+                            label="Nome"
+                            v-model="formData.nome"
+                            placeholder="Ex: Turno Matutino"
+                            required
+                        />
+                         <ManagerField 
+                            label="Período"
+                            v-model="formData.periodo"
+                            type="select"
+                        >
+                            <option value="Matutino">Matutino</option>
+                            <option value="Vespertino">Vespertino</option>
+                            <option value="Noturno">Noturno</option>
+                            <option value="Integral">Integral</option>
+                        </ManagerField>
+                    </div>
 
                     <ManagerField 
-                        label="Ordem (Numérica)"
-                        v-model="formData.ordem"
-                        type="number"
-                        placeholder="Ex: 1, 2, 10"
+                        label="Descrição (Opcional)"
+                        v-model="formData.descricao"
+                        placeholder="Detalhes adicionais..."
                     />
+
+                    <div class="grid grid-cols-2 gap-4">
+                         <ManagerField 
+                            label="Início"
+                            v-model="formData.hora_inicio"
+                            type="time"
+                            required
+                        />
+                         <ManagerField 
+                            label="Fim"
+                            v-model="formData.hora_fim"
+                            type="time"
+                            required
+                        />
+                    </div>
                 </div>
 
                 <!-- Footer -->

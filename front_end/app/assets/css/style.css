@@ -26,6 +26,7 @@
   /* Base Text & Background (Light) */
   --color-text: #141616;
   --color-background: #FFFFFF;
+  --color-surface: #F8FAFC;
 
   /* Rounding (Design Tokens) */
   --radius-xs: 2px;
@@ -44,8 +45,20 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --color-text: #E8E6E8;
   --color-background: #16161E;
+  --color-surface: #1E1E26;
+  /* Adjust surface colors for better contrast in dark mode */
+  --color-secondary-surface: rgba(107, 130, 167, 0.15);
+  --color-secondary-surface-hover: rgba(107, 130, 167, 0.3);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] button {
+  color-scheme: dark;
 }
 
 body {

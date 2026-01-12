@@ -15,8 +15,7 @@ const toast = useToastStore()
 
 const formData = ref({
     nome: '',
-    tipo: 'Ano',
-    carg_horaria: 0
+    ordem: 0
 })
 const isSaving = ref(false)
 const errorMessage = ref('')
@@ -26,15 +25,13 @@ const initForm = () => {
     if (props.initialData) {
         formData.value = { 
             id: props.initialData.id || props.initialData.uuid,
-            nome: props.initialData.nome || props.initialData.ano || '',
-            tipo: props.initialData.tipo || 'Ano',
-            carg_horaria: props.initialData.carg_horaria || 0
+            nome: props.initialData.nome || '',
+            ordem: props.initialData.ordem || 0
         }
     } else {
         formData.value = {
             nome: '',
-            tipo: 'Ano',
-            carg_horaria: 800
+            ordem: 0
         }
     }
 }
@@ -52,7 +49,7 @@ const handleCancel = () => {
 
 const handleSave = async () => {
     if (!formData.value.nome.trim()) {
-        errorMessage.value = 'O nome/ano é obrigatório.'
+        errorMessage.value = 'O nome da classe é obrigatório.'
         return
     }
 
@@ -63,11 +60,10 @@ const handleSave = async () => {
         const payload = {
             id: formData.value.id,
             nome: formData.value.nome,
-            tipo: formData.value.tipo,
-            carg_horaria: Number(formData.value.carg_horaria)
+            ordem: Number(formData.value.ordem)
         }
 
-        const { success, message, error } = await $fetch('/api/educacional/ano_etapa', {
+        const { success, message, error } = await $fetch('/api/estrutura_academica/classes', {
             method: 'POST',
             body: {
                 id_empresa: appStore.company.empresa_id,
@@ -76,7 +72,7 @@ const handleSave = async () => {
         })
 
         if (success) {
-            toast.showToast(message || 'Registro salvo com sucesso!')
+            toast.showToast(message || 'Classe salva com sucesso!')
             emit('success')
             emit('close')
         } else {
@@ -84,7 +80,7 @@ const handleSave = async () => {
         }
 
     } catch (err) {
-        console.error('Erro ao salvar ano/etapa:', err)
+        console.error('Erro ao salvar classe:', err)
         errorMessage.value = err.data?.message || err.message || 'Erro ao comunicar com o servidor.'
     } finally {
         isSaving.value = false
@@ -104,8 +100,8 @@ const handleSave = async () => {
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-secondary/10 flex items-center justify-between bg-div-15">
                     <div>
-                        <h2 class="text-xl font-bold text-text">{{ initialData ? 'Editar Ano/Etapa' : 'Novo Ano/Etapa' }}</h2>
-                        <p class="text-xs text-secondary mt-0.5">Defina o período letivo e carga horária.</p>
+                        <h2 class="text-xl font-bold text-text">{{ initialData ? 'Editar Classe' : 'Nova Classe' }}</h2>
+                        <p class="text-xs text-secondary mt-0.5">Defina o nome e a ordem da classe.</p>
                     </div>
                      <button @click="handleCancel" class="p-2 rounded-full hover:bg-div-30 text-secondary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -120,26 +116,17 @@ const handleSave = async () => {
                     </div>
 
                     <ManagerField 
-                        label="Nome / Ano Escolar"
+                        label="Nome da Classe"
                         v-model="formData.nome"
-                        placeholder="Ex: 2025 ou 1º Semestre"
+                        placeholder="Ex: 1º Ano, Jardim II"
                         required
                     />
 
                     <ManagerField 
-                        label="Tipo"
-                        v-model="formData.tipo"
-                        type="select"
-                    >
-                        <option value="Ano">Ano</option>
-                        <option value="Etapa">Etapa</option>
-                    </ManagerField>
-
-                    <ManagerField 
-                        label="Carga Horária (Horas)"
-                        v-model="formData.carg_horaria"
+                        label="Ordem (Numérica)"
+                        v-model="formData.ordem"
                         type="number"
-                        placeholder="Ex: 800"
+                        placeholder="Ex: 1, 2, 10"
                     />
                 </div>
 

@@ -214,6 +214,21 @@ const loadDetails = async (id) => {
     }
 }
 
+// onMounted: Handle when modal is created with v-if already in open state
+onMounted(async () => {
+    if (props.isOpen) {
+        resetForm()
+        
+        // ALWAYS fetch auxiliary data (empty questions) - Legacy pattern
+        await fetchAuxiliaryData()
+        
+        // If editing, load details and MERGE with the initialized formRespostas
+        if (props.initialData) {
+            await loadDetails(props.initialData.user_expandido_id || props.initialData.id)
+        }
+    }
+})
+
 // init
 watch(() => props.isOpen, async (newVal) => {
     if (newVal) {
@@ -229,6 +244,14 @@ watch(() => props.isOpen, async (newVal) => {
     }
 })
 
+// Watch for preloaded data arriving after modal is already open (for Novo button)
+watch(() => props.preloadedQuestions, async (newQuestions) => {
+    if (props.isOpen && newQuestions && newQuestions.length > 0) {
+        console.log('[ModalProfessor] Preloaded questions arrived:', newQuestions.length, 'questions')
+        // Re-fetch to use the preloaded questions
+        await fetchAuxiliaryData()
+    }
+}, { deep: true })
 
 
 const resetForm = () => {

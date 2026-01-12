@@ -4,10 +4,11 @@ definePageMeta({
 })
 
 // Import placeholder components for tabs
-import TabClasses from '@/components/educacional/TabClasses.vue'
-import TabAnoEtapa from '@/components/educacional/TabAnoEtapa.vue'
-import TabHorarios from '@/components/educacional/TabHorarios.vue'
-import TabTurmas from '@/components/educacional/TabTurmas.vue'
+import TabClasses from '@/components/estrutura_academica/TabClasses.vue'
+import TabComponentes from '@/components/estrutura_academica/TabComponentes.vue'
+import TabAnoEtapa from '@/components/estrutura_academica/TabAnoEtapa.vue'
+import TabHorarios from '@/components/estrutura_academica/TabHorarios.vue'
+import TabTurmas from '@/components/estrutura_academica/TabTurmas.vue'
 
 import ManagerDashboard from '@/components/ManagerDashboard.vue'
 import { useToastStore } from '@/stores/toast'
@@ -20,6 +21,7 @@ const router = useRouter()
 // --- Tabs Config ---
 const TABS = [
   { id: 'classes', label: 'Classes', icon: '📋' },
+  { id: 'componentes', label: 'Componentes', icon: '🧩' },
   { id: 'ano_etapa', label: 'Ano / Etapa', icon: '📅' },
   { id: 'horarios', label: 'Horários', icon: '🕒' },
   { id: 'turmas', label: 'Turmas', icon: '👥' }
@@ -34,7 +36,7 @@ const page = ref(1)
 const limit = ref(10)
 
 // --- BFF Data Fetching ---
-const { data: bffData, pending, error: bffError, refresh } = await useFetch(() => `/api/educacional/${currentTabId.value}`, {
+const { data: bffData, pending, error: bffError, refresh } = await useFetch(() => `/api/estrutura_academica/${currentTabId.value}`, {
   query: computed(() => ({
     id_empresa: store.company?.empresa_id,
     pagina: page.value,
@@ -52,13 +54,15 @@ const pages = computed(() => bffData.value?.pages || 0)
 const isLoading = computed(() => pending.value)
 
 // Modals State
-import ModalGerenciarClasse from '@/components/educacional/ModalGerenciarClasse.vue'
-import ModalGerenciarAnoEtapa from '@/components/educacional/ModalGerenciarAnoEtapa.vue'
-import ModalGerenciarHorario from '@/components/educacional/ModalGerenciarHorario.vue'
-import ModalGerenciarTurma from '@/components/educacional/ModalGerenciarTurma.vue'
+import ModalGerenciarClasse from '@/components/estrutura_academica/ModalGerenciarClasse.vue'
+import ModalGerenciarComponente from '@/components/estrutura_academica/ModalGerenciarComponente.vue'
+import ModalGerenciarAnoEtapa from '@/components/estrutura_academica/ModalGerenciarAnoEtapa.vue'
+import ModalGerenciarHorario from '@/components/estrutura_academica/ModalGerenciarHorario.vue'
+import ModalGerenciarTurma from '@/components/estrutura_academica/ModalGerenciarTurma.vue'
 import ModalConfirmacao from '@/components/ModalConfirmacao.vue'
 
 const isModalClassesOpen = ref(false)
+const isModalComponentesOpen = ref(false)
 const isModalAnoEtapaOpen = ref(false)
 const isModalHorarioOpen = ref(false)
 const isModalTurmaOpen = ref(false)
@@ -84,6 +88,8 @@ const handleNew = () => {
   selectedItem.value = null
   if (currentTabId.value === 'classes') {
     isModalClassesOpen.value = true
+  } else if (currentTabId.value === 'componentes') {
+    isModalComponentesOpen.value = true
   } else if (currentTabId.value === 'ano_etapa') {
     isModalAnoEtapaOpen.value = true
   } else if (currentTabId.value === 'horarios') {
@@ -110,11 +116,11 @@ const confirmDelete = async () => {
 
     isDeleting.value = true
     try {
-        const { success, message } = await $fetch(`/api/educacional/${currentTabId.value}`, {
+        const { success, message } = await $fetch(`/api/estrutura_academica/${currentTabId.value}`, {
             method: 'DELETE',
             body: {
                 id: itemToDelete.value.id || itemToDelete.value.uuid,
-                id_empresa: appStore.company.empresa_id
+                id_empresa: store.company.empresa_id
             }
         })
 
@@ -147,6 +153,8 @@ const handleEdit = (item) => {
     selectedItem.value = item
     if (currentTabId.value === 'classes') {
         isModalClassesOpen.value = true
+    } else if (currentTabId.value === 'componentes') {
+        isModalComponentesOpen.value = true
     } else if (currentTabId.value === 'ano_etapa') {
         isModalAnoEtapaOpen.value = true
     } else if (currentTabId.value === 'horarios') {
@@ -181,7 +189,7 @@ const dashboardStats = computed(() => [
 
     <!-- Header Subtitle Slot -->
     <template #header-subtitle>
-      Gestão Educacional
+      Estrutura Acadêmica
     </template>
 
     <!-- Header Actions Slot -->
@@ -227,9 +235,9 @@ const dashboardStats = computed(() => [
       >
         <template #extra>
           <div class="bg-orange-500/5 p-4 rounded border border-orange-500/10">
-            <h4 class="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] mb-2">Educacional</h4>
+            <h4 class="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] mb-2">Estrutura Acadêmica</h4>
             <p class="text-[11px] text-orange-500/70 leading-relaxed font-medium">
-              Gerencie as informações acadêmicas, como turmas, horários e disciplinas.
+              Gerencie as informações fundamentais da instituição, como turmas, horários e ciclos.
             </p>
           </div>
         </template>
@@ -240,6 +248,13 @@ const dashboardStats = computed(() => [
     <div class="w-full">
       <TabClasses 
         v-if="currentTabId === 'classes'" 
+        :items="items" 
+        :is-loading="isLoading"
+        @edit="handleEdit"
+        @delete="handleDelete"
+      />
+      <TabComponentes 
+        v-if="currentTabId === 'componentes'" 
         :items="items" 
         :is-loading="isLoading"
         @edit="handleEdit"
@@ -281,6 +296,13 @@ const dashboardStats = computed(() => [
           :is-open="isModalClassesOpen"
           :initial-data="selectedItem"
           @close="isModalClassesOpen = false"
+          @success="handleSuccess"
+       />
+
+       <ModalGerenciarComponente
+          :is-open="isModalComponentesOpen"
+          :initial-data="selectedItem"
+          @close="isModalComponentesOpen = false"
           @success="handleSuccess"
        />
 

@@ -15,32 +15,29 @@ const toast = useToastStore()
 
 const formData = ref({
     nome: '',
-    descricao: '',
-    periodo: 'Matutino',
-    hora_inicio: '',
-    hora_fim: ''
+    cor: '#3571CB'
 })
 const isSaving = ref(false)
 const errorMessage = ref('')
+
+const PRESET_COLORS = [
+    '#3571CB', '#EF4444', '#F59E0B', '#10B981', 
+    '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6',
+    '#F97316', '#06B6D4'
+]
 
 // Initialize form
 const initForm = () => {
     if (props.initialData) {
         formData.value = { 
-            id: props.initialData.id || props.initialData.uuid,
+            uuid: props.initialData.uuid,
             nome: props.initialData.nome || '',
-            descricao: props.initialData.descricao || '',
-            periodo: props.initialData.periodo || 'Matutino',
-            hora_inicio: props.initialData.hora_inicio || '',
-            hora_fim: props.initialData.hora_fim || ''
+            cor: props.initialData.cor || '#3571CB'
         }
     } else {
         formData.value = {
             nome: '',
-            descricao: '',
-            periodo: 'Matutino',
-            hora_inicio: '',
-            hora_fim: ''
+            cor: '#3571CB'
         }
     }
 }
@@ -56,13 +53,13 @@ const handleCancel = () => {
     emit('close')
 }
 
+const selectPreset = (color) => {
+    formData.value.cor = color
+}
+
 const handleSave = async () => {
     if (!formData.value.nome.trim()) {
-        errorMessage.value = 'O nome do horário é obrigatório.'
-        return
-    }
-    if (!formData.value.hora_inicio || !formData.value.hora_fim) {
-         errorMessage.value = 'Defina a hora de início e fim.'
+        errorMessage.value = 'O nome do componente é obrigatório.'
         return
     }
 
@@ -70,26 +67,16 @@ const handleSave = async () => {
     errorMessage.value = ''
 
     try {
-        const payload = {
-            id: formData.value.id,
-            nome: formData.value.nome,
-            descricao: formData.value.descricao,
-            periodo: formData.value.periodo,
-            hora_inicio: formData.value.hora_inicio,
-            hora_fim: formData.value.hora_fim,
-            hora_completo: `${formData.value.hora_inicio} - ${formData.value.hora_fim}`
-        }
-
-        const { success, message, error } = await $fetch('/api/educacional/horarios', {
+        const { success, message, data } = await $fetch('/api/estrutura_academica/componentes', {
             method: 'POST',
             body: {
                 id_empresa: appStore.company.empresa_id,
-                data: payload
+                data: formData.value
             }
         })
 
         if (success) {
-            toast.showToast(message || 'Horário salvo com sucesso!')
+            toast.showToast(message || 'Componente salvo com sucesso!')
             emit('success')
             emit('close')
         } else {
@@ -97,7 +84,7 @@ const handleSave = async () => {
         }
 
     } catch (err) {
-        console.error('Erro ao salvar horário:', err)
+        console.error('Erro ao salvar componente:', err)
         errorMessage.value = err.data?.message || err.message || 'Erro ao comunicar com o servidor.'
     } finally {
         isSaving.value = false
@@ -112,13 +99,13 @@ const handleSave = async () => {
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="handleCancel"></div>
             
             <!-- Modal Content -->
-            <div class="relative bg-background w-full max-w-lg flex flex-col rounded shadow-2xl border border-secondary/10 overflow-hidden transform transition-all">
+            <div class="relative bg-background w-full max-w-md flex flex-col rounded shadow-2xl border border-secondary/10 overflow-hidden transform transition-all text-text">
                 
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-secondary/10 flex items-center justify-between bg-div-15">
                     <div>
-                        <h2 class="text-xl font-bold text-text">{{ initialData ? 'Editar Horário' : 'Novo Horário' }}</h2>
-                        <p class="text-xs text-secondary mt-0.5">Configure os turnos e horários escolares.</p>
+                        <h2 class="text-xl font-bold">{{ initialData ? 'Editar Componente' : 'Novo Componente' }}</h2>
+                        <p class="text-xs text-secondary mt-0.5">Identifique o componente com nome e cor.</p>
                     </div>
                      <button @click="handleCancel" class="p-2 rounded-full hover:bg-div-30 text-secondary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -126,50 +113,47 @@ const handleSave = async () => {
                 </div>
 
                 <!-- Body -->
-                <div class="p-6 flex flex-col gap-4">
+                <div class="p-6 flex flex-col gap-6">
                      <!-- Error Alert -->
                     <div v-if="errorMessage" class="p-4 rounded bg-red-500/5 border border-red-500/20 text-red-500 text-xs flex items-start gap-2">
                         <span>{{ errorMessage }}</span>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <ManagerField 
-                            label="Nome"
-                            v-model="formData.nome"
-                            placeholder="Ex: Turno Matutino"
-                            required
-                        />
-                         <ManagerField 
-                            label="Período"
-                            v-model="formData.periodo"
-                            type="select"
-                        >
-                            <option value="Matutino">Matutino</option>
-                            <option value="Vespertino">Vespertino</option>
-                            <option value="Noturno">Noturno</option>
-                            <option value="Integral">Integral</option>
-                        </ManagerField>
-                    </div>
-
                     <ManagerField 
-                        label="Descrição (Opcional)"
-                        v-model="formData.descricao"
-                        placeholder="Detalhes adicionais..."
+                        label="Nome do Componente"
+                        v-model="formData.nome"
+                        placeholder="Ex: Português, Matemática, Arte..."
+                        required
                     />
 
-                    <div class="grid grid-cols-2 gap-4">
-                         <ManagerField 
-                            label="Início"
-                            v-model="formData.hora_inicio"
-                            type="time"
-                            required
-                        />
-                         <ManagerField 
-                            label="Fim"
-                            v-model="formData.hora_fim"
-                            type="time"
-                            required
-                        />
+                    <!-- Color Selector -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-secondary uppercase tracking-wider">Cor Representativa</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button 
+                                v-for="color in PRESET_COLORS" 
+                                :key="color"
+                                @click="selectPreset(color)"
+                                class="w-8 h-8 rounded-full border-2 transition-transform active:scale-90"
+                                :class="formData.cor === color ? 'border-primary ring-2 ring-primary/20 scale-110' : 'border-transparent'"
+                                :style="{ backgroundColor: color }"
+                            ></button>
+                            
+                            <!-- Native Color Picker -->
+                            <div class="relative w-8 h-8 group">
+                                <input 
+                                    type="color" 
+                                    v-model="formData.cor"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                />
+                                <div 
+                                    class="w-8 h-8 rounded-full border border-secondary/20 flex items-center justify-center bg-div-15 group-hover:bg-div-30 transition-colors"
+                                    :title="'Escolher cor customizada'"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -184,10 +168,10 @@ const handleSave = async () => {
                     <button 
                         @click="handleSave"
                         :disabled="isSaving"
-                        class="px-6 py-2 rounded bg-primary text-white font-bold hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-2"
+                        class="px-6 py-2 rounded bg-primary text-white font-bold hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-2 shadow-sm"
                     >
                         <span v-if="isSaving" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                        {{ isSaving ? 'Salvando...' : 'Salvar' }}
+                        {{ isSaving ? 'Salvando...' : 'Salvar Componente' }}
                     </button>
                 </div>
             </div>

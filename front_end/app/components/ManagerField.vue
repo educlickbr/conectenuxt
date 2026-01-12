@@ -37,7 +37,7 @@ const onChange = (e) => emit('change', e.target.value)
           :value="modelValue"
           @change="onInput($event); onChange($event)"
           :disabled="disabled"
-          class="w-full pl-4 pr-10 py-2.5 bg-div-15 border border-[#6B82A71A] text-text text-sm focus:outline-none focus:border-[#3571CB80] focus:ring-4 focus:ring-[#3571CB0D] transition-all appearance-none cursor-pointer disabled:opacity-50"
+          class="w-full pl-4 pr-10 py-2.5 bg-background border border-[#6B82A71A] text-text text-sm focus:outline-none focus:border-[#3571CB80] focus:ring-4 focus:ring-[#3571CB0D] transition-all appearance-none cursor-pointer disabled:opacity-50"
           :class="[
             error ? 'border-red-500/50' : 'hover:border-[#6B82A74D]',
             'rounded-[var(--radius-sm)]' 
@@ -55,6 +55,11 @@ const onChange = (e) => emit('change', e.target.value)
         <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B82A780]">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </div>
+      </template>
+      
+      <!-- CUSTOM (SLOT ONLY) -->
+      <template v-else-if="type === 'custom'">
+          <slot></slot>
       </template>
 
       <!-- INPUT -->
@@ -83,5 +88,11 @@ const onChange = (e) => emit('change', e.target.value)
 /* Ensure the standard focus ring doesn't overlap with our custom one */
 select:focus, input:focus {
   outline: none;
+}
+
+/* Force native options to follow theme colors more strictly */
+select option {
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 </style>

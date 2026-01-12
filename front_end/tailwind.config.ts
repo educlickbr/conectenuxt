@@ -12,6 +12,7 @@ export default <Partial<Config>>{
                 'secondary-hover': 'var(--color-secondary-hover)',
                 'div-15': 'var(--color-secondary-surface)',
                 'div-30': 'var(--color-secondary-surface-hover)',
+                'surface': 'var(--color-surface)',
                 'danger': 'var(--color-danger)',
                 'success': 'var(--color-success)',
                 'warning': 'var(--color-warning)',

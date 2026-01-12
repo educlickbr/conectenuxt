@@ -10,7 +10,12 @@ export default defineEventHandler(async (event) => {
         classes: 'classe_upsert',
         ano_etapa: 'ano_etapa_upsert',
         horarios: 'horarios_escola_upsert',
-        turmas: 'turmas_upsert'
+        turmas: 'turmas_upsert',
+        componentes: 'upsert_componentes',
+        carga_horaria: 'upsert_carga_horaria',
+        feriados: 'mtz_feriados_upsert',
+        eventos: 'mtz_eventos_upsert',
+        matriz_curricular: 'mtz_matriz_curricular_upsert'
     }
 
     const rpcName = rpcMap[resource as string]
@@ -35,15 +40,15 @@ export default defineEventHandler(async (event) => {
         // Prepare RPC parameters
         // Standard signature for these legacy upserts: (p_data jsonb, p_id_empresa uuid)
         // Except 'turmas_upsert' which might use p_turma instead of p_data
-        
+
         let params: any = {}
-        
+
         if (resource === 'turmas') {
-             // turmas_upsert(p_id_empresa, p_turma)
-             params = {
+            // turmas_upsert(p_id_empresa, p_turma)
+            params = {
                 p_id_empresa: id_empresa,
                 p_turma: payload
-             }
+            }
         } else {
             // Standard: (p_data, p_id_empresa)
             params = {
@@ -55,7 +60,7 @@ export default defineEventHandler(async (event) => {
         const { data, error } = await (client as any).rpc(rpcName, params)
 
         if (error) {
-            console.error(`[API Educacional POST] Erro no RPC ${rpcName}:`, error)
+            console.error(`[API Estrutura Acadêmica POST] Erro no RPC ${rpcName}:`, error)
             throw error
         }
 
@@ -75,7 +80,7 @@ export default defineEventHandler(async (event) => {
         }
 
     } catch (err: any) {
-        console.error(`[API Educacional POST] Erro ao processar ${resource}:`, err)
+        console.error(`[API Estrutura Acadêmica POST] Erro ao processar ${resource}:`, err)
         throw createError({
             statusCode: err.statusCode || 500,
             statusMessage: err.message || `Erro ao salvar ${resource}`

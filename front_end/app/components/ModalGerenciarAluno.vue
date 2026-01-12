@@ -134,43 +134,48 @@ const categorizeQuestions = (perguntas) => {
 
 // Fetching
 const fetchAuxiliaryData = async () => {
+    console.log('[ModalAluno] === fetchAuxiliaryData STARTED ===')
     isLoading.value = true
     try {
         let perguntas = props.preloadedQuestions
+        console.log('[ModalAluno] preloadedQuestions:', perguntas?.length || 0)
         
         if (!perguntas || perguntas.length === 0) {
-            console.log('[ModalAluno] No preloaded data, fetching...')
+            console.log('[ModalAluno] No preloaded data, fetching from API...')
             const companyId = appStore.company?.empresa_id || appStore.company?.id
-            if (!companyId) return
+            console.log('[ModalAluno] companyId:', companyId)
+            if (!companyId) {
+                console.error('[ModalAluno] NO COMPANY ID - ABORTING')
+                return
+            }
             const p = await $fetch('/api/usuarios/auxiliar', {
                 query: { type: 'perguntas', id_empresa: companyId, papeis: PAPEL_ALUNO.join(',') }
             })
+            console.log('[ModalAluno] Fetched from API:', p?.length || 0, 'questions')
             perguntas = p
         } else {
              console.log('[ModalAluno] Using preloaded data. Count:', perguntas?.length)
         }
 
-        if (perguntas && perguntas.length > 0) {
-            console.table(perguntas.map(p => ({ slug: p.pergunta, label: p.label, tipo: p.tipo })))
-        }
-
-        if (perguntas && perguntas.length > 0) {
-            console.table(perguntas.map(p => ({ slug: p.pergunta, label: p.label, tipo: p.tipo })))
-        }
+        console.log('[ModalAluno] Total perguntas to process:', perguntas?.length || 0)
         
         // CRITICAL: Initialize formRespostas BEFORE categorization so refs exist
         const initialRespostas = {}
         ;(perguntas || []).forEach(p => {
             initialRespostas[p.id] = { resposta: '', tipo: p.tipo }
         })
+        console.log('[ModalAluno] Initialized', Object.keys(initialRespostas).length, 'formRespostas entries')
+        
         // Legacy merge order: keep existing data, add new entries
         formRespostas.value = { ...initialRespostas, ...formRespostas.value }
+        console.log('[ModalAluno] formRespostas after merge:', Object.keys(formRespostas.value).length, 'entries')
 
         // Now categorize - template can safely access formRespostas[slot.id]
         categorizeQuestions(perguntas || [])
+        console.log('[ModalAluno] === fetchAuxiliaryData COMPLETED ===')
         
     } catch(e) {
-        console.error(e)
+        console.error('[ModalAluno] === fetchAuxiliaryData ERROR ===', e)
         errorMessage.value = 'Erro ao carregar formulário.'
     } finally {
         isLoading.value = false
@@ -178,15 +183,25 @@ const fetchAuxiliaryData = async () => {
 }
 
 const loadDetails = async (id) => {
+    console.log('[ModalAluno] === loadDetails CALLED ===', 'ID:', id)
     isLoading.value = true
     try {
-        const data = await $fetch(`/api/usuarios/alunos/detalhes/${id}`, {
-            query: { id_empresa: appStore.company.empresa_id || appStore.company.id }
+        const companyId = appStore.company?.empresa_id || appStore.company?.id
+        console.log('[ModalAluno] Company ID:', companyId)
+        
+        const url = `/api/usuarios/alunos/detalhes/${id}`
+        console.log('[ModalAluno] Fetching from:', url)
+        
+        const data = await $fetch(url, {
+            query: { id_empresa: companyId }
         })
+        
+        console.log('[ModalAluno] API Response:', data)
         
         if (data) {
             // 1. Populate general form data
            if (data.dados_gerais) {
+                console.log('[ModalAluno] Hydrating formDados with:', data.dados_gerais)
                 formDados.value = {
                     id: data.dados_gerais.user_expandido_id, 
                     nome_completo: data.dados_gerais.nome_completo,
@@ -210,19 +225,43 @@ const loadDetails = async (id) => {
                         id_resposta: r.id_resposta
                     }
                 })
+                console.log('[ModalAluno] Created respostasMap with', Object.keys(respostasMap).length, 'entries')
+                
                 // CRITICAL: MERGE with existing formRespostas (initialized by fetchAuxiliaryData)
                 formRespostas.value = { ...formRespostas.value, ...respostasMap }
+                console.log('[ModalAluno] formRespostas after merge:', Object.keys(formRespostas.value).length, 'total entries')
             }
         }
+        console.log('[ModalAluno] === loadDetails COMPLETED ===')
     } catch(e){
-        console.error(e)
+        console.error('[ModalAluno] === loadDetails ERROR ===', e)
         errorMessage.value = 'Erro ao carregar dados do aluno.'
     } finally {
         isLoading.value = false
     }
 }
 
+// onMounted: Handle when modal is created with v-if already in open state
+onMounted(async () => {
+    console.log('[ModalAluno] === onMounted ===', 'isOpen:', props.isOpen, 'initialData:', props.initialData)
+    if (props.isOpen) {
+        resetForm()
+        
+        // ALWAYS fetch auxiliary data (empty questions) - Legacy pattern
+        await fetchAuxiliaryData()
+        
+        // If editing, load details and MERGE with the initialized formRespostas
+        if (props.initialData) {
+            console.log('[ModalAluno] onMounted: Has initialData, calling loadDetails with ID:', props.initialData.user_expandido_id || props.initialData.id)
+            await loadDetails(props.initialData.user_expandido_id || props.initialData.id)
+        } else {
+            console.log('[ModalAluno] onMounted: No initialData - create mode')
+        }
+    }
+})
+
 watch(() => props.isOpen, async (newVal) => {
+    console.log('[ModalAluno] === isOpen watcher ===', 'newVal:', newVal, 'initialData:', props.initialData)
     if (newVal) {
         resetForm()
         
@@ -231,10 +270,22 @@ watch(() => props.isOpen, async (newVal) => {
         
         // If editing, load details and MERGE with the initialized formRespostas
         if (props.initialData) {
+            console.log('[ModalAluno] Has initialData, calling loadDetails with ID:', props.initialData.user_expandido_id || props.initialData.id)
             await loadDetails(props.initialData.user_expandido_id || props.initialData.id)
+        } else {
+            console.log('[ModalAluno] No initialData - create mode')
         }
     }
 })
+
+// Watch for preloaded data arriving after modal is already open (for Novo button)
+watch(() => props.preloadedQuestions, async (newQuestions) => {
+    if (props.isOpen && newQuestions && newQuestions.length > 0) {
+        console.log('[ModalAluno] Preloaded questions arrived:', newQuestions.length, 'questions')
+        // Re-fetch to use the preloaded questions
+        await fetchAuxiliaryData()
+    }
+}, { deep: true })
 
 const resetForm = () => {
     formDados.value = { nome_completo: '', email: '', telefone: '', matricula: '', status: 'Ativo' }

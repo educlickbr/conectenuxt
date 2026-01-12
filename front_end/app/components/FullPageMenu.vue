@@ -159,11 +159,11 @@ const hasAccess = (allowedRoles) => {
                 <span class="text-[10px] text-secondary">Escolas e Prédios</span>
               </div>
             </button>
-            <button @click="handleNavigation('/educacional')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/estrutura_academica')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-orange-500/10 text-orange-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div>
               <div class="flex flex-col text-left">
-                <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Educacional</span>
-                <span class="text-[10px] text-secondary">Matrículas e Turmas</span>
+                <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Estrutura Acadêmica</span>
+                <span class="text-[10px] text-secondary">Classes, Horários e Turmas</span>
               </div>
             </button>
             <button @click="handleNavigation('/usuarios')" class="menu-item group border-t border-[#6B82A70D]">
@@ -172,6 +172,29 @@ const hasAccess = (allowedRoles) => {
                 <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Usuários</span>
                 <span class="text-[10px] text-secondary">Gestão de Equipe</span>
               </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section: Secretaria -->
+        <div v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="space-y-4">
+          <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Secretaria</h3>
+          <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
+            <button @click="handleNavigation('/secretaria/matricula')" class="menu-item group">
+              <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg></div>
+              <span class="text-sm font-bold text-text group-hover:text-primary">Matrícula</span>
+            </button>
+            <button @click="handleNavigation('/secretaria/diario')" class="menu-item group border-t border-[#6B82A70D]">
+              <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+              <span class="text-sm font-bold text-text group-hover:text-primary">Diário de Classe</span>
+            </button>
+            <button @click="handleNavigation('/matriz_curricular')" class="menu-item group border-t border-[#6B82A70D]">
+              <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
+              <span class="text-sm font-bold text-text group-hover:text-primary">Matriz Curricular</span>
+            </button>
+            <button @click="handleNavigation('/secretaria/atribuicao')" class="menu-item group border-t border-[#6B82A70D]">
+              <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg></div>
+              <span class="text-sm font-bold text-text group-hover:text-primary">Atribuição</span>
             </button>
           </div>
         </div>
@@ -205,7 +228,7 @@ const hasAccess = (allowedRoles) => {
           <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
              <button @click="handleNavigation('/lms')" v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="menu-item group">
               <div class="menu-icon bg-sky-500/10 text-sky-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
-              <span class="text-sm font-bold text-text group-hover:text-primary">LMS Acadêmico</span>
+              <span class="text-sm font-bold text-text group-hover:text-primary">Gestão de Atividades</span>
             </button>
             <button @click="handleNavigation('/lms-consumo')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-sky-500/10 text-sky-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
@@ -217,7 +240,7 @@ const hasAccess = (allowedRoles) => {
             </button>
             <button @click="handleNavigation('/lms-avaliacao')" v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-sky-500/10 text-sky-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
-              <span class="text-sm font-bold text-text group-hover:text-primary">Avaliações</span>
+              <span class="text-sm font-bold text-text group-hover:text-primary">Avaliação de Atividades</span>
             </button>
           </div>
         </div>
@@ -246,7 +269,7 @@ const hasAccess = (allowedRoles) => {
 
     <!-- 3. Footer -->
     <footer class="p-6 text-center">
-      <p class="text-[10px] text-[#6B82A780] font-bold tracking-widest uppercase">CONECTE EDUCATION &copy; 2025</p>
+      <p class="text-[10px] text-[#6B82A780] font-bold tracking-widest uppercase">CONECTE EDUCAÇÃO&copy; 2025</p>
     </footer>
   </div>
 </template>
