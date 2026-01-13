@@ -25,7 +25,12 @@ export default defineEventHandler(async (event) => {
         eventos: 'mtz_eventos_get_paginado',
         modelo_calendario: 'mtz_modelo_calendario_get',
         matriz_curricular: 'mtz_matriz_curricular_get_by_turma',
-        turmas_simple: 'turmas_get_simple'
+        turmas_simple: 'turmas_get_simple',
+        calendarios: 'mtz_calendario_anual_get_paginado',
+        diario_aulas: 'diario_aula_get_paginado',
+        diario_aulas_upsert: 'diario_aula_upsert',
+        diario_presenca: 'diario_presenca_get_por_turma',
+        diario_presenca_upsert: 'diario_presenca_upsert_batch'
     }
 
     const rpcName = rpcMap[resource as string]
@@ -87,6 +92,31 @@ export default defineEventHandler(async (event) => {
             p_id_empresa: id_empresa as string,
             p_id_escola: sanitizeParam(query.id_escola),
             p_id_ano_etapa: sanitizeParam(query.id_ano_etapa)
+        }
+    } else if (resource === 'calendarios') {
+        rpcParams = {
+            p_id_empresa: id_empresa as string,
+            p_pagina: parseInt(query.pagina as string) || 1,
+            p_limite_itens_pagina: parseInt(query.limite as string) || 10,
+            p_busca: (query.busca as string) || null,
+            p_id_ano_etapa: sanitizeParam(query.id_ano_etapa)
+        }
+    } else if (resource === 'diario_aulas') {
+        rpcParams = {
+            p_id_empresa: id_empresa as string,
+            p_pagina: parseInt(query.pagina as string) || 1,
+            p_limite_itens_pagina: parseInt(query.limite as string) || 10,
+            p_id_turma: sanitizeParam(query.id_turma),
+            p_id_componente: sanitizeParam(query.id_componente),
+            p_data_inicio: query.data_inicio || null,
+            p_data_fim: query.data_fim || null
+        }
+    } else if (resource === 'diario_presenca') {
+        rpcParams = {
+            p_id_empresa: id_empresa as string,
+            p_id_turma: query.id_turma as string,
+            p_data: query.data as string,
+            p_id_componente: sanitizeParam(query.id_componente)
         }
     } else {
         // Standard signature: (p_id_empresa, p_pagina, p_limite_itens_pagina, p_busca)

@@ -3,17 +3,30 @@ definePageMeta({
   layout: false
 })
 
-import TabEventos from '@/components/matriz_curricular/TabEventos.vue'
-import TabFeriados from '@/components/matriz_curricular/TabFeriados.vue'
-import TabMatriz from '@/components/matriz_curricular/TabMatriz.vue'
-import TabCalendario from '@/components/matriz_curricular/TabCalendario.vue'
+import TabAulas from '@/components/secretaria/diario/TabAulas.vue'
+import TabDiarioAluno from '@/components/secretaria/diario/TabDiarioAluno.vue'
+import TabDiarioSemanal from '@/components/secretaria/diario/TabDiarioSemanal.vue'
 import ManagerDashboard from '@/components/ManagerDashboard.vue'
 
 const route = useRoute()
 const router = useRouter()
 
 // --- Icons ---
-const IconEventos = defineComponent({
+const IconAulas = defineComponent({
+  render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '2', strokeLinecap: 'round', strokeLinejoin: 'round', class: 'w-6 h-6' }, [
+    h('path', { d: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z' }),
+    h('path', { d: 'M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z' })
+  ])
+})
+
+const IconAluno = defineComponent({
+  render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '2', strokeLinecap: 'round', strokeLinejoin: 'round', class: 'w-6 h-6' }, [
+    h('path', { d: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2' }),
+    h('circle', { cx: '12', cy: '7', r: '4' })
+  ])
+})
+
+const IconSemanal = defineComponent({
   render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '2', strokeLinecap: 'round', strokeLinejoin: 'round', class: 'w-6 h-6' }, [
     h('rect', { x: '3', y: '4', width: '18', height: '18', rx: '2', ry: '2' }),
     h('line', { x1: '16', y1: '2', x2: '16', y2: '6' }),
@@ -22,45 +35,14 @@ const IconEventos = defineComponent({
   ])
 })
 
-const IconFeriados = defineComponent({
-  render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '2', strokeLinecap: 'round', strokeLinejoin: 'round', class: 'w-6 h-6' }, [
-    h('path', { d: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' })
-  ])
-})
-
-const IconMatriz = defineComponent({
-  render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '2', strokeLinecap: 'round', strokeLinejoin: 'round', class: 'w-6 h-6' }, [
-    h('path', { d: 'M3 3h7v7H3z' }),
-    h('path', { d: 'M14 3h7v7h-7z' }),
-    h('path', { d: 'M14 14h7v7h-7z' }),
-    h('path', { d: 'M3 14h7v7H3z' })
-  ])
-})
-
-const IconCalendario = defineComponent({
-  render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '2', strokeLinecap: 'round', strokeLinejoin: 'round', class: 'w-6 h-6' }, [
-    h('rect', { x: '3', y: '4', width: '18', height: '18', rx: '2', ry: '2' }),
-    h('line', { x1: '16', y1: '2', x2: '16', y2: '6' }),
-    h('line', { x1: '8', y1: '2', x2: '8', y2: '6' }),
-    h('line', { x1: '3', y1: '10', x2: '21', y2: '10' }),
-    h('path', { d: 'M8 14h.01' }),
-    h('path', { d: 'M12 14h.01' }),
-    h('path', { d: 'M16 14h.01' }),
-    h('path', { d: 'M8 18h.01' }),
-    h('path', { d: 'M12 18h.01' }),
-    h('path', { d: 'M16 18h.01' })
-  ])
-})
-
 // --- Tabs Config ---
 const TABS = [
-  { id: 'eventos', label: 'Eventos', icon: IconEventos, component: TabEventos },
-  { id: 'feriados', label: 'Feriados', icon: IconFeriados, component: TabFeriados },
-  { id: 'matriz', label: 'Matriz', icon: IconMatriz, component: TabMatriz },
-  { id: 'calendario', label: 'Calendário Escolar', icon: IconCalendario, component: TabCalendario }
+  { id: 'aulas', label: 'Aulas', icon: IconAulas, component: TabAulas },
+  { id: 'aluno', label: 'Diário por Aluno', icon: IconAluno, component: TabDiarioAluno },
+  { id: 'semanal', label: 'Diário Semanal', icon: IconSemanal, component: TabDiarioSemanal }
 ]
 
-const currentTabId = ref(route.query.tab || 'eventos')
+const currentTabId = ref(route.query.tab || 'aulas')
 const currentTab = computed(() => TABS.find(t => t.id === currentTabId.value) || TABS[0])
 
 // Watchers
@@ -72,8 +54,7 @@ const switchTab = (tabId) => {
   currentTabId.value = tabId
 }
 
-// Stats (Placeholder)
-// Child ref to trigger methods
+// Child ref to trigger methods (if needed in future)
 const currentTabRef = ref(null)
 
 const handleNewAction = () => {
@@ -82,6 +63,10 @@ const handleNewAction = () => {
         currentTabRef.value.handleNew()
     }
 }
+
+// Stats (Placeholder)
+const dashboardStats = computed(() => [])
+
 </script>
 
 <template>
@@ -100,21 +85,21 @@ const handleNewAction = () => {
 
     <!-- Header Subtitle Slot -->
     <template #header-subtitle>
-      Gestão Acadêmica
+      Secretaria Acadêmica
     </template>
 
     <!-- Header Actions Slot -->
     <template #header-actions>
-      <!-- Action for Calendario Tab -->
+      <!-- Action for Calendario Tab (Example from reference) -->
+      <!-- <button ... >Novo Calendário</button> -->
+      
       <button 
-        v-if="currentTabId === 'calendario'"
+        v-if="currentTabId === 'aulas'"
         @click="handleNewAction" 
         class="bg-primary hover:bg-primary/90 text-white px-4 py-1.5 rounded text-xs font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-1 shrink-0"
       >
-        <span>+</span> <span class="hidden sm:inline">Novo Calendário</span>
+        <span>+</span> <span class="hidden sm:inline">Novo Registro</span>
       </button>
-
-      <!-- Can add actions for other tabs here if needed -->
     </template>
 
     <!-- Tabs Slot -->
@@ -141,9 +126,9 @@ const handleNewAction = () => {
       >
         <template #extra>
           <div class="bg-primary/5 p-4 rounded border border-primary/10">
-            <h4 class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">Info</h4>
+            <h4 class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">Classroom</h4>
             <p class="text-[11px] text-primary/70 leading-relaxed font-medium">
-              Configure aqui os eventos, feriados e a estrutura do calendário escolar.
+               Gerencie as aulas, frequências e ocorrências diárias da turma.
             </p>
           </div>
         </template>
@@ -152,7 +137,6 @@ const handleNewAction = () => {
 
     <!-- Content Slot -->
     <div class="rounded min-h-[400px]">
-        <!-- Use ref to access exposed methods -->
         <component :is="currentTab.component" ref="currentTabRef" />
     </div>
 

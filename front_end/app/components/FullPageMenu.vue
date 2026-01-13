@@ -92,7 +92,7 @@ const hasAccess = (allowedRoles) => {
 
 <template>
   <div
-    class="fixed inset-0 z-[100] transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] bg-background flex flex-col font-sans p-4 gap-4"
+    class="fixed inset-0 z-[9999] transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] bg-background flex flex-col font-sans p-4 gap-4"
     :class="isOpen ? 'translate-x-0' : 'translate-x-[102%]'"
   >
     <!-- 1. Sleek Header -->

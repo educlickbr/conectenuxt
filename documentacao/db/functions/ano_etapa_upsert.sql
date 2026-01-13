@@ -1,12 +1,9 @@
-create or replace function public.ano_etapa_upsert(
-    p_data jsonb,
-    p_id_empresa uuid
-)
-returns jsonb -- Retorna o registro inserido/atualizado como JSON
-language plpgsql
-security definer
-set search_path to public
-as $$
+CREATE OR REPLACE FUNCTION public.ano_etapa_upsert(p_data jsonb, p_id_empresa uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
 declare
     v_id uuid;
     v_ano_etapa_salva public.ano_etapa;
@@ -27,7 +24,8 @@ begin
         tipo, 
         carg_horaria, 
         title_sharepoint, 
-        id_sharepoint
+        id_sharepoint,
+        id_modelo_calendario
     )
     values (
         v_id,
@@ -36,7 +34,8 @@ begin
         (p_data ->> 'tipo')::tipo_ano_etapa,
         (p_data ->> 'carg_horaria')::integer,
         p_data ->> 'title_sharepoint',
-        p_data ->> 'id_sharepoint'
+        p_data ->> 'id_sharepoint',
+        (p_data ->> 'id_modelo_calendario')::uuid
     )
     on conflict (id) do update 
     set 
@@ -44,7 +43,8 @@ begin
         tipo = coalesce(excluded.tipo, t.tipo),
         carg_horaria = coalesce(excluded.carg_horaria, t.carg_horaria),
         title_sharepoint = coalesce(excluded.title_sharepoint, t.title_sharepoint),
-        id_sharepoint = coalesce(excluded.id_sharepoint, t.id_sharepoint)
+        id_sharepoint = coalesce(excluded.id_sharepoint, t.id_sharepoint),
+        id_modelo_calendario = coalesce(excluded.id_modelo_calendario, t.id_modelo_calendario)
     where t.id_empresa = p_id_empresa -- Garante que o UPDATE só ocorra dentro da empresa correta
     returning * into v_ano_etapa_salva;
 
@@ -59,4 +59,4 @@ exception when others then
         'code', SQLSTATE
     );
 end;
-$$;
+$function$

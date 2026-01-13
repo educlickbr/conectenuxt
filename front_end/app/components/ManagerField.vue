@@ -92,7 +92,7 @@ select:focus, input:focus {
 
 /* Force native options to follow theme colors more strictly */
 select option {
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-text));
 }
 </style>

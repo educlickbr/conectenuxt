@@ -4,29 +4,50 @@
 
 :root {
   /* Primary */
-  --color-primary: #3571CB;
-  --color-primary-hover: #20447A;
+  --color-primary: 53 113 203;
+  /* #3571CB */
+  --color-primary-hover: 32 68 122;
+  /* #20447A */
 
   /* Secondary */
-  --color-secondary: #6B82A7;
-  --color-secondary-hover: #40516C;
-  --color-secondary-surface: #6B82A715;
-  --color-secondary-surface-hover: #6B82A730;
+  --color-secondary: 107 130 167;
+  /* #6B82A7 */
+  --color-secondary-hover: 64 81 108;
+  /* #40516C */
+
+  /* These were already using opacity but defined as hex which was weird/wrong likely. 
+     Defining surfaces as RGB for consistency or keep opaque? 
+     Original: #6B82A715. Let's keep them as custom RGBA variables or handle in config.
+     Actually, let's stick to base colors and let Tailwind handle opacity. 
+     'div-15' is used as var(--color-secondary-surface). 
+  */
+  --color-secondary-surface: 107 130 167;
+  /* Base color for div-15, we'll apply opacity in config */
+  --color-secondary-surface-hover: 107 130 167;
 
   /* State Colors */
-  --color-danger: #C33C54;
-  --color-danger-hover: #752432;
+  --color-danger: 195 60 84;
+  /* #C33C54 */
+  --color-danger-hover: 117 36 50;
+  /* #752432 */
 
-  --color-success: #79AEA3;
-  --color-success-hover: #355951;
+  --color-success: 121 174 163;
+  /* #79AEA3 */
+  --color-success-hover: 53 89 81;
+  /* #355951 */
 
-  --color-warning: #E9D758;
-  --color-warning-hover: #E3CC2B;
+  --color-warning: 233 215 88;
+  /* #E9D758 */
+  --color-warning-hover: 227 204 43;
+  /* #E3CC2B */
 
   /* Base Text & Background (Light) */
-  --color-text: #141616;
-  --color-background: #FFFFFF;
-  --color-surface: #F8FAFC;
+  --color-text: 20 22 22;
+  /* #141616 */
+  --color-background: 255 255 255;
+  /* #FFFFFF */
+  --color-surface: 248 250 252;
+  /* #F8FAFC */
 
   /* Rounding (Design Tokens) */
   --radius-xs: 2px;
@@ -46,12 +67,17 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --color-text: #E8E6E8;
-  --color-background: #16161E;
-  --color-surface: #1E1E26;
+  --color-text: 232 230 232;
+  /* #E8E6E8 */
+  --color-background: 22 22 30;
+  /* #16161E */
+  --color-surface: 30 30 38;
+  /* #1E1E26 */
+
   /* Adjust surface colors for better contrast in dark mode */
-  --color-secondary-surface: rgba(107, 130, 167, 0.15);
-  --color-secondary-surface-hover: rgba(107, 130, 167, 0.3);
+  /* Must be triplets to work with rgb(var(...) / alpha) in config */
+  --color-secondary-surface: 107 130 167;
+  --color-secondary-surface-hover: 107 130 167;
 }
 
 [data-theme="dark"] input,

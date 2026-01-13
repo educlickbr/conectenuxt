@@ -4,18 +4,30 @@ export default <Partial<Config>>{
     theme: {
         extend: {
             colors: {
-                'text': 'var(--color-text)',
-                'background': 'var(--color-background)',
-                'primary': 'var(--color-primary)',
-                'primary-dark': 'var(--color-primary-hover)',
-                'secondary': 'var(--color-secondary)',
-                'secondary-hover': 'var(--color-secondary-hover)',
-                'div-15': 'var(--color-secondary-surface)',
-                'div-30': 'var(--color-secondary-surface-hover)',
-                'surface': 'var(--color-surface)',
-                'danger': 'var(--color-danger)',
-                'success': 'var(--color-success)',
-                'warning': 'var(--color-warning)',
+                // Base colors with opacity support
+                'text': 'rgb(var(--color-text) / <alpha-value>)',
+                'background': 'rgb(var(--color-background) / <alpha-value>)',
+                'primary': 'rgb(var(--color-primary) / <alpha-value>)',
+                'primary-dark': 'rgb(var(--color-primary-hover) / <alpha-value>)', // Alias for backward compat?
+                'primary-hover': 'rgb(var(--color-primary-hover) / <alpha-value>)',
+
+                'secondary': 'rgb(var(--color-secondary) / <alpha-value>)',
+                'secondary-hover': 'rgb(var(--color-secondary-hover) / <alpha-value>)',
+
+                // Fixed opacity layers
+                'div-15': 'rgb(var(--color-secondary-surface) / 0.15)',
+                'div-30': 'rgb(var(--color-secondary-surface-hover) / 0.30)',
+
+                'surface': 'rgb(var(--color-surface) / <alpha-value>)',
+
+                'danger': 'rgb(var(--color-danger) / <alpha-value>)',
+                'danger-hover': 'rgb(var(--color-danger-hover) / <alpha-value>)',
+
+                'success': 'rgb(var(--color-success) / <alpha-value>)',
+                'success-hover': 'rgb(var(--color-success-hover) / <alpha-value>)',
+
+                'warning': 'rgb(var(--color-warning) / <alpha-value>)',
+                'warning-hover': 'rgb(var(--color-warning-hover) / <alpha-value>)',
             },
             fontFamily: {
                 'sans': ['Inter', 'system-ui', 'Avenir', 'Helvetica', 'Arial', 'sans-serif'],

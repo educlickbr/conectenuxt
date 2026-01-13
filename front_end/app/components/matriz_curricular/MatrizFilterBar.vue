@@ -1,11 +1,14 @@
 <script setup lang="ts">
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     modelValue: {
         escola_id: string | null
         ano_etapa_id: string | null
         turma_id: string | null
-    }
-}>()
+    },
+    showTurma?: boolean
+}>(), {
+    showTurma: true
+})
 
 import { useToastStore } from '@/stores/toast'
 import { useAppStore } from '@/stores/app'
@@ -112,12 +115,12 @@ const fetchTurmas = async () => {
 watch(() => props.modelValue.escola_id, () => {
     // Reset dependant fields
     emit('update:modelValue', { ...props.modelValue, turma_id: null })
-    fetchTurmas()
+    if (props.showTurma) fetchTurmas()
 })
 
 watch(() => props.modelValue.ano_etapa_id, () => {
     emit('update:modelValue', { ...props.modelValue, turma_id: null })
-    fetchTurmas()
+    if (props.showTurma) fetchTurmas()
 })
 
 // Initialize
@@ -125,7 +128,7 @@ onMounted(() => {
     fetchEscolas()
     fetchAnosEtapa()
     // If initial values exist, fetch turmas
-    if (props.modelValue.escola_id || props.modelValue.ano_etapa_id) {
+    if ((props.modelValue.escola_id || props.modelValue.ano_etapa_id) && props.showTurma) {
         fetchTurmas()
     }
 })
@@ -140,12 +143,12 @@ const updateField = (field: 'escola_id' | 'ano_etapa_id' | 'turma_id', value: an
 </script>
 
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 gap-4 mb-6" :class="showTurma ? 'md:grid-cols-3' : 'md:grid-cols-2'">
         <!-- Escola Selector -->
         <ManagerField 
             label="Escola" 
             type="select" 
-            :model-value="modelValue.escola_id"
+            :model-value="modelValue.escola_id ?? undefined"
             @update:modelValue="(v: any) => updateField('escola_id', v)"
             :disabled="loading.escolas"
         >
@@ -159,7 +162,7 @@ const updateField = (field: 'escola_id' | 'ano_etapa_id' | 'turma_id', value: an
         <ManagerField 
             label="Ano/Etapa" 
             type="select" 
-            :model-value="modelValue.ano_etapa_id"
+            :model-value="modelValue.ano_etapa_id ?? undefined"
             @update:modelValue="(v: any) => updateField('ano_etapa_id', v)"
             :disabled="loading.anos"
         >
@@ -171,9 +174,10 @@ const updateField = (field: 'escola_id' | 'ano_etapa_id' | 'turma_id', value: an
 
         <!-- Turma Selector -->
         <ManagerField 
+            v-if="showTurma"
             label="Turma" 
             type="select" 
-            :model-value="modelValue.turma_id"
+            :model-value="modelValue.turma_id ?? undefined"
             @update:modelValue="(v: any) => updateField('turma_id', v)"
             :disabled="(!modelValue.escola_id && !modelValue.ano_etapa_id) || loading.turmas"
         >

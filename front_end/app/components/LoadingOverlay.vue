@@ -11,10 +11,9 @@ const props = defineProps({
   <Transition name="fade">
     <div
       v-if="show"
-      class="fixed inset-0 flex items-center justify-center overflow-hidden transition-colors duration-500"
+      class="fixed inset-0 flex items-center justify-center overflow-hidden transition-colors duration-500 bg-background"
       style="z-index: 9999; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;"
       :style="{ 
-        backgroundColor: 'var(--color-background, #0c0c0c)',
         pointerEvents: show ? 'auto' : 'none' 
       }"
     >
@@ -47,8 +46,8 @@ const props = defineProps({
         <!-- Brand Text -->
         <div class="flex flex-col gap-1">
           <h2 
-            class="text-2xl font-black tracking-[0.2em] uppercase transition-colors duration-300"
-            style="color: var(--color-text, #ffffff); font-family: 'Outfit', sans-serif;"
+            class="text-2xl font-black tracking-[0.2em] uppercase transition-colors duration-300 text-text"
+            style="font-family: 'Outfit', sans-serif;"
           >
             Conecte
           </h2>

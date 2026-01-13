@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
         carga_horaria: 'upsert_carga_horaria',
         feriados: 'mtz_feriados_upsert',
         eventos: 'mtz_eventos_upsert',
-        matriz_curricular: 'mtz_matriz_curricular_upsert'
+        matriz_curricular: 'mtz_matriz_curricular_upsert',
+        calendarios: 'mtz_calendario_anual_upsert',
+        diario_aulas: 'diario_aula_upsert',
+        diario_presenca: 'diario_presenca_upsert_batch'
     }
 
     const rpcName = rpcMap[resource as string]
@@ -48,6 +51,12 @@ export default defineEventHandler(async (event) => {
             params = {
                 p_id_empresa: id_empresa,
                 p_turma: payload
+            }
+        } else if (resource === 'diario_presenca') {
+            // diario_presenca_upsert_batch(p_id_empresa, p_payload)
+            params = {
+                p_id_empresa: id_empresa,
+                p_payload: payload
             }
         } else {
             // Standard: (p_data, p_id_empresa)

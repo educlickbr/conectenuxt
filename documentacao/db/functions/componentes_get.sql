@@ -1,10 +1,8 @@
-CREATE OR REPLACE FUNCTION public.componentes_get(
-    p_id_empresa uuid
-)
-RETURNS SETOF public.componente
-LANGUAGE plpgsql
-STABLE
-AS $BODY$
+CREATE OR REPLACE FUNCTION public.componentes_get(p_id_empresa uuid)
+ RETURNS SETOF componente
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
 BEGIN
     RETURN QUERY
     SELECT *
@@ -12,7 +10,4 @@ BEGIN
     WHERE id_empresa = p_id_empresa
     ORDER BY nome ASC;
 END;
-$BODY$;
-
-ALTER FUNCTION public.componentes_get(uuid)
-    OWNER TO postgres;
+$function$
