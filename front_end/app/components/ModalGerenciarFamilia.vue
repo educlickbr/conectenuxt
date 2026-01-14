@@ -36,15 +36,29 @@ const searchAlunoQuery = ref('')
 const searchAlunosResults = ref([])
 const isSearchingAlunos = ref(false)
 
+// Watch for open change
 watch(() => props.isOpen, (val) => {
     if (val) {
-        if (props.initialData) {
-            loadFamiliaData(props.initialData.id)
-        } else {
-            resetForm()
-        }
+        initModal()
     }
 })
+
+// Also check on mount in case it is rendered with v-if="true"
+onMounted(() => {
+    if (props.isOpen) {
+        initModal()
+    }
+})
+
+const initModal = () => {
+    if (props.initialData) {
+        console.log('[ModalFamilia] Opening with data:', props.initialData)
+        loadFamiliaData(props.initialData.id)
+    } else {
+        console.log('[ModalFamilia] Opening new')
+        resetForm()
+    }
+}
 
 const resetForm = () => {
     activeTab.value = 'dados'
@@ -61,7 +75,7 @@ const resetForm = () => {
 const loadFamiliaData = async (id) => {
     isLoading.value = true
     try {
-        const data = await $fetch(`/api/usuarios/familias/${id}`, {
+        const data = await $fetch(`/api/usuarios/familias/detalhes/${id}`, {
             query: { id_empresa: appStore.company.empresa_id }
         })
 
@@ -71,18 +85,46 @@ const loadFamiliaData = async (id) => {
                  nome_familia: data.nome_familia,
                  id_responsavel_principal: data.id_responsavel_principal
              }
+             
+             // Reset responsaveis to empty slots first
+             responsaveis.value = [
+                { tempId: 1, id: null, nome_completo: '', cpf: '', email: '', telefone: '', endereco: '', papel: 'Pai', principal: true },
+                { tempId: 2, id: null, nome_completo: '', cpf: '', email: '', telefone: '', endereco: '', papel: 'Mãe', principal: false }
+             ]
+
              if (data.responsaveis && data.responsaveis.length > 0) {
-                 responsaveis.value[0] = { ...data.responsaveis[0], tempId: 1, principal: data.responsaveis[0].id === data.id_responsavel_principal }
-                 if (data.responsaveis[1]) {
-                     responsaveis.value[1] = { ...data.responsaveis[1], tempId: 2, principal: data.responsaveis[1].id === data.id_responsavel_principal }
-                 } else {
-                     responsaveis.value[1] = { tempId: 2, id: null, nome_completo: '', cpf: '', email: '', telefone: '', endereco: '', papel: 'Mãe', principal: false }
-                 }
+                 // Sort so principal is first if possible, or just map
+                 // The RPC returns responsaveis list. We need to map them to our 2 slots or expand if we allowed more (UI only shows 2 for now)
+                 
+                 // Strategy: Fill slots. If one is principal, ensure it's marked (though UI sets principal based on index usually? No, UI has 'principal' flag in object).
+                 // Actually UI logic: `responsaveis` is array of 2. 
+                 
+                 data.responsaveis.forEach((r, idx) => {
+                     if (idx < 2) {
+                         responsaveis.value[idx] = {
+                             ...responsaveis.value[idx], // keep tempId
+                             id: r.id,
+                             nome_completo: r.nome_completo,
+                             cpf: r.cpf,
+                             email: r.email,
+                             telefone: r.telefone,
+                             endereco: r.endereco,
+                             papel: r.papel,
+                             principal: r.id === data.id_responsavel_principal
+                         }
+                     }
+                 })
              }
-             alunosVinculados.value = data.alunos || []
+             
+             alunosVinculados.value = data.alunos ? data.alunos.map(a => ({
+                 id: a.id,
+                 nome_completo: a.nome_completo,
+                 matricula: a.matricula
+             })) : []
         }
     } catch (e) {
         console.error(e)
+        // toast.showToast("Erro ao carregar detalhes", "error") // Optional
         resetForm()
     } finally {
         isLoading.value = false

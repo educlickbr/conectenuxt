@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
         diario_presenca_upsert: 'diario_presenca_upsert_batch',
         plano_de_aulas_get_paginado: 'pl_plano_de_aulas_get_paginado',
         plano_itens_get_by_plano: 'pl_plano_itens_get_by_plano',
+        plano_itens_contexto: 'pl_plano_itens_get_by_contexto',
         plano_referencias: 'pl_plano_referencias_get_by_aula'
     }
 
@@ -141,6 +142,12 @@ export default defineEventHandler(async (event) => {
         rpcParams = {
             p_id_empresa: id_empresa as string,
             p_id_aula: query.id_aula as string
+        }
+    } else if (resource === 'plano_itens_contexto') {
+        rpcParams = {
+            p_id_empresa: id_empresa as string,
+            p_id_componente: query.id_componente as string,
+            p_id_ano_etapa: query.id_ano_etapa as string
         }
     } else {
         // Standard signature: (p_id_empresa, p_pagina, p_limite_itens_pagina, p_busca)

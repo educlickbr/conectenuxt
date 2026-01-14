@@ -18,6 +18,17 @@ const config = useRuntimeConfig()
 
 const today = new Date().toISOString().split('T')[0]
 
+// --- Restricted Clients List ---
+// Clients where teachers cannot edit content if a Lesson Plan is selected
+const RESTRICTED_CLIENTS = [
+    // Add real UUIDs here when provided by user
+    'PLACEHOLDER_UUID' 
+]
+
+const isRestrictedClient = computed(() => {
+    return appStore.company?.empresa_id && RESTRICTED_CLIENTS.includes(appStore.company.empresa_id)
+})
+
 const form = ref({
     // Context
     id_escola: null as string | null,
@@ -25,6 +36,9 @@ const form = ref({
     id_turma: null as string | null,
     id_componente: null as string | null,
     
+    // Lesson Plan Link
+    id_plano_aula_item: null as string | null,
+
     // Data
     data: today,
     conteudo: '',
@@ -40,16 +54,20 @@ const escolas = ref<any[]>([])
 const anosEtapas = ref<any[]>([])
 const turmas = ref<any[]>([])
 const componentes = ref<any[]>([])
+const planoItens = ref<any[]>([]) // Items available for the selected Component
 
 const isLoadingComponents = ref(false)
+const isLoadingPlano = ref(false)
 const isSaving = ref(false)
 
-// --- Fetchers ---
+// Lock fields if a plan key is selected AND client is restricted
+const isFieldsLocked = computed(() => {
+    return !!form.value.id_plano_aula_item && isRestrictedClient.value
+})
 
 // --- Fetchers ---
 
 const fetchEscolas = async () => {
-    // Replicating MatrizFilterBar logic using client directly
     try {
         const client = useSupabaseClient()
         const { data, error } = await client
@@ -77,14 +95,12 @@ const fetchAnosEtapas = async () => {
 }
 
 const fetchTurmas = async () => {
-    if (!form.value.id_escola && !form.value.id_ano_etapa) { // loosened condition slightly to allow searching by partial filter if needed, matching MatrizFilterBar behavior
+    if (!form.value.id_escola && !form.value.id_ano_etapa) { 
         turmas.value = []
         return
     }
     
     try {
-         // Using turmas_simple for consistency if available, or 'turmas' resource. 
-         // 'turmas' works based on previous tests.
          const { data }: any = await useFetch('/api/estrutura_academica/turmas', {
             params: { 
                 id_empresa: appStore.company?.empresa_id, 
@@ -100,8 +116,6 @@ const fetchTurmas = async () => {
 }
 
 const fetchComponentes = async () => {
-    // User requested to use the /componentes endpoint, but it's failing.
-    // Switching to direct client fetch like Escolas.
     isLoadingComponents.value = true
     try {
         const client = useSupabaseClient()
@@ -121,13 +135,35 @@ const fetchComponentes = async () => {
     }
 }
 
-// --- Watchers for Cascading ---
+const fetchPlanoItens = async () => {
+    if (!form.value.id_componente || !form.value.id_ano_etapa) {
+        planoItens.value = []
+        return
+    }
+
+    isLoadingPlano.value = true
+    try {
+        const { data }: any = await useFetch('/api/estrutura_academica/plano_itens_contexto', {
+            params: { 
+                id_empresa: appStore.company?.empresa_id, 
+                id_componente: form.value.id_componente,
+                id_ano_etapa: form.value.id_ano_etapa
+            }
+        })
+        // API returns { items: [...] } or just array depending on implementation
+        planoItens.value = data.value?.items || [] 
+    } catch (e) {
+        console.error('Error fetching plan items:', e)
+        planoItens.value = []
+    } finally {
+        isLoadingPlano.value = false
+    }
+}
+
+// --- Watchers ---
 
 watch(() => form.value.id_escola, () => {
-    // When school changes, clear Turma but keep Year/Stage if possible? 
-    // Usually Year/Stage is independent of School in this model (Network level).
-    // So just re-fetch Turmas.
-    if (!props.initialData) { // prevent clear on init
+    if (!props.initialData) {
         form.value.id_turma = null
         fetchTurmas()
     }
@@ -137,15 +173,27 @@ watch(() => form.value.id_ano_etapa, () => {
    if (!props.initialData) {
         form.value.id_turma = null
         fetchTurmas()
+        
+        // Also fetch plan items since they depend on Year/Stage too
+        if (form.value.id_componente) fetchPlanoItens()
    }
 })
 
-watch(() => form.value.id_turma, () => {
-    // If we were filtering components by turma, we would fetch here.
-    // But now we fetch generic components on mount.
-    // if (!props.initialData) {
-    //    form.value.id_componente = null
-    // }
+watch(() => form.value.id_componente, () => {
+    // When component changes, fetch available lessons
+    form.value.id_plano_aula_item = null
+    fetchPlanoItens()
+})
+
+watch(() => form.value.id_plano_aula_item, (newVal) => {
+    if (newVal) {
+        const item = planoItens.value.find(i => i.id === newVal)
+        if (item) {
+            form.value.conteudo = item.conteudo || ''
+            form.value.metodologia = item.metodologia || ''
+            form.value.tarefa_casa = item.tarefa || ''
+        }
+    }
 })
 
 // --- Init ---
@@ -161,28 +209,34 @@ onMounted(async () => {
         form.value.conteudo = d.conteudo
         form.value.metodologia = d.metodologia
         form.value.tarefa_casa = d.tarefa_casa
-        form.value.id_escola = d.id_escola // Assumes join returned this or we infer it
-        form.value.id_ano_etapa = d.id_ano_etapa // Same
+        form.value.id_escola = d.id_escola 
+        form.value.id_ano_etapa = d.id_ano_etapa 
         form.value.id_turma = d.id_turma
         
-        // Trigger cascading fetches manually in order
+        // This field was added to View/RPC? 
+        // We added it to diarios_get... make sure frontend receives it.
+        form.value.id_plano_aula_item = d.id_plano_aula_item
+
+        // Trigger cascading fetches
         await fetchTurmas()
         await fetchComponentes()
-        
+        // Wait for fetchComponentes before fetching items? Actually they are independent but logic needs component set
         form.value.id_componente = d.id_componente
+        
+        // Now fetch items so dropdown works
+        await fetchPlanoItens()
+
     } else if (props.initialFilters) {
-        // Pre-fill from filters if creating new
+        // Pre-fill from filters
         const f = props.initialFilters
         if (f.escola_id) form.value.id_escola = f.escola_id
         if (f.ano_etapa_id) form.value.id_ano_etapa = f.ano_etapa_id
         
-        // Wait for cascading then set Turma
         setTimeout(async () => {
             if (f.turma_id) {
                 await fetchTurmas()
                 form.value.id_turma = f.turma_id
-                
-                await fetchComponentes()
+                await fetchComponentes() // Generic fetch
             }
         }, 100)
     }
@@ -197,21 +251,24 @@ const handleSave = async () => {
 
     isSaving.value = true
     try {
+        const payload = {
+            id_empresa: appStore.company?.empresa_id,
+            data: {
+                id: form.value.id,
+                id_turma: form.value.id_turma,
+                id_componente: form.value.id_componente,
+                data: form.value.data,
+                conteudo: form.value.conteudo,
+                metodologia: form.value.metodologia,
+                tarefa_casa: form.value.tarefa_casa,
+                id_plano_aula_item: form.value.id_plano_aula_item, // Send Link
+                id_usuario: appStore.user?.id
+            }
+        }
+
         const { error } = await useFetch('/api/estrutura_academica/diario_aulas', {
             method: 'POST',
-            body: {
-                id_empresa: appStore.company?.empresa_id,
-                data: {
-                    id: form.value.id,
-                    id_turma: form.value.id_turma,
-                    id_componente: form.value.id_componente,
-                    data: form.value.data,
-                    conteudo: form.value.conteudo,
-                    metodologia: form.value.metodologia,
-                    tarefa_casa: form.value.tarefa_casa,
-                    id_usuario: appStore.user?.id
-                }
-            }
+            body: payload
         })
 
         if (error.value) throw error.value
@@ -302,40 +359,71 @@ const handleSave = async () => {
                         @update:modelValue="form.id_componente = $event"
                         :disabled="!form.id_turma"
                     >
-                         <option :value="null">Geral / Não se aplica</option>
+                         <option :value="null">Geral (Sem vínculo a plano)</option>
                          <option v-for="c in componentes" :key="c.uuid || c.id" :value="c.uuid || c.id">{{ c.nome }}</option>
                     </ManagerField>
                  </div>
 
-                 <div class="space-y-4">
+                 <!-- Lesson Plan Selection -->
+                 <div v-if="form.id_componente" class="mb-6 animate-fade-in-down">
                      <ManagerField 
-                        label="Conteúdo Ministrado" 
-                        type="textarea" 
-                        v-model="form.conteudo"
-                        placeholder="Descreva o que foi ensinado na aula..."
-                        rows="4"
-                    />
+                        label="Conteúdo do Plano de Aula (Opcional)" 
+                        type="select" 
+                        :model-value="form.id_plano_aula_item ?? undefined"
+                        @update:modelValue="form.id_plano_aula_item = $event"
+                        :disabled="isLoadingPlano"
+                    >
+                         <option :value="null">-- Digitação Manual --</option>
+                         <option v-for="item in planoItens" :key="item.id" :value="item.id">
+                            {{ item.plano_titulo }} - Aula {{ item.aula_numero }}: {{ item.conteudo?.substring(0, 40) }}...
+                         </option>
+                    </ManagerField>
+                    <p v-if="isLoadingPlano" class="text-xs text-secondary mt-1 ml-1 animate-pulse">Buscando planos...</p>
+                 </div>
+
+                 <div class="space-y-4">
+                     <!-- Content Fields -->
+                     <!-- Locked if restricted client and plan selected -->
+                     <div class="relative">
+                        <ManagerField 
+                            label="Conteúdo Ministrado" 
+                            type="textarea" 
+                            v-model="form.conteudo"
+                            placeholder="Descreva o que foi ensinado na aula..."
+                            rows="4"
+                            :disabled="isFieldsLocked"
+                            :class="{ 'opacity-60': isFieldsLocked }"
+                        />
+                         <div v-if="isFieldsLocked" class="absolute top-0 right-0 p-2 text-xs text-orange-500 font-bold flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            Bloqueado pelo Plano
+                        </div>
+                     </div>
                     
                     <button 
-                        v-if="!form.metodologia && !form.tarefa_casa" 
+                        v-if="!form.metodologia && !form.tarefa_casa && !isFieldsLocked" 
                         @click="form.metodologia = ' '; form.tarefa_casa = ' '"
                         class="text-xs text-primary font-bold hover:underline"
                     >
                         + Adicionar Metodologia e Tarefa de Casa
                     </button>
 
-                     <div v-if="form.metodologia || form.tarefa_casa" class="grid grid-cols-1 gap-4">
+                     <div v-if="form.metodologia || form.tarefa_casa || isFieldsLocked" class="grid grid-cols-1 gap-4">
                         <ManagerField 
                             label="Metodologia (Opcional)" 
                             type="textarea" 
                             v-model="form.metodologia"
                             rows="2"
+                            :disabled="isFieldsLocked"
+                            :class="{ 'opacity-60': isFieldsLocked }"
                         />
                          <ManagerField 
                             label="Tarefa de Casa (Opcional)" 
                             type="textarea" 
                             v-model="form.tarefa_casa"
                             rows="2"
+                            :disabled="isFieldsLocked"
+                            :class="{ 'opacity-60': isFieldsLocked }"
                         />
                      </div>
                  </div>

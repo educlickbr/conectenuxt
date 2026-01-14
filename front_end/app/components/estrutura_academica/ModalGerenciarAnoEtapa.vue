@@ -30,6 +30,7 @@ const componentResults = ref([])
 const isSearchingComponents = ref(false)
 const selectedComponent = ref(null)
 const newWorkloadHours = ref(0)
+const isPolyvalent = ref(false)
 const isAddingWorkload = ref(false)
 const editingWorkloadId = ref(null)
 
@@ -177,6 +178,7 @@ const resetNewWorkload = () => {
     componentResults.value = []
     newWorkloadHours.value = 0
     editingWorkloadId.value = null
+    isPolyvalent.value = false
 }
 
 const handleEditWorkload = (ch) => {
@@ -187,6 +189,7 @@ const handleEditWorkload = (ch) => {
     }
     componentSearch.value = ch.componente_nome
     newWorkloadHours.value = ch.carga_horaria
+    isPolyvalent.value = !!ch.polivalente
     editingWorkloadId.value = ch.uuid
 }
 
@@ -206,6 +209,7 @@ const handleAddWorkload = async () => {
             id_componente: selectedComponent.value.uuid,
             id_ano_etapa: formData.value.id,
             carga_horaria: newWorkloadHours.value,
+            polivalente: isPolyvalent.value,
             uuid: editingWorkloadId.value // Include if editing
         }
 
@@ -414,6 +418,12 @@ const handleSave = async () => {
                                     class="w-full bg-div-15 border border-secondary/30 rounded px-3 py-2 outline-none focus:border-primary transition-all text-xs"
                                 />
                             </div>
+                            <div class="flex flex-col justify-end pb-1 px-1">
+                                <label class="flex items-center gap-2 cursor-pointer select-none">
+                                    <input type="checkbox" v-model="isPolyvalent" class="w-4 h-4 rounded text-primary focus:ring-primary border-gray-300 bg-surface">
+                                    <span class="text-[10px] uppercase font-bold text-secondary">Polivalente</span>
+                                </label>
+                            </div>
                             <div class="flex items-end">
                                 <button 
                                     @click="handleAddWorkload"
@@ -449,7 +459,10 @@ const handleSave = async () => {
                              >
                                 <div class="flex items-center gap-3">
                                      <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: ch.componente_cor || '#ccc' }"></div>
-                                     <span class="font-bold text-xs">{{ ch.componente_nome }}</span>
+                                     <div class="flex flex-col">
+                                        <span class="font-bold text-xs">{{ ch.componente_nome }}</span>
+                                        <span v-if="ch.polivalente" class="text-[9px] bg-sky-500/10 text-sky-500 px-1 py-0.5 rounded w-fit mt-0.5 uppercase tracking-wider font-bold">Polivalente</span>
+                                     </div>
                                 </div>
                                 <div class="flex items-center gap-6">
                                      <span class="text-xs font-mono font-bold">{{ ch.carga_horaria }} Aulas</span>

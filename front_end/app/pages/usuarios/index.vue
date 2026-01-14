@@ -307,21 +307,31 @@ const dashboardStats = computed(() => [
       <ManagerListItem
         v-for="item in items"
         :key="item.id || item.user_expandido_id"
-        :title="item.nome_completo || item.nome || item.email"
+        :title="item.nome_completo || item.nome || item.nome_familia || item.email"
         :id="item.id || item.user_expandido_id"
         @edit="handleEdit(item)"
         @delete="handleDelete(item)"
       >
         <template #metadata>
           <div class="flex items-center gap-1.5 text-[10px] font-medium tracking-wide group-hover:text-secondary/80 transition-colors">
-             <span class="opacity-70">{{ item.email }}</span>
-             <span v-if="item.telefone" class="opacity-40">•</span>
-             <span v-if="item.telefone">{{ item.telefone }}</span>
+             <!-- Family Metadata -->
+             <template v-if="currentTabId === 'familias'">
+                <span class="opacity-70">Responsável: {{ item.responsavel_principal || 'N/A' }}</span>
+                <span class="opacity-40">•</span>
+                <span class="opacity-70">{{ item.qtd_alunos }} Aluno(s)</span>
+             </template>
+             
+             <!-- User Metadata -->
+             <template v-else>
+                <span class="opacity-70">{{ item.email }}</span>
+                <span v-if="item.telefone" class="opacity-40">•</span>
+                <span v-if="item.telefone">{{ item.telefone }}</span>
+             </template>
           </div>
         </template>
         <template #icon>
            <div class="text-primary  w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-xs">
-              {{ (item.nome_completo || item.nome || item.email || '?').charAt(0).toUpperCase() }}
+              {{ (item.nome_completo || item.nome || item.nome_familia || item.email || '?').charAt(0).toUpperCase() }}
            </div>
         </template>
       </ManagerListItem>
