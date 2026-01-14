@@ -58,49 +58,61 @@ onMounted(() => {
 // Simple approach: Show current year and next year? Or just a dynamic list of months covering the events range + gaps.
 // User Request: "podemos colocar todos os meses já isso nos ajuda a criar qualquer evento em qualquer mês"
 
+// Generate Timeline Months (Full Year)
 const timelineMonths = computed(() => {
-    // 1. Determine Range
-    // Let's create a range from Jan of current year to Dec of current year 
-    // AND encompass any events outside this range if they exist.
-    
-    // Assuming context is mainly the current/active school year.
-    // Let's stick to Current Year (Jan-Dec) for simplicity, or look at `events` to expand.
-    
     let minYear = currentYear.value
     let maxYear = currentYear.value
 
-    if (events.value.length > 0) {
-        const years = events.value.map(e => new Date(e.data_inicio).getUTCFullYear())
+    // Flatten logic: Expand multi-day events into single-day entries
+    const allEntries = []
+
+    events.value.forEach(evt => {
+        const start = new Date(evt.data_inicio)
+        const end = new Date(evt.data_fim)
+        
+        let curr = new Date(start)
+        let isFirstDay = true
+        
+        while (curr <= end) {
+             const entryDate = curr.toISOString()
+             
+             allEntries.push({
+                 ...evt,
+                 uniqueKey: `${evt.id}_${entryDate}`,
+                 displayDate: entryDate,
+                 isFirstDay: isFirstDay,
+                 originalStart: evt.data_inicio
+             })
+             
+             curr.setDate(curr.getDate() + 1)
+             isFirstDay = false
+        }
+    })
+
+    if (allEntries.length > 0) {
+        const years = allEntries.map(e => new Date(e.displayDate).getUTCFullYear())
         minYear = Math.min(minYear, ...years)
         maxYear = Math.max(maxYear, ...years)
     }
 
-    // Generate month keys
     const months = []
     
-    // Let's just do the unified range from Min Jan to Max Dec
     for (let y = minYear; y <= maxYear; y++) {
         for (let m = 0; m < 12; m++) {
             const date = new Date(Date.UTC(y, m, 1))
             const key = date.toISOString().slice(0, 7) // YYYY-MM
             
-            // Check if user has toggled this, default false
-            // But if it's the very specific current month, maybe default true? (handled in fetch)
-            
-            // Find events for this month
-            const monthEvents = events.value.filter(evt => evt.data_inicio.startsWith(key))
-            
-            // Sort events by day
-            monthEvents.sort((a, b) => new Date(a.data_inicio) - new Date(b.data_inicio))
+            // Filter entries for this month
+            const monthEntries = allEntries.filter(e => e.displayDate.startsWith(key))
+            monthEntries.sort((a, b) => new Date(a.displayDate) - new Date(b.displayDate))
 
             months.push({
                 key,
                 label: date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' }),
                 monthName: date.toLocaleDateString('pt-BR', { month: 'long', timeZone: 'UTC' }),
                 year: y,
-                events: monthEvents,
-                // Helper for style: check if past, present, future
-                isPast: new Date() > new Date(y, m + 1, 0), // End of month is passed
+                events: monthEntries, // Changed from 'eventos' to 'events' to match existing ref
+                isPast: new Date() > new Date(y, m + 1, 0),
                 isCurrent: key === new Date().toISOString().slice(0, 7)
             })
         }
@@ -140,12 +152,16 @@ const handleAddInMonth = (monthKey) => {
 }
 
 const handleEdit = (evt) => {
-    selectedEvent.value = evt
+    // When editing, pass the original event, not the flattened entry
+    const originalEvent = events.value.find(e => e.id === evt.id)
+    selectedEvent.value = originalEvent || evt
     isModalOpen.value = true
 }
 
 const handleDelete = (evt) => {
-    eventToDelete.value = evt
+    // When deleting, pass the original event, not the flattened entry
+    const originalEvent = events.value.find(e => e.id === evt.id)
+    eventToDelete.value = originalEvent || evt
     isConfirmOpen.value = true
 }
 
@@ -178,10 +194,13 @@ const handleSuccess = () => {
 
 // Helpers
 const getDay = (dateStr) => {
-    return new Date(dateStr).getUTCDate()
+    // Force specific timezone interpretation
+    const date = new Date(dateStr)
+    return new Intl.DateTimeFormat('pt-BR', { day: 'numeric', timeZone: 'America/Sao_Paulo' }).format(date)
 }
 const getWeekDay = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().slice(0, 3)
+    const date = new Date(dateStr)
+    return new Intl.DateTimeFormat('pt-BR', { weekday: 'short', timeZone: 'America/Sao_Paulo' }).format(date).toUpperCase().slice(0, 3)
 }
 </script>
 
@@ -309,8 +328,8 @@ const getWeekDay = (dateStr) => {
                         </div>
 
                         <div 
-                            v-for="(evt, idx) in month.events" 
-                            :key="evt.id"
+                            v-for="(evt, idx) in month.eventos" 
+                            :key="evt.uniqueKey"
                             class="relative w-full transition-all hover:-translate-y-0.5"
                         >   
                             <!-- Connection Line (Desktop) - Logic reversed since content is inside the column -->
@@ -332,8 +351,8 @@ const getWeekDay = (dateStr) => {
                                     
                                     <!-- Date Badge -->
                                     <div class="flex flex-col items-center justify-center bg-div-15 rounded p-1.5 min-w-[3rem] border border-secondary/5">
-                                        <span class="text-[9px] font-black uppercase text-secondary tracking-widest">{{ getWeekDay(evt.data_inicio) }}</span>
-                                        <span class="text-lg font-bold text-primary leading-none">{{ getDay(evt.data_inicio) }}</span>
+                                        <span class="text-[9px] font-black uppercase text-secondary tracking-widest">{{ getWeekDay(evt.displayDate) }}</span>
+                                        <span class="text-lg font-bold text-primary leading-none">{{ getDay(evt.displayDate) }}</span>
                                     </div>
 
                                     <!-- Content -->
@@ -342,18 +361,29 @@ const getWeekDay = (dateStr) => {
                                         <div class="text-[10px] text-secondary flex items-center gap-2 mt-0.5">
                                             <span 
                                                 class="px-1.5 py-0.5 rounded-[3px] bg-div-30 uppercase tracking-wider font-bold text-[8px]"
-                                                :class="evt.escopo === 'Rede' ? 'text-primary' : 'text-orange-500'"
                                             >
-                                                {{ evt.escopo === 'Rede' ? 'Rede' : 'Escola' }}
+                                                {{ evt.escopo === 'Ano_Etapa' ? 'Ano/Etapa' : 'Rede' }}
                                             </span>
-                                            <span v-if="evt.data_inicio !== evt.data_fim">
-                                                 até {{ new Date(evt.data_fim).getUTCDate() }}/{{ new Date(evt.data_fim).getUTCMonth()+1 }}
+                                            
+                                            <!-- Show 'Continuação' if not first day -->
+                                            <span v-if="!evt.isFirstDay" class="italic opacity-70">
+                                                (Continuação)
+                                            </span>
+                                            
+                                            <!-- Overlap Flag -->
+                                            <span 
+                                                v-if="evt.matriz_sobrepor" 
+                                                class="flex items-center gap-1 text-[8px] bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider"
+                                                title="Este evento sobrepõe a matriz curricular"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                                Sobrepõe Aula
                                             </span>
                                         </div>
                                     </div>
 
-                                    <!-- Actions (Hover Only) -->
-                                    <div class="flex items-center gap-1 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                    <!-- Actions (Hover Only) - Show only on First Day -->
+                                    <div v-if="evt.isFirstDay" class="flex items-center gap-1 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity">
                                         <button @click="handleEdit(evt)" class="p-1.5 hover:bg-div-30 rounded text-secondary hover:text-primary transition-colors" title="Editar">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                         </button>

@@ -15,7 +15,7 @@ const toast = useToastStore()
 
 const formData = ref({
     nome_feriado: '',
-    tipo: 'Nacional', // Nacional, Estadual, Municipal, Escolar (Recesso)
+    tipo: 'Feriado Nacional', // Enum match
     data_inicio: '',
     duracao: 1
 })
@@ -45,6 +45,20 @@ const calculatedDataFim = computed(() => {
 // Initialize form
 const initForm = () => {
     if (props.initialData) {
+        
+        let startDate = '';
+        if (props.initialData.data_inicio) {
+             const d = new Date(props.initialData.data_inicio);
+             const parts = new Intl.DateTimeFormat('pt-BR', { 
+                timeZone: 'America/Sao_Paulo', 
+                year: 'numeric', month: '2-digit', day: '2-digit' 
+            }).formatToParts(d);
+            
+            const p = {};
+            parts.forEach(({type, value}) => p[type] = value);
+            startDate = `${p.year}-${p.month}-${p.day}`;
+        }
+
         const start = props.initialData.data_inicio ? new Date(props.initialData.data_inicio) : new Date()
         const end = props.initialData.data_fim ? new Date(props.initialData.data_fim) : new Date()
         
@@ -55,8 +69,8 @@ const initForm = () => {
         formData.value = {
             id: props.initialData.id,
             nome_feriado: props.initialData.nome_feriado || '',
-            tipo: props.initialData.tipo || 'Nacional',
-            data_inicio: props.initialData.data_inicio,
+            tipo: props.initialData.tipo || 'Feriado Nacional',
+            data_inicio: startDate,
             duracao: diffDays
         }
     } else {
@@ -64,7 +78,7 @@ const initForm = () => {
         const today = new Date().toISOString().split('T')[0]
         formData.value = {
             nome_feriado: '',
-            tipo: 'Nacional',
+            tipo: 'Feriado Nacional',
             data_inicio: today,
             duracao: 1
         }
@@ -73,6 +87,12 @@ const initForm = () => {
 
 watch(() => props.isOpen, (newVal) => {
     if (newVal) {
+        initForm()
+    }
+})
+
+onMounted(() => {
+    if (props.isOpen) {
         initForm()
     }
 })
@@ -157,11 +177,12 @@ const handleSave = async () => {
                             v-model="formData.tipo"
                             type="select"
                             :options="[
-                                { value: 'Nacional', label: 'Feriado Nacional' },
-                                { value: 'Estadual', label: 'Feriado Estadual' },
-                                { value: 'Municipal', label: 'Feriado Municipal' },
-                                { value: 'Escolar', label: 'Recesso Escolar' },
-                                { value: 'Ponto Facultativo', label: 'Ponto Facultativo' }
+                                { value: 'Feriado Nacional', label: 'Feriado Nacional' },
+                                { value: 'Feriado Estadual', label: 'Feriado Estadual' },
+                                { value: 'Feriado Municipal', label: 'Feriado Municipal' },
+                                { value: 'Recesso Escolar', label: 'Recesso Escolar' },
+                                { value: 'Ponto Facultativo', label: 'Ponto Facultativo' },
+                                { value: 'Emenda', label: 'Emenda' }
                             ]"
                             required
                         />

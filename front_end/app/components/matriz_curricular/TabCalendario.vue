@@ -10,6 +10,7 @@ const appStore = useAppStore()
 const toast = useToastStore()
 
 // Filter State
+const viewMode = ref<'Tudo' | 'Rede' | 'Segmentado'>('Tudo')
 const filters = ref({
     escola_id: null,
     ano_etapa_id: null,
@@ -28,22 +29,21 @@ const groupedCalendars = computed(() => {
     for (const item of rawCalendars.value) {
         // Create a unique key for the "Calendar Entity"
         // If Rede: rede-2025
-        // If Etapa: etapa-{uuid}-2025
-        const key = item.escopo === 'Rede' 
-            ? `rede-${item.ano}` 
-            : `etapa-${item.id_ano_etapa}-${item.ano}`
+        // If Segmentado: seg-2025-{etapa}-{escola? 'all'}
+        let key = ''
+        if (item.escopo === 'Rede') {
+            key = `rede-${item.ano}`
+        } else {
+            key = `seg-${item.ano}-${item.id_ano_etapa}-${item.id_escola || 'all'}`
+        }
 
         if (!groups[key]) {
             groups[key] = {
                 id: key, // Virtual ID for the group
                 ano: item.ano,
                 escopo: item.escopo,
-                ano_etapa_nome: item.ano_etapa_nome, // Ensure View returns this or we fetch it?
-                // The VIEW/RPC mtz_calendario_anual_get_paginado usually returns joined columns.
-                // If not, we might need to display just 'Etapa...' 
-                // Let's assume RPC returns ano_etapa_nome or similar.
-                // Checking migration (Step 110): SELECT id, ..., ae.nome as ano_etapa_nome ...
-                // Yes, it returns ano_etapa_nome.
+                ano_etapa_nome: item.ano_etapa_nome,
+                escola_nome: item.escola_nome, // Added this field in RPC/Join
                 modelo_nome: item.modelo_nome,
                 periodos: []
             }
@@ -63,14 +63,16 @@ const groupedCalendars = computed(() => {
 
 const fetchCalendarios = async () => {
     isLoading.value = true
+    console.log('Fetching Calendarios. Mode:', viewMode.value, 'Filters:', filters.value)
     try {
         const { data, error }: any = await useFetch('/api/estrutura_academica/calendarios', {
             params: {
-                id_empresa: appStore.company.empresa_id,
+                id_empresa: appStore.company?.empresa_id,
                 pagina: 1,
                 limite: 100, // Fetch all for now to group
-                id_ano_etapa: filters.value.ano_etapa_id
-                // Note: The RPC filters by id_ano_etapa. If null, it returns all.
+                id_ano_etapa: filters.value.ano_etapa_id,
+                id_escola: filters.value.escola_id,
+                modo: viewMode.value
             }
         })
 
@@ -89,9 +91,25 @@ const fetchCalendarios = async () => {
 // Watch filters
 // watch(() => filters.value.escola_id, fetchCalendarios) // Calendars are not strictly tied to Escola usually, mostly Ano/Etapa
 watch(() => filters.value.ano_etapa_id, fetchCalendarios)
+watch(() => filters.value.escola_id, fetchCalendarios)
+watch(viewMode, () => {
+    // When switching modes, logic requires:
+    // If 'Tudo' or 'Rede' -> Clear filters handled by UI (optional, but requested "filters inactive or disappear")
+    // Note: The backend handles ignoring filters if needed, but clearing keeps UI consistent.
+    if (viewMode.value !== 'Segmentado') {
+        filters.value.escola_id = null
+        filters.value.ano_etapa_id = null
+    }
+    fetchCalendarios()
+})
+
+// Watch company to fetch when ready (fix F5 load)
+watch(() => appStore.company, (val) => {
+    if (val?.empresa_id) fetchCalendarios()
+}, { immediate: true })
 
 onMounted(() => {
-    fetchCalendarios()
+    // optional, watcher with immediate covers it
 })
 
 // Modal Logic
@@ -140,21 +158,32 @@ const handleSuccess = (savedContext?: any) => {
 <template>
     <div class="p-6 md:p-8 min-h-[500px]">
         
-        <!-- Header (Title only, Actions moved to Page Layout) -->
-        <div class="mb-8">
-            <div class="flex items-center gap-2 mb-1">
-                 <h2 class="text-2xl font-bold text-text">Calendários Escolares</h2>
+        <!-- View Mode Selector -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+            <div class="flex items-center bg-surface rounded-full p-1 border border-secondary/10">
+                <button 
+                    v-for="mode in (['Tudo', 'Rede', 'Segmentado'] as const)" 
+                    :key="mode"
+                    @click="viewMode = mode"
+                    class="px-4 py-1.5 rounded-full text-sm font-bold transition-all"
+                    :class="viewMode === mode ? 'bg-primary text-white shadow-md' : 'text-secondary hover:text-text'"
+                >
+                    {{ mode }}
+                </button>
             </div>
-            <p class="text-sm text-secondary">
-                Gerencie os períodos letivos da rede ou por etapa.
-            </p>
+            
+            <div v-if="viewMode === 'Segmentado'" class="text-xs text-secondary font-medium">
+                Selecione os filtros para refinar a busca
+            </div>
         </div>
 
-        <!-- Filters (Hide Turma) -->
-        <MatrizFilterBar 
-            v-model="filters" 
-            :show-turma="false"
-        />
+        <!-- Filters (Hide if NOT Segmentado) -->
+        <div v-show="viewMode === 'Segmentado'" class="transition-all duration-300">
+             <MatrizFilterBar 
+                v-model="filters" 
+                :show-turma="false"
+            />
+        </div>
 
         <!-- Content -->
         <CalendarioList 

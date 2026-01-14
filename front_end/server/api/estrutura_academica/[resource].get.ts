@@ -30,7 +30,10 @@ export default defineEventHandler(async (event) => {
         diario_aulas: 'diario_aula_get_paginado',
         diario_aulas_upsert: 'diario_aula_upsert',
         diario_presenca: 'diario_presenca_get_por_turma',
-        diario_presenca_upsert: 'diario_presenca_upsert_batch'
+        diario_presenca_upsert: 'diario_presenca_upsert_batch',
+        plano_de_aulas_get_paginado: 'pl_plano_de_aulas_get_paginado',
+        plano_itens_get_by_plano: 'pl_plano_itens_get_by_plano',
+        plano_referencias: 'pl_plano_referencias_get_by_aula'
     }
 
     const rpcName = rpcMap[resource as string]
@@ -99,7 +102,9 @@ export default defineEventHandler(async (event) => {
             p_pagina: parseInt(query.pagina as string) || 1,
             p_limite_itens_pagina: parseInt(query.limite as string) || 10,
             p_busca: (query.busca as string) || null,
-            p_id_ano_etapa: sanitizeParam(query.id_ano_etapa)
+            p_id_ano_etapa: sanitizeParam(query.id_ano_etapa),
+            p_id_escola: sanitizeParam(query.id_escola),
+            p_modo_visualizacao: query.modo || 'Tudo'
         }
     } else if (resource === 'diario_aulas') {
         rpcParams = {
@@ -118,6 +123,25 @@ export default defineEventHandler(async (event) => {
             p_data: query.data as string,
             p_id_componente: sanitizeParam(query.id_componente)
         }
+    } else if (resource === 'plano_de_aulas_get_paginado') {
+        rpcParams = {
+            p_id_empresa: id_empresa as string,
+            p_pagina: parseInt(query.pagina as string) || 1,
+            p_limite_itens_pagina: parseInt(query.limite as string) || 10,
+            p_busca: (query.busca as string) || null,
+            p_id_ano_etapa: sanitizeParam(query.id_ano_etapa),
+            p_id_componente: sanitizeParam(query.id_componente)
+        }
+    } else if (resource === 'plano_itens_get_by_plano') {
+        rpcParams = {
+            p_id_empresa: id_empresa as string,
+            p_id_plano: query.id_plano as string
+        }
+    } else if (resource === 'plano_referencias') {
+        rpcParams = {
+            p_id_empresa: id_empresa as string,
+            p_id_aula: query.id_aula as string
+        }
     } else {
         // Standard signature: (p_id_empresa, p_pagina, p_limite_itens_pagina, p_busca)
         rpcParams = {
@@ -133,6 +157,7 @@ export default defineEventHandler(async (event) => {
     console.log(`[API Debug] Resource: ${resource}`)
     console.log(`[API Debug] User: ${authData.user?.id || 'ANON'}`)
     console.log(`[API Debug] RPC: ${rpcName}`)
+    console.log(`[API Debug] Raw Query:`, JSON.stringify(query))
     console.log(`[API Debug] Params:`, JSON.stringify(rpcParams))
 
     try {

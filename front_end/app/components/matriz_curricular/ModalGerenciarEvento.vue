@@ -18,7 +18,8 @@ const formData = ref({
     escopo: 'Rede',
     id_ano_etapa: null,
     data_inicio: '',
-    duracao: 1
+    duracao: 1,
+    matriz_sobrepor: false,
 })
 
 const isSaving = ref(false)
@@ -31,13 +32,13 @@ const calculatedDataFim = computed(() => {
     
     // Parse YYYY-MM-DD parts to avoid UTC/Timezone shifts
     const [year, month, day] = formData.value.data_inicio.split('-').map(Number)
-    const date = new Date(year, month - 1, day) // Local time
+    const date = new Date(year, month - 1, day) // Local construction
     
-    // Add duration days (duration 1 = same day, so add duration - 1)
+    // Add duration
     const durationIds = (parseInt(formData.value.duracao) || 1) - 1
     date.setDate(date.getDate() + durationIds)
     
-    // Format back to YYYY-MM-DD
+    // Return YYYY-MM-DD manually to ensure local consistency
     const y = date.getFullYear()
     const m = String(date.getMonth() + 1).padStart(2, '0')
     const d = String(date.getDate()).padStart(2, '0')
@@ -48,10 +49,28 @@ const calculatedDataFim = computed(() => {
 // Initialize form
 const initForm = () => {
     if (props.initialData) {
+        // Initial Data (from backend) is TIMESTAMPTZ ISO string (e.g. 2025-01-01T00:00:00-03:00)
+        // We need to extract the YYYY-MM-DD part relative to Sao Paulo for the input[type=date]
+        
+        let startDate = '';
+        if (props.initialData.data_inicio) {
+             const d = new Date(props.initialData.data_inicio);
+             // Format to YYYY-MM-DD in SP timezone
+             const parts = new Intl.DateTimeFormat('pt-BR', { 
+                timeZone: 'America/Sao_Paulo', 
+                year: 'numeric', month: '2-digit', day: '2-digit' 
+            }).formatToParts(d);
+            
+            // Reassemble (formatToParts returns day, month, year separately)
+            const p = {};
+            parts.forEach(({type, value}) => p[type] = value);
+            startDate = `${p.year}-${p.month}-${p.day}`;
+        }
+
         const start = props.initialData.data_inicio ? new Date(props.initialData.data_inicio) : new Date()
         const end = props.initialData.data_fim ? new Date(props.initialData.data_fim) : new Date()
         
-        // Calculate duration in days
+        // Duration: diff in days
         const diffTime = Math.abs(end - start)
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1 
 
@@ -60,8 +79,9 @@ const initForm = () => {
             nome_evento: props.initialData.nome_evento || '',
             escopo: props.initialData.escopo || 'Rede',
             id_ano_etapa: props.initialData.id_ano_etapa || null,
-            data_inicio: props.initialData.data_inicio,
-            duracao: diffDays
+            data_inicio: startDate,
+            duracao: diffDays,
+            matriz_sobrepor: !!props.initialData.matriz_sobrepor
         }
     } else {
         // Default to today
@@ -71,7 +91,8 @@ const initForm = () => {
             escopo: 'Rede',
             id_ano_etapa: null,
             data_inicio: today,
-            duracao: 1
+            duracao: 1,
+            matriz_sobrepor: false
         }
     }
 }
@@ -99,6 +120,15 @@ const fetchAnosEtapa = async () => {
 
 watch(() => props.isOpen, (newVal) => {
     if (newVal) {
+        initForm()
+        if (anosEtapaOptions.value.length === 0) {
+            fetchAnosEtapa()
+        }
+    }
+})
+
+onMounted(() => {
+    if (props.isOpen) {
         initForm()
         if (anosEtapaOptions.value.length === 0) {
             fetchAnosEtapa()
@@ -205,6 +235,18 @@ const handleSave = async () => {
                                 placeholder="Selecione..."
                                 required
                             />
+                        </div>
+                    </div>
+                    
+                    <!-- Overlap Matrix Toggle -->
+                    <div class="flex items-center gap-3 p-3 bg-div-15 rounded border border-secondary/10">
+                         <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" v-model="formData.matriz_sobrepor" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-text">Sobrepor Matriz Curricular?</span>
+                            <span class="text-[10px] text-secondary">Se marcado, este evento substituirá a rotina de aulas normal.</span>
                         </div>
                     </div>
 

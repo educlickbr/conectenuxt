@@ -15,7 +15,9 @@ export default defineEventHandler(async (event) => {
         carga_horaria: 'carga_horaria_delete',
         feriados: 'mtz_feriados_delete',
         eventos: 'mtz_eventos_delete',
-        matriz_curricular: 'mtz_matriz_curricular_delete'
+        matriz_curricular: 'mtz_matriz_curricular_delete',
+        plano_de_aulas: 'pl_plano_de_aulas_delete',
+        plano_de_aulas_itens: 'pl_plano_itens_delete'
     }
 
     const rpcName = rpcMap[resource as string]

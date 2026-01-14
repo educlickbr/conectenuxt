@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     if (host.includes('localhost')) {
         // In dev, we might want to hardcode or use a query param
         // The legacy app used store.empresa_local
-        lookupDomain = 'https://caruaru.conectetecnologia.app'
+        lookupDomain = 'https://escolamodelo.conectetecnologia.app'
     }
 
     // 2. Fetch Company Data

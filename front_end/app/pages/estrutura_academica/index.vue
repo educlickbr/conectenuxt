@@ -9,6 +9,7 @@ import TabComponentes from '@/components/estrutura_academica/TabComponentes.vue'
 import TabAnoEtapa from '@/components/estrutura_academica/TabAnoEtapa.vue'
 import TabHorarios from '@/components/estrutura_academica/TabHorarios.vue'
 import TabTurmas from '@/components/estrutura_academica/TabTurmas.vue'
+import TabPlanoDeAula from '@/components/matriz_curricular/TabPlanoDeAula.vue'
 
 import ManagerDashboard from '@/components/ManagerDashboard.vue'
 import { useToastStore } from '@/stores/toast'
@@ -24,7 +25,8 @@ const TABS = [
   { id: 'componentes', label: 'Componentes', icon: '🧩' },
   { id: 'ano_etapa', label: 'Ano / Etapa', icon: '📅' },
   { id: 'horarios', label: 'Horários', icon: '🕒' },
-  { id: 'turmas', label: 'Turmas', icon: '👥' }
+  { id: 'turmas', label: 'Turmas', icon: '👥' },
+  { id: 'planejamento', label: 'Planejamento', icon: '📚' }
 ]
 
 const currentTabId = ref(route.query.tab || 'classes')
@@ -36,7 +38,8 @@ const page = ref(1)
 const limit = ref(10)
 
 // --- BFF Data Fetching ---
-const { data: bffData, pending, error: bffError, refresh } = await useFetch(() => `/api/estrutura_academica/${currentTabId.value}`, {
+const { data: bffData, pending, error: bffError, refresh } = await useFetch(() => 
+  currentTabId.value === 'planejamento' ? undefined : `/api/estrutura_academica/${currentTabId.value}`, {
   query: computed(() => ({
     id_empresa: store.company?.empresa_id,
     pagina: page.value,
@@ -67,6 +70,7 @@ const isModalAnoEtapaOpen = ref(false)
 const isModalHorarioOpen = ref(false)
 const isModalTurmaOpen = ref(false)
 const selectedItem = ref(null)
+const tabPlanoRef = ref(null)
 
 // --- Watchers for Route Sync ---
 watch(currentTabId, (newId) => {
@@ -96,6 +100,8 @@ const handleNew = () => {
     isModalHorarioOpen.value = true
   } else if (currentTabId.value === 'turmas') {
     isModalTurmaOpen.value = true
+  } else if (currentTabId.value === 'planejamento') {
+     tabPlanoRef.value?.openNewPlanModal()
   } else {
     toast.showToast('Funcionalidade "Novo" em desenvolvimento para esta aba.', 'info')
   }
@@ -192,9 +198,8 @@ const dashboardStats = computed(() => [
       Estrutura Acadêmica
     </template>
 
-    <!-- Header Actions Slot -->
     <template #header-actions>
-      <div class="relative w-full sm:max-w-[180px]">
+      <div v-if="currentTabId !== 'planejamento'" class="relative w-full sm:max-w-[180px]">
         <input 
           type="text" 
           v-model="search" 
@@ -280,6 +285,10 @@ const dashboardStats = computed(() => [
         :is-loading="isLoading"
         @edit="handleEdit"
         @delete="handleDelete"
+      />
+      <TabPlanoDeAula 
+        v-if="currentTabId === 'planejamento'"
+        ref="tabPlanoRef"
       />
     </div>
 

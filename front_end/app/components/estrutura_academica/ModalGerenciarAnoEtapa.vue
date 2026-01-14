@@ -31,6 +31,7 @@ const isSearchingComponents = ref(false)
 const selectedComponent = ref(null)
 const newWorkloadHours = ref(0)
 const isAddingWorkload = ref(false)
+const editingWorkloadId = ref(null)
 
 // Calculations
 const currentTotalWorkload = computed(() => {
@@ -43,7 +44,7 @@ const remainingWorkload = computed(() => {
 })
 
 const workloadStatus = computed(() => {
-    if (remainingWorkload.value > 0) return { type: 'warning', text: `Faltam ${remainingWorkload.value} horas para atingir a meta.` }
+    if (remainingWorkload.value > 0) return { type: 'warning', text: `Faltam ${remainingWorkload.value} aulas para atingir a meta.` }
     if (remainingWorkload.value < 0) return { type: 'error', text: `Carga horária excedida em ${Math.abs(remainingWorkload.value)} horas!` }
     return { type: 'success', text: 'Carga horária total atingida com perfeição.' }
 })
@@ -173,7 +174,20 @@ const resetNewWorkload = () => {
     selectedComponent.value = null
     componentSearch.value = ''
     componentResults.value = []
+    componentResults.value = []
     newWorkloadHours.value = 0
+    editingWorkloadId.value = null
+}
+
+const handleEditWorkload = (ch) => {
+    selectedComponent.value = {
+        uuid: ch.id_componente,
+        nome: ch.componente_nome,
+        cor: ch.componente_cor
+    }
+    componentSearch.value = ch.componente_nome
+    newWorkloadHours.value = ch.carga_horaria
+    editingWorkloadId.value = ch.uuid
 }
 
 const handleAddWorkload = async () => {
@@ -191,7 +205,8 @@ const handleAddWorkload = async () => {
         const payload = {
             id_componente: selectedComponent.value.uuid,
             id_ano_etapa: formData.value.id,
-            carga_horaria: newWorkloadHours.value
+            carga_horaria: newWorkloadHours.value,
+            uuid: editingWorkloadId.value // Include if editing
         }
 
         const { success, message, data } = await $fetch('/api/estrutura_academica/carga_horaria', {
@@ -335,7 +350,7 @@ const handleSave = async () => {
 
                     <div>
                          <ManagerField 
-                            label="Meta de Carga Horária Total (Horas)"
+                            label="Meta de Aulas por Semana"
                             v-model="formData.carg_horaria"
                             type="number"
                             placeholder="Ex: 800"
@@ -349,7 +364,7 @@ const handleSave = async () => {
                         <div class="flex items-center justify-between">
                             <h3 class="font-bold text-lg">Matriz Curricular</h3>
                             <div class="px-3 py-1 rounded-full bg-div-15 border border-secondary/10 text-[10px] font-black uppercase tracking-wider">
-                                Total: {{ currentTotalWorkload }} / {{ formData.carg_horaria }}h
+                                Total: {{ currentTotalWorkload }} / {{ formData.carg_horaria }}a
                             </div>
                         </div>
 
@@ -392,7 +407,7 @@ const handleSave = async () => {
                                 </div>
                             </div>
                             <div class="w-24">
-                                <label class="text-[10px] uppercase font-bold text-secondary mb-1 block">CH (h/ano)</label>
+                                <label class="text-[10px] uppercase font-bold text-secondary mb-1 block">Aula/Sem</label>
                                 <input 
                                     type="number" 
                                     v-model="newWorkloadHours"
@@ -406,7 +421,15 @@ const handleSave = async () => {
                                     class="h-9 px-4 rounded bg-primary text-white font-bold hover:brightness-110 disabled:opacity-50 transition-all flex items-center gap-2"
                                 >
                                      <span v-if="isAddingWorkload" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                                     {{ isAddingWorkload ? '...' : '+ Adicionar' }}
+                                     <span v-if="isAddingWorkload" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                                     {{ isAddingWorkload ? '...' : (editingWorkloadId ? 'Atualizar' : '+ Adicionar') }}
+                                </button>
+                                <button
+                                    v-if="editingWorkloadId"
+                                    @click="resetNewWorkload"
+                                    class="h-9 px-3 ml-2 rounded bg-div-30 text-secondary hover:text-text transition-colors font-medium text-xs"
+                                >
+                                    Cancelar
                                 </button>
                             </div>
                         </div>
@@ -429,7 +452,14 @@ const handleSave = async () => {
                                      <span class="font-bold text-xs">{{ ch.componente_nome }}</span>
                                 </div>
                                 <div class="flex items-center gap-6">
-                                     <span class="text-xs font-mono font-bold">{{ ch.carga_horaria }} h</span>
+                                     <span class="text-xs font-mono font-bold">{{ ch.carga_horaria }} Aulas</span>
+                                     <button 
+                                        @click="handleEditWorkload(ch)"
+                                        class="p-1.5 rounded-full hover:bg-div-30 text-secondary hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+                                        title="Editar Carga Horária"
+                                     >
+                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                     </button>
                                      <button 
                                         @click="handleRemoveWorkload(ch)"
                                         class="p-1.5 rounded-full hover:bg-red-500/10 text-secondary group-hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"

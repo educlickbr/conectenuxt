@@ -13,7 +13,7 @@ declare
     v_user_id uuid;
 begin
     v_id := coalesce((p_data ->> 'id')::uuid, gen_random_uuid());
-    v_user_id := (p_data ->> 'id_usuario')::uuid; -- Expecting user ID in payload for audit
+    v_user_id := (p_data ->> 'id_usuario')::uuid;
 
     if not exists (select 1 from public.empresa where id = p_id_empresa) then
         return jsonb_build_object('status', 'error', 'message', 'Empresa não encontrada ou acesso negado.');
@@ -24,6 +24,7 @@ begin
         id_empresa, 
         id_ano_etapa,
         id_modelo_calendario,
+        id_escola,
         ano,
         numero_periodo,
         data_inicio,
@@ -38,6 +39,7 @@ begin
         p_id_empresa,
         (p_data ->> 'id_ano_etapa')::uuid,
         (p_data ->> 'id_modelo_calendario')::uuid,
+        (p_data ->> 'id_escola')::uuid,
         (p_data ->> 'ano')::integer,
         (p_data ->> 'numero_periodo')::integer,
         (p_data ->> 'data_inicio')::date,
@@ -51,6 +53,7 @@ begin
     set 
         id_ano_etapa = coalesce((excluded.id_ano_etapa), t.id_ano_etapa),
         id_modelo_calendario = coalesce((excluded.id_modelo_calendario), t.id_modelo_calendario),
+        id_escola = excluded.id_escola,
         ano = coalesce((excluded.ano), t.ano),
         numero_periodo = coalesce((excluded.numero_periodo), t.numero_periodo),
         data_inicio = coalesce((excluded.data_inicio), t.data_inicio),

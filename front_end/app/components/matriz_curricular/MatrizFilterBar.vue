@@ -152,7 +152,7 @@ const updateField = (field: 'escola_id' | 'ano_etapa_id' | 'turma_id', value: an
             @update:modelValue="(v: any) => updateField('escola_id', v)"
             :disabled="loading.escolas"
         >
-            <option :value="null">Todas as Escolas</option>
+            <option value="">Todas as Escolas</option>
             <option v-for="escola in escolas" :key="escola.id" :value="escola.id">
                 {{ escola.nome }}
             </option>
@@ -166,7 +166,7 @@ const updateField = (field: 'escola_id' | 'ano_etapa_id' | 'turma_id', value: an
             @update:modelValue="(v: any) => updateField('ano_etapa_id', v)"
             :disabled="loading.anos"
         >
-            <option :value="null">Todas as Etapas</option>
+            <option value="">Todas as Etapas</option>
             <option v-for="ano in anosEtapa" :key="ano.id" :value="ano.id">
                 {{ ano.nome }}
             </option>

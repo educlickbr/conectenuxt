@@ -55,8 +55,42 @@ const timelineMonths = computed(() => {
     let minYear = currentYear.value
     let maxYear = currentYear.value
 
-    if (feriados.value.length > 0) {
-        const years = feriados.value.map(f => new Date(f.data_inicio).getUTCFullYear())
+    // Flatten logic: Expand multi-day feriados into single-day entries
+    const allEntries = []
+
+    feriados.value.forEach(f => {
+        const start = new Date(f.data_inicio)
+        const end = new Date(f.data_fim)
+        
+        // Calculate diff in days to be safe, or just iterate until date > end
+        // Note: Using UTC-based iteration to avoid DST issues if crossing
+        // But since we are using timestamptz and formatting with SP timezone, best to stick to UTC calculation for iteration
+        
+        let curr = new Date(start)
+        let isFirstDay = true
+        
+        while (curr <= end) {
+             // We need to format curr back to ISO string for the Key and display
+             // But we want to preserve the specific day we are iterating on
+             
+             const entryDate = curr.toISOString()
+             
+             allEntries.push({
+                 ...f,
+                 uniqueKey: `${f.id}_${entryDate}`,
+                 displayDate: entryDate, // The date to show in calendar
+                 isFirstDay: isFirstDay,
+                 originalStart: f.data_inicio
+             })
+             
+             // Next day
+             curr.setDate(curr.getDate() + 1)
+             isFirstDay = false
+        }
+    })
+
+    if (allEntries.length > 0) {
+        const years = allEntries.map(e => new Date(e.displayDate).getUTCFullYear())
         minYear = Math.min(minYear, ...years)
         maxYear = Math.max(maxYear, ...years)
     }
@@ -66,18 +100,19 @@ const timelineMonths = computed(() => {
     for (let y = minYear; y <= maxYear; y++) {
         for (let m = 0; m < 12; m++) {
             const date = new Date(Date.UTC(y, m, 1))
-            const key = date.toISOString().slice(0, 7) 
+            const key = date.toISOString().slice(0, 7) // YYYY-MM
             
-            // Filter feriados
-            const monthFeriados = feriados.value.filter(f => f.data_inicio.startsWith(key))
-            monthFeriados.sort((a, b) => new Date(a.data_inicio) - new Date(b.data_inicio))
+            // Filter entries for this month
+            const monthEntries = allEntries.filter(e => e.displayDate.startsWith(key))
+            // Sort by date then by id
+            monthEntries.sort((a, b) => new Date(a.displayDate) - new Date(b.displayDate))
 
             months.push({
                 key,
                 label: date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' }),
                 monthName: date.toLocaleDateString('pt-BR', { month: 'long', timeZone: 'UTC' }),
                 year: y,
-                feriados: monthFeriados,
+                feriados: monthEntries,
                 isPast: new Date() > new Date(y, m + 1, 0),
                 isCurrent: key === new Date().toISOString().slice(0, 7)
             })
@@ -155,10 +190,12 @@ const handleSuccess = () => {
 
 // Helpers
 const getDay = (dateStr) => {
-    return new Date(dateStr).getUTCDate()
+    const date = new Date(dateStr)
+    return new Intl.DateTimeFormat('pt-BR', { day: 'numeric', timeZone: 'America/Sao_Paulo' }).format(date)
 }
 const getWeekDay = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'UTC' }).toUpperCase().slice(0, 3)
+    const date = new Date(dateStr)
+    return new Intl.DateTimeFormat('pt-BR', { weekday: 'short', timeZone: 'America/Sao_Paulo' }).format(date).toUpperCase().slice(0, 3)
 }
 </script>
 
@@ -284,7 +321,7 @@ const getWeekDay = (dateStr) => {
 
                         <div 
                             v-for="(feriado, idx) in month.feriados" 
-                            :key="feriado.id"
+                            :key="feriado.uniqueKey"
                             class="relative w-full transition-all hover:-translate-y-0.5"
                         >   
                             <!-- Connection Line (Desktop) -->
@@ -302,8 +339,8 @@ const getWeekDay = (dateStr) => {
                                     
                                     <!-- Date Badge -->
                                     <div class="flex flex-col items-center justify-center bg-div-15 rounded p-1.5 min-w-[3rem] border border-secondary/5">
-                                        <span class="text-[9px] font-black uppercase text-secondary tracking-widest">{{ getWeekDay(feriado.data_inicio) }}</span>
-                                        <span class="text-lg font-bold text-primary leading-none">{{ getDay(feriado.data_inicio) }}</span>
+                                        <span class="text-[9px] font-black uppercase text-secondary tracking-widest">{{ getWeekDay(feriado.displayDate) }}</span>
+                                        <span class="text-lg font-bold text-primary leading-none">{{ getDay(feriado.displayDate) }}</span>
                                     </div>
 
                                     <!-- Content -->
@@ -313,21 +350,24 @@ const getWeekDay = (dateStr) => {
                                             <span 
                                                 class="px-1.5 py-0.5 rounded-[3px] bg-div-30 uppercase tracking-wider font-bold text-[8px]"
                                                 :class="{
-                                                    'text-red-500': feriado.tipo === 'Nacional',
-                                                    'text-blue-500': feriado.tipo === 'Estadual',
-                                                    'text-green-500': feriado.tipo === 'Escolar'
+                                                    'text-red-500': feriado.tipo === 'Feriado Nacional',
+                                                    'text-blue-500': feriado.tipo === 'Feriado Estadual',
+                                                    'text-orange-500': feriado.tipo === 'Feriado Municipal',
+                                                    'text-green-500': feriado.tipo === 'Recesso Escolar',
+                                                    'text-purple-500': feriado.tipo === 'Emenda'
                                                 }"
                                             >
                                                 {{ feriado.tipo }}
                                             </span>
-                                            <span v-if="feriado.data_inicio !== feriado.data_fim">
-                                                 até {{ new Date(feriado.data_fim).getUTCDate() }}/{{ new Date(feriado.data_fim).getUTCMonth()+1 }}
+                                            <!-- Show 'Continuação' if not first day -->
+                                            <span v-if="!feriado.isFirstDay" class="italic opacity-70">
+                                                (Continuação)
                                             </span>
                                         </div>
                                     </div>
 
-                                    <!-- Actions (Hover Only) -->
-                                    <div class="flex items-center gap-1 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                    <!-- Actions (Hover Only) - Show only on First Day -->
+                                    <div v-if="feriado.isFirstDay" class="flex items-center gap-1 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity">
                                         <button @click="handleEdit(feriado)" class="p-1.5 hover:bg-div-30 rounded text-secondary hover:text-primary transition-colors" title="Editar">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                         </button>

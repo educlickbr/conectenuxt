@@ -21,12 +21,14 @@ const form = ref({
     escopo: 'Rede',
     id_ano_etapa: null as string | null,
     id_modelo_calendario: null as string | null,
+    id_escola: null as string | null,
     periodos: [] as { numero: number, data_inicio: string, data_fim: string, id?: string }[]
 })
 
 const loading = ref(false)
 const modelos = ref<any[]>([])
 const anosEtapa = ref<any[]>([])
+const escolas = ref<any[]>([])
 
 // Fetch Dependencies
 const fetchData = async () => {
@@ -43,6 +45,16 @@ const fetchData = async () => {
              params: { id_empresa: appStore.company.empresa_id }
         })
         anosEtapa.value = resEtapas.items || []
+
+        // Fetch Escolas
+        const { data: resEscolas, error: errEscolas } = await useSupabaseClient()
+            .from('escolas')
+            .select('id, nome')
+            .eq('id_empresa', appStore.company.empresa_id)
+            .order('nome')
+        
+        if (errEscolas) throw errEscolas
+        escolas.value = resEscolas || []
 
     } catch (err) {
         console.error(err)
@@ -90,7 +102,8 @@ onMounted(() => {
             ano: props.initialData.ano,
             escopo: props.initialData.escopo,
             id_ano_etapa: props.initialData.id_ano_etapa,
-            id_modelo_calendario: props.initialData.id_modelo || modelos.value.find(m => m.nome === props.initialData.modelo_nome)?.id, // Try to find ID
+            id_modelo_calendario: props.initialData.id_modelo || modelos.value.find(m => m.nome === props.initialData.modelo_nome)?.id, 
+            id_escola: props.initialData.id_escola || null, // Ensure to load if exists
             periodos: props.initialData.periodos ? [...props.initialData.periodos] : []
         }
     }
@@ -128,8 +141,9 @@ const handleSave = async () => {
                         // id_empresa is needed in the payload for the procedure? 
                         // The SQL procedure uses (p_data ->> 'id_usuario') and others.
                         // It does NOT read id_empresa from p_data, it uses the argument p_id_empresa.
-                        id_ano_etapa: form.value.escopo === 'Rede' ? null : form.value.id_ano_etapa,
-                        id_modelo_calendario: form.value.id_modelo_calendario,
+                        id_ano_etapa: form.value.escopo === 'Rede' ? null : (form.value.id_ano_etapa || null),
+                        id_modelo_calendario: form.value.id_modelo_calendario || null,
+                        id_escola: form.value.escopo === 'Rede' ? null : (form.value.id_escola || null),
                         escopo: form.value.escopo,
                         ano: form.value.ano,
                         numero_periodo: p.numero,
@@ -166,7 +180,7 @@ const handleSave = async () => {
         <div class="relative w-full max-w-2xl bg-surface rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             
             <!-- Header -->
-            <div class="px-6 py-4 border-b border-secondary/10 flex items-center justify-between bg-white relative z-10">
+            <div class="px-6 py-4 border-b border-secondary/10 flex items-center justify-between bg-white dark:bg-surface relative z-10">
                 <h3 class="text-lg font-bold text-text">Gerenciar Calendário</h3>
                 <button @click="$emit('close')" class="text-secondary hover:text-text transition-colors">
                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -202,10 +216,23 @@ const handleSave = async () => {
                         type="select" 
                         :model-value="form.id_ano_etapa ?? undefined"
                         @update:modelValue="form.id_ano_etapa = $event"
-                        class="md:col-span-2"
+                        class="md:col-span-1"
                     >
-                         <option :value="null" disabled>Selecione...</option>
+                         <option value="" disabled>Selecione...</option>
                          <option v-for="ae in anosEtapa" :key="ae.id" :value="ae.id">{{ ae.nome }}</option>
+                    </ManagerField>
+
+                    <!-- Escola Selector (Optional, for segmentation) -->
+                    <ManagerField 
+                        v-if="form.escopo === 'Ano_Etapa'"
+                        label="Escola (Opcional)" 
+                        type="select" 
+                        :model-value="form.id_escola ?? undefined"
+                        @update:modelValue="form.id_escola = $event"
+                        class="md:col-span-1"
+                    >
+                         <option value="">Todas as Escolas da Rede</option>
+                         <option v-for="e in escolas" :key="e.id" :value="e.id">{{ e.nome }}</option>
                     </ManagerField>
 
                     <!-- Modelo -->
@@ -216,7 +243,7 @@ const handleSave = async () => {
                         @update:modelValue="form.id_modelo_calendario = $event"
                         class="md:col-span-2"
                     >
-                        <option :value="null" disabled>Selecione o modelo...</option>
+                        <option value="" disabled>Selecione o modelo...</option>
                         <option v-for="m in modelos" :key="m.id" :value="m.id">{{ m.nome }}</option>
                     </ManagerField>
                 </div>
@@ -228,7 +255,7 @@ const handleSave = async () => {
                     <div 
                         v-for="(p, idx) in form.periodos" 
                         :key="idx"
-                        class="grid grid-cols-12 gap-4 items-center bg-white p-3 rounded-lg border border-secondary/10 shadow-sm"
+                        class="grid grid-cols-12 gap-4 items-center bg-white dark:bg-surface p-3 rounded-lg border border-secondary/10 shadow-sm"
                     >
                         <div class="col-span-12 md:col-span-2 text-sm font-bold text-primary">
                             {{ p.numero }}º Período
@@ -245,7 +272,7 @@ const handleSave = async () => {
             </div>
 
             <!-- Footer -->
-            <div class="p-4 border-t border-secondary/10 bg-white flex justify-end gap-2">
+            <div class="p-4 border-t border-secondary/10 bg-white dark:bg-surface flex justify-end gap-2">
                 <button 
                     @click="$emit('close')" 
                     class="px-4 py-2 text-sm font-bold text-secondary hover:bg-div-10 rounded transition-colors"
