@@ -13,11 +13,10 @@ const toast = useToastStore()
 const filters = ref({
     escola_id: null,
     ano_etapa_id: null,
-    turma_id: null
+    turma_id: null // Nullable now!
 })
 
 const loading = ref(false)
-const saving = ref(false)
 
 // Data Models
 interface Block {
@@ -26,11 +25,11 @@ interface Block {
     componente_nome: string
     componente_cor: string
     db_id?: string // Real DB ID if saved
+    escopo?: 'ano_etapa' | 'turma'
+    is_inherited?: boolean
 }
 
 // Repository (Available Blocks)
-// Grouped by Component for better UI? Or just a flat list?
-// Grouped is cleaner: "Mathematics (3 blocks left)"
 interface RepoItem {
     componente_id: string
     componente_nome: string
@@ -39,20 +38,18 @@ interface RepoItem {
 }
 const repository = ref<RepoItem[]>([])
 
-// Calendar Grid: 5 Days x 5 Slots (Fixed for now, can be dynamic later)
-// Structure: grid[dayIndex][slotIndex] -> Array of Blocks (0 or 1)
+// Calendar Grid: 5 Days x 5 Slots
 const days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
-const slots = [1, 2, 3, 4, 5] // Aulas 1 to 5
+const slots = [1, 2, 3, 4, 5] 
 const calendarGrid = ref<Block[][][]>([])
 
 // Init Grid
 const initGrid = () => {
-    // 5 days (indices 0-4), 5 slots (indices 0-4)
     const newGrid = []
     for (let d = 0; d < 5; d++) {
         const daySlots = []
         for (let s = 0; s < 5; s++) {
-            daySlots.push([] as Block[]) // Each cell is a list (for draggable)
+            daySlots.push([] as Block[])
         }
         newGrid.push(daySlots)
     }
@@ -63,12 +60,12 @@ initGrid()
 
 // --- Fetching Logic ---
 const fetchData = async () => {
-    if (!filters.value.turma_id || !filters.value.ano_etapa_id) return
+    // Only Año Etapa is strictly required now. Turma is optional.
+    if (!filters.value.ano_etapa_id) return
 
     loading.value = true
     try {
         // 1. Fetch Carga Horaria (Definitions)
-        // Cast client.rpc to any to avoid strict param type checking against generated types that might be out of sync or strict
         const chResponse = await (client.rpc as any)('carga_horaria_get', {
             p_id_empresa: appStore.company?.empresa_id,
             p_id_ano_etapa: filters.value.ano_etapa_id
@@ -78,17 +75,17 @@ const fetchData = async () => {
         if (chResponse.data && (chResponse.data as any).itens) chData = (chResponse.data as any).itens
         else if (Array.isArray(chResponse.data)) chData = chResponse.data
 
-        // 2. Fetch Existing Schedule (Matriz)
-        const { data: matrizItems, error: matrizError } = await useFetch('/api/estrutura_academica/matriz_curricular', {
-            params: {
-                id_empresa: appStore.company?.empresa_id,
-                id_turma: filters.value.turma_id
-            }
+        // 2. Fetch Merged Schedule (Inheritance!)
+        const { data: matrizItems, error: matrizError } = await (client.rpc as any)('mtz_matriz_curricular_get_merged', {
+             p_id_empresa: appStore.company?.empresa_id,
+             p_id_ano_etapa: filters.value.ano_etapa_id,
+             // Safety check: ensure turma_id is a valid UUID (length 36) or null
+             p_id_turma: (filters.value.turma_id && (filters.value.turma_id as string).length === 36) ? filters.value.turma_id : null
         })
 
-        if (matrizError.value) throw matrizError.value
+        if (matrizError) throw matrizError
         
-        const scheduled = (matrizItems.value as any)?.items || []
+        const scheduled = (matrizItems as any)?.items || []
 
         // 3. Build Grid & Repository
         buildBoard(chData, scheduled)
@@ -106,14 +103,11 @@ const buildBoard = (cargaHoraria: any[], scheduledItems: any[]) => {
     initGrid()
     
     // B. Map Scheduled Items to Grid
-    // Count how many used per component
+    // Count how many used per component (only count effective ones)
     const usedCounts: Record<string, number> = {}
 
     scheduledItems.forEach((item: any) => {
-        // item: { id, dia_semana (1-7), aula (1-N), id_componente, componente_nome, componente_cor }
-        // Adjust indices: dia_semana 2(Seg) -> 0. 
-        // Let's assume DB: 1=Sun, 2=Mon... or 1=Mon? 
-        // Standard ISO: 1=Mon. Let's assume 1=Mon.
+        // item: { id, dia_semana, aula, id_componente, ... escopo, is_inherited }
         const dayIndex = item.dia_semana - 1 
         const slotIndex = item.aula - 1
 
@@ -125,7 +119,9 @@ const buildBoard = (cargaHoraria: any[], scheduledItems: any[]) => {
                     db_id: item.id,
                     id_componente: item.id_componente,
                     componente_nome: item.componente_nome,
-                    componente_cor: item.componente_cor
+                    componente_cor: item.componente_cor,
+                    escopo: item.escopo,
+                    is_inherited: item.is_inherited
                 }]
             }
         }
@@ -175,141 +171,147 @@ const buildBoard = (cargaHoraria: any[], scheduledItems: any[]) => {
 const onCellChange = async (evt: any, dayIndex: number, slotIndex: number) => {
     if (evt.added) {
         const block = evt.added.element as Block
+        const oldDbId = block.db_id
+
+        // Rule: If we are in "Specific Mode" (Turma Selected), and we drop something:
+        // 1. If the previous item in this slot (which triggered the drop) was INHERITED, we don't need to delete it. We just insert the OVERRIDE.
+        // 2. If the previous item was SPECIFIC (same scope), we might need to update/delete it? The UPSERT handles conflict on (turma, day, slot).
+        // 3. But wait, 'block' describes what we DROPPED.
+        //    If 'block' came from another slot AND it was SPECIFIC, we must DELETE it from the old slot.
+        //    If 'block' came from another slot AND it was INHERITED? We can't "move" an inherited block. 
+        //    (UI should probably Clone inherited blocks if dragged? No, dragging implies moving).
+        //    If I drag an Inherited block from Mon to Tue:
+        //        - Mon becomes empty (OVERRIDE with nothing? or just reveal underlying? No, if I move it, I want Mon empty for this Turma).
+        //        - Tue gets the Specific Override.
+        //    Complex. Let's simplify:
+        //    If I drag, I am creating a SPECIFIC record at Target.
+        //    If the source had a DB_ID (specific or general), what happens?
+        //    - If source was General (Inherited): I cannot "delete" the General record. It affects others.
+        //      So effectively I am creating a NEW Specific record at Target. Use 'repo' logic?
+        //      And Source? It reverts to "Inherited" state? Or if it WAS inherited, it stays there?
+        //      Visually, dragging removes it from Source.
+        //      If I assume "Specific Overrides", then Source needs an "Empty Override"?
+        //      This is getting too complex for drag-and-drop.
+        //    
+        //    Simple approach:
+        //    - If `block.is_inherited` is TRUE: Treat as NEW INSERT. DO NOT DELETE OLD ID.
+        //    - If `block.escopo` matches current scope (e.g. both 'turma'): DELETE OLD ID, Insert New.
+        //    - If `block.escopo` != current scope (moving General item while in Turma view?): Treat as NEW. Do not delete.
+        
+        const currentScope = filters.value.turma_id ? 'turma' : 'ano_etapa'
+
+        // Check legacy deletion need
+        if (oldDbId) {
+             // Delete ONLY if it belongs to the current editing scope.
+             // If I am editing Turma A, and I move a block that belongs to Turma A, I delete the old pos.
+             // If I move a block that belongs to 'ano_etapa' (Inherited), I CANNOT delete it (it's global).
+             if (block.escopo === currentScope && !block.is_inherited) {
+                 await (client.rpc as any)('mtz_matriz_curricular_delete', {
+                    p_id_empresa: appStore.company?.empresa_id,
+                    p_id: oldDbId
+                })
+             }
+        }
+
         await saveSlot(dayIndex, slotIndex, block)
     }
-    // If removed (dragged to another cell), do nothing here? 
-    // The "added" event on the new cell will handle the upsert (which updates the record).
-    // HOWEVER, if we drag from cell A to cell B, it's an update.
-    // If we drag from Repo to Cell A, it's an insert.
-    // Wait, if I drag from Cell A to Cell B, 'evt.added' in Cell B fires.
-    // Does 'evt.removed' in Cell A fire? Yes.
-    // Function upsert handles conflict on (turma, day, slot). 
-    // BUT we need to clear the OLD slot if it was a move?
-    // Actually, if we move, the block carries its DB_ID.
-    // If we simply UPSERT with new (day, slot), the old record with that ID is updated?
-    // No. The table PK is 'id'. The Unique constraint is (turma, day, slot).
-    // If I take record ID=1 (Mon, Slot1) and Update it to (Tue, Slot1):
-    // SQL: UPDATE mtz SET dia=2, aula=1 WHERE id=1.
-    // Our RPC 'upsert' acts as "Insert or Update ON CONFLICT(slot)".
-    // It doesn't know "I moved from Mon".
-    // SO: For moves within the board, we should call an UPDATE on the ID.
-    // OR: We delete the old one and insert new?
-    // Better: The RPC 'upsert' logic I wrote takes 'p_data'.
-    // If I pass the ID, does it update by ID?
-    // My RPC `mtz_matriz_curricular_upsert` does:
-    // INSERT ... ON CONFLICT (turma, day, slot) DO UPDATE.
-    // It does NOT update by ID. It assumes the SLOT is the key.
-    // PROBLEM: If I move "Math" from Mon-1 to Tue-1:
-    // 1. Mon-1 is empty in UI.
-    // 2. Tue-1 has Math.
-    // 3. I call upsert(Tue, 1, Math). It creates NEW record or overwrites Tue-1.
-    // 4. THE OLD RECORD at Mon-1 STILL EXISTS in DB? 
-    // Yes, unless I delete it.
-    
-    // FIX: 
-    // When 'added' to a cell:
-    //   If block has 'db_id', it means it came from another cell.
-    //      -> We should DELETE the old record (or Update it).
-    //      -> Ideally, update the existing record to new coordinates.
-    //   If block has NO 'db_id', it came from repository.
-    //      -> Insert new.
-
-    // How to update logic:
-    // I need a generic 'save' that handles both.
-    // But 'upsert' by slot is tricky for moves.
-    // Let's modify the strategy:
-    // 1. If 'added', check if it's a move.
-    // 2. If move, delete old? NO, we don't know the old slot easily here without tracking.
-    // 3. Easier: Just Delete the old one if we know it?
-    // Wait, 'vuedraggable' doesn't give "previous container" easily in 'added'.
-    
-    // Alternative: 
-    // ALWAYS Delete + Insert?
-    // If block.db_id is present, call delete(block.db_id). 
-    // Then call upsert(new slot).
-    // This works for moves.
-    // Use `block.db_id` to delete.
 }
 
 const saveSlot = async (dayIndex: number, slotIndex: number, block: Block) => {
-    // 1. If it was a move (has db_id), delete the old reference first
-    //    Why? To avoid duplicate schedule or constraint issues if swapping?
-    //    Actually, if I move Mon->Tue, Mon becomes free. DB still has Mon.
-    //    So yes, MUST delete old db_id.
-    if (block.db_id) {
-        await (client.rpc as any)('mtz_matriz_curricular_delete', {
-            p_id_empresa: appStore.company?.empresa_id,
-            p_id: block.db_id
-        })
-    }
-
-    // 2. Upsert new slot
     const dia = dayIndex + 1
     const aula = slotIndex + 1
     
+    // determine target Payload
+    // If filters.turma_id is set, we use it -> Scope 'turma'
+    // Else -> Scope 'ano_etapa'
+    
     try {
         const { data, error } = await useFetch('/api/estrutura_academica/matriz_curricular', {
-            method: 'POST',
-            body: {
-                id_empresa: appStore.company?.empresa_id,
-                data: {
-                    id_turma: filters.value.turma_id,
-                    ano: 2026, // TODO: Get from store or context? Using fixed for now or parse from ano_etapa name? Ideally fetch.
-                    dia_semana: dia,
-                    aula: aula,
-                    id_componente: block.id_componente
-                }
-            }
+             method: 'POST',
+             body: {
+                 id_empresa: appStore.company?.empresa_id,
+                 data: {
+                     id_ano_etapa: filters.value.ano_etapa_id,
+                     id_turma: filters.value.turma_id || undefined,
+                     ano: 2026, // TODO dynamic
+                     dia_semana: dia,
+                     aula: aula,
+                     id_componente: block.id_componente,
+                     id_usuario: appStore.user?.id // Send Auth ID (Backend will resolve to Profile ID)
+                 }
+             }
         })
-
+        
         if (error.value) throw error.value
         
-        // Update block with new DB ID
-        // The API returns { success: true, data: { status: 'success', data: {id: ...} ... } }
-        const result = (data.value as any)?.data // this is the RPC result: { status: 'success', data: { ... } }
-        const savedRecord = result?.data
+        // Response wrapper from BFF: { success: true, data: { status: 'success', data: { ... } }, ... }
+        // The RPC returns { status: 'success', data: row }.
+        // So BFF 'data' property holds the RPC result.
+        const rpcResult = (data.value as any)?.data 
+        const savedRecord = rpcResult?.data
         
         if (savedRecord && savedRecord.id) {
             block.db_id = savedRecord.id
             block.id_temp = `db-${savedRecord.id}`
+            block.escopo = savedRecord.escopo
+            block.is_inherited = false // It's now explicit record
         }
 
         toast.showToast('Horário atualizado', 'success')
-
+        
     } catch (err) {
         console.error('Save error', err)
         toast.showToast('Erro ao salvar', 'error')
-        fetchData() // Revert UI on error
+        fetchData() // Revert
     }
 }
 
 const onRepoChange = async (evt: any) => {
-    // If item added to repo (dragged FROM calendar TO repo)
+    // Moved back to Repo
     if (evt.added) {
         const block = evt.added.element as Block
+        const currentScope = filters.value.turma_id ? 'turma' : 'ano_etapa'
+        
         if (block.db_id) {
-            // Delete from DB
-            try {
-                await useFetch('/api/estrutura_academica/matriz_curricular', {
-                    method: 'DELETE',
-                    body: {
-                        id_empresa: appStore.company?.empresa_id,
-                        id: block.db_id
-                    }
+             // Logic: If it's a specific record matching current scope, delete it.
+             // If it's inherited, we can't delete it globally.
+             // (In UI, dragging inherited OFF means "Delete specific"? No, inherited has no specific.)
+             // (It means "Create Empty Override"? We don't support "Empty Override" yet. It just reveals underlying.)
+             // So dragging Inherited to Repo does nothing (it remains in DB, but UI removes it temporarily? Reload brings it back).
+             // Actually if I drag inherited to Repo, I probably want to REMOVE the specific override if it existed?
+             // But if it IS inherited, no specific exists. So I cannot "Remove" it from this Turma unless I create a "Blocked/Empty" record.
+             // For now, let's assume we can only Delete what is matching Scope.
+             
+             if (block.escopo === currentScope && !block.is_inherited) {
+                try {
+                await (client.rpc as any)('mtz_matriz_curricular_delete', {
+                    p_id_empresa: appStore.company?.empresa_id,
+                    p_id: block.db_id
                 })
-                block.db_id = undefined // Clear ID as it's now in repo
-            } catch (err) {
-                console.error('Delete error', err)
-                fetchData() // Revert
-            }
+                block.db_id = undefined
+                } catch (err) {
+                    console.error(err)
+                    fetchData()
+                }
+             } else {
+                 // Warn user? "Cannot remove inherited item globally from here"
+                 if (block.is_inherited) {
+                     toast.showToast('Item herdado do Ano/Etapa. Altere no escopo Geral.', 'error')
+                     fetchData() // Restore it
+                 }
+             }
         }
-        // Normalize ID for repo
         block.id_temp = `repo-${block.id_componente}-${Date.now()}`
     }
 }
 
 // Watch filters
 watch(() => filters.value.turma_id, (newVal) => {
+    // Refresh when switching Turma (or clearing it for General)
+    fetchData()
+})
+
+watch(() => filters.value.ano_etapa_id, (newVal) => {
     if (newVal) fetchData()
     else {
         calendarGrid.value = []
@@ -324,7 +326,20 @@ watch(() => filters.value.turma_id, (newVal) => {
     <div class="p-4 space-y-4">
         <MatrizFilterBar v-model="filters" />
 
-        <div v-if="filters.turma_id" class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-250px)]">
+        <!-- Info Bar about Scope -->
+        <div v-if="filters.ano_etapa_id" class="px-2 mb-2 flex items-center gap-2 text-sm">
+             <span v-if="!filters.turma_id" class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-bold border border-yellow-200">
+                 Modo Geral (Ano/Etapa)
+             </span>
+             <span v-else class="px-2 py-1 bg-blue-100 text-blue-800 rounded font-bold border border-blue-200">
+                 Modo Específico (Turma)
+             </span>
+             <span class="text-gray-500 text-xs">
+                 {{ !filters.turma_id ? 'As alterações aqui aplicam a TODAS as turmas deste ano.' : 'As alterações aqui se sobrepõem ao geral.' }}
+             </span>
+        </div>
+
+        <div v-if="filters.ano_etapa_id" class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-280px)]">
             
             <!-- Repository (Left) -->
             <div class="lg:col-span-1 border-r pr-4 overflow-y-auto custom-scrollbar">
@@ -371,7 +386,6 @@ watch(() => filters.value.turma_id, (newVal) => {
                 </div>
 
                 <!-- Grid -->
-                <!-- Use flex-1 to fill height, and overflow-auto if needed, but we want a fixed grid mostly -->
                 <div class="grid grid-cols-5 gap-2 flex-1 overflow-y-auto custom-scrollbar content-start">
                     
                     <!-- Columns by Day -->
@@ -379,7 +393,7 @@ watch(() => filters.value.turma_id, (newVal) => {
                         
                         <!-- Rows by Slot -->
                         <div v-for="(slotNum, sIndex) in slots" :key="sIndex" class="relative group">
-                            <!-- Slot Label (Visible only on first column or absolute?) -->
+                            <!-- Slot Label -->
                             <div v-if="dIndex === 0" class="absolute -left-8 top-1/2 -translate-y-1/2 text-xs text-gray-600 w-6 text-right">
                                 {{ slotNum }}º
                             </div>
@@ -396,9 +410,17 @@ watch(() => filters.value.turma_id, (newVal) => {
                             >
                                 <template #item="{ element }">
                                     <div 
-                                        class="h-full w-full p-2 rounded-xl cursor-grab active:cursor-grabbing flex flex-col justify-center items-center text-center leading-tight bg-surface text-white border-b-4 shadow-sm"
+                                        class="h-full w-full p-2 rounded-xl cursor-grab active:cursor-grabbing flex flex-col justify-center items-center text-center leading-tight bg-surface text-white border-b-4 shadow-sm relative overflow-hidden"
                                         :style="{ borderBottomColor: element.componente_cor || '#ccc' }"
                                     >
+                                        <!-- Inheritance Indicator -->
+                                        <div v-if="element.is_inherited" class="absolute top-1 right-1 text-[9px] bg-black/40 px-1 rounded text-white/80" title="Herdado do Modelo Geral">
+                                            (H)
+                                        </div>
+                                        <div v-else-if="filters.turma_id" class="absolute top-1 right-1 text-[9px] bg-blue-500/80 px-1 rounded text-white" title="Específico para esta Turma">
+                                            (E)
+                                        </div>
+
                                         <span class="text-xs md:text-sm font-semibold line-clamp-2">
                                             {{ element.componente_nome }}
                                         </span>
@@ -414,7 +436,7 @@ watch(() => filters.value.turma_id, (newVal) => {
 
         <div v-else class="text-center py-20 text-gray-500">
             <Icon name="ph:chalkboard-teacher" size="48" class="mb-4 opacity-50" />
-            <p>Selecione uma turma para gerenciar o horário.</p>
+            <p>Selecione um Ano/Etapa para gerenciar o horário.</p>
         </div>
     </div>
 </template>

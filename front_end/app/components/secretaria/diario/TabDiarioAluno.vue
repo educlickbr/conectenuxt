@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed, nextTick } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useToastStore } from '@/stores/toast'
 import MatrizFilterBar from '@/components/matriz_curricular/MatrizFilterBar.vue'
@@ -17,13 +17,12 @@ const filters = ref({
     turma_id: null
 })
 const date = ref(today)
-const componente_id = ref<string | null>(null)
+const componente_id = ref<string | null>(null) // null = Geral
 
 // Data
 const isLoading = ref(false)
 const students = ref<any[]>([])
-const componentes = ref<any[]>([])
-const turmas = ref<any[]>([]) // To get details like Name/Shift for the card
+const dailyComponents = ref<any[]>([])
 const currentTurmaDetails = ref<any>(null)
 
 // Modal for Report
@@ -33,24 +32,35 @@ const reportText = ref('')
 
 // --- Fetchers ---
 
-const fetchComponentes = async () => {
+const fetchDailyComponents = async () => {
+    if (!filters.value.turma_id || !date.value) {
+        dailyComponents.value = []
+        return
+    }
+
     try {
         const client = useSupabaseClient()
-        const { data, error } = await client
-            .from('componente') // Singular, based on schema references
-            .select('uuid, nome') // uuid is PK
-            .eq('id_empresa', appStore.company?.empresa_id)
-            .order('nome')
-        
-        if (error) throw error
-        componentes.value = data || []
-    } catch (e) {
-        console.error('Error fetching componentes:', e)
-    }
-}
+        // Cast to any to avoid TS errors with new RPC signature
+        const { data, error }: any = await (client as any).rpc('diario_get_componentes_dia', {
+            p_id_empresa: appStore.company?.empresa_id,
+            p_id_turma: filters.value.turma_id,
+            p_data: date.value
+        })
 
-const fetchTurmaDetails = async () => {
-    // Deprecated: Context is now returned by the main RPC
+        if (error) throw error
+        
+        // Add "Geral" option implicitly handled by null selection, but we render buttons
+        dailyComponents.value = data.items || []
+        
+        // If current selected component is not in the new list, reset to General (null)
+        if (componente_id.value && !dailyComponents.value.find((c: any) => c.id_componente === componente_id.value)) {
+            componente_id.value = null
+        }
+
+    } catch (e) {
+        console.error('Error fetching daily components:', e)
+        dailyComponents.value = []
+    }
 }
 
 const fetchStudents = async () => {
@@ -63,7 +73,6 @@ const fetchStudents = async () => {
     try {
         const client = useSupabaseClient()
         
-        // Use the new simplified RPC that returns everything
         const { data, error } = await (client as any)
             .rpc('diario_presenca_get_por_turma', {
                 p_id_empresa: appStore.company?.empresa_id,
@@ -76,7 +85,6 @@ const fetchStudents = async () => {
 
         students.value = data || []
         
-        // Update context if we have at least one student (the RPC returns context columns)
         if (students.value.length > 0) {
             const first = students.value[0]
             currentTurmaDetails.value = {
@@ -89,64 +97,38 @@ const fetchStudents = async () => {
 
     } catch (e) {
         console.error('Error fetching students:', e)
-        // toast.showToast('Erro ao carregar alunos.', 'error')
     } finally {
         isLoading.value = false
     }
 }
 
 // Watchers
-watch(() => filters.value.turma_id, fetchStudents)
-watch(date, fetchStudents)
-watch(componente_id, fetchStudents)
-
-onMounted(() => {
-    fetchComponentes()
+watch(() => filters.value.turma_id, () => {
+    fetchDailyComponents()
+    fetchStudents()
 })
+watch(date, async () => {
+    await fetchDailyComponents()
+    fetchStudents()
+})
+watch(componente_id, fetchStudents)
 
 
 // --- Actions ---
 
 const setPresence = async (student: any, status: 'P' | 'F' | 'A') => {
-    // Current State
-    const currentPresente = student.presente
-    const currentObs = student.observacao
-    
-    // Determine New State
-    let newPresente: boolean | null = false
-    let newObs: string | null = null
-
-    if (status === 'P') {
-        // Toggle Logic: If already P, could toggle off? Or just force P? User usually wants to set P.
-        // Assuming force set.
-        newPresente = true
-        if (currentObs === 'Abonada') newObs = null // Clear special status
-        else newObs = currentObs // Keep other notes
-    } else if (status === 'F') {
-        newPresente = false
-        if (currentObs === 'Abonada') newObs = null
-        else newObs = currentObs
-    } else if (status === 'A') {
-        newPresente = false
-        newObs = 'Abonada'
-    }
-
-    // Optimistic Update
-    const oldPresente = student.presente
-    const oldObs = student.observacao
-    
-    student.presente = newPresente
-    student.observacao = newObs
+    const oldStatus = student.status
+    student.status = status // Optimistic
 
     try {
         const payload = [{
-            id: student.id_presenca || undefined, // Use existing ID if we have it
+            id: student.id_presenca || undefined,
             id_matricula: student.id_matricula,
             id_turma: filters.value.turma_id,
             id_componente: componente_id.value,
             data: date.value,
-            presente: newPresente,
-            observacao: newObs,
+            status: status,
+            observacao: student.observacao,
             id_usuario: appStore.user?.id
         }]
 
@@ -158,16 +140,10 @@ const setPresence = async (student: any, status: 'P' | 'F' | 'A') => {
             }
         })
         
-        // Background refresh to get real IDs for new records
-        // This prevents creating duplicates if user clicks again rapidly before reload
-        // Or if backend upsert requires ID validation
-        fetchStudents()
+        fetchStudents() // Refresh IDs
 
     } catch (e) {
-        console.error(e)
-        // Revert on error
-        student.presente = oldPresente
-        student.observacao = oldObs
+        student.status = oldStatus
         toast.showToast('Erro ao salvar presença.', 'error')
     }
 }
@@ -183,17 +159,7 @@ const saveReport = async () => {
     
     const student = selectedStudentForReport.value
     student.observacao = reportText.value
-    // Logic: Keep current meaningful presence status? 
-    // Usually changing report acts as an update.
-    // We assume presence doesn't change just by editing report? 
-    // Wait, if I just edit report, does it count as "Present" or "Absent"? 
-    // It should keep the existing boolean. (If null/undefined, maybe default False? backend defaults False).
-    // `student.presente` comes from API as boolean (or null if no record?).
-    // `diario_presenca_get_por_turma` returns `dp.presente`. Can be null.
-    // If null, we should probably treat as Present or Absent? 
-    // If I add report, I must decide. Default False usually.
-    
-    const pres = student.presente ?? false // Default false if new
+    const currentStatus = student.status || 'P'
     
     try {
          const payload = [{
@@ -202,7 +168,7 @@ const saveReport = async () => {
             id_turma: filters.value.turma_id,
             id_componente: componente_id.value,
             data: date.value,
-            presente: pres,
+            status: currentStatus,
             observacao: reportText.value,
             id_usuario: appStore.user?.id
         }]
@@ -227,188 +193,202 @@ const saveReport = async () => {
 const getInitials = (name: string) => {
     if (!name) return '?'
     const parts = name.trim().split(/\s+/)
-    if (parts.length >= 2) {
-        const first = parts[0]
-        const second = parts[1]
-        if (first && second) {
-            return (first.charAt(0) + second.charAt(0)).toUpperCase()
-        }
-    }
+    if (parts.length >= 2) return ((parts[0] || '').charAt(0) + (parts[1] || '').charAt(0)).toUpperCase()
     return name.slice(0, 2).toUpperCase()
 }
+
+// Helpers for Component UI
+const getDayName = computed(() => {
+    if (!date.value) return ''
+    const d = new Date(date.value + 'T12:00:00') // Force noon to avoid timezone issues
+    return d.toLocaleDateString('pt-BR', { weekday: 'long' })
+})
 
 </script>
 
 <template>
     <div class="p-6 md:p-8 min-h-[500px]">
         
-        <!-- Filters -->
-        <div class="flex flex-col gap-4 mb-6">
+        <!-- Header Controls -->
+        <div class="flex flex-col gap-6 mb-8">
             <MatrizFilterBar v-model="filters" />
             
-            <div class="flex items-center gap-4 flex-wrap">
-                 <!-- Date Picker -->
-                 <ManagerField 
-                    label="Data" 
-                    type="date" 
-                    :model-value="date ?? undefined"
-                    @update:modelValue="(v: any) => date = v"
-                    class="min-w-[150px]"
-                />
+            <div class="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between border-b pb-6 border-secondary/10">
+                <!-- Date Picker -->
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2 mb-1.5 pl-1">
+                        <span class="text-xs font-bold text-secondary uppercase tracking-wider">Data do Diário</span>
+                        <span v-if="date" class="text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full uppercase leading-none">
+                            {{ getDayName }}
+                        </span>
+                    </div>
+                    <ManagerField 
+                        type="date" 
+                        :model-value="date ?? undefined"
+                        @update:modelValue="(v: any) => date = v"
+                        class="min-w-[160px]"
+                    />
+                </div>
 
-                 <!-- Componente Picker -->
-                 <ManagerField 
-                    label="Componente / Disciplina" 
-                    type="select" 
-                    :model-value="componente_id ?? undefined"
-                    @update:modelValue="(v: any) => componente_id = v"
-                    class="min-w-[200px] flex-1"
-                >
-                    <option :value="null">Geral / Sem Componente</option>
-                    <option v-for="c in componentes" :key="c.uuid || c.id" :value="c.uuid || c.id">
-                        {{ c.nome }}
-                    </option>
-                </ManagerField>
+                <!-- Component Slider -->
+                <div class="flex-1 w-full md:w-auto overflow-x-auto pb-2 md:pb-0" v-if="filters.turma_id">
+                    <div class="flex items-center gap-2">
+                        <!-- Geral Option -->
+                        <button 
+                            @click="componente_id = null"
+                            class="px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap border"
+                            :class="componente_id === null 
+                                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
+                                : 'bg-surface text-secondary border-div-15 hover:border-primary/50'"
+                        >
+                            Geral (Dia Inteiro)
+                        </button>
+
+                        <div class="h-6 w-px bg-div-15 mx-2"></div>
+
+                        <!-- Scheduled Components -->
+                        <button 
+                            v-for="comp in dailyComponents" 
+                            :key="comp.id_componente"
+                            @click="componente_id = comp.id_componente"
+                            class="px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap border flex items-center gap-2"
+                            :class="componente_id === comp.id_componente 
+                                ? 'bg-white text-primary border-primary ring-2 ring-primary/20' 
+                                : 'bg-surface text-secondary border-div-15 hover:border-primary/50'"
+                            :style="componente_id === comp.id_componente ? { borderColor: comp.cor } : {}"
+                        >
+                            <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: comp.cor || '#ccc' }"></span>
+                            {{ comp.nome }}
+                        </button>
+                        
+                        <div v-if="dailyComponents.length === 0" class="text-xs text-secondary italic px-2">
+                            Sem aulas cadastradas na Matriz para hoje.
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Warning -->
-        <div v-if="!filters.turma_id" class="p-8 text-center border border-dashed border-secondary/20 rounded-xl">
-            <p class="text-secondary">Selecione uma turma para carregar os alunos.</p>
+        <div v-if="!filters.turma_id" class="py-12 text-center border-2 border-dashed border-secondary/10 rounded-xl bg-surface/50">
+            <p class="text-secondary font-medium">Selecione uma turma acima para iniciar a chamada.</p>
         </div>
 
         <!-- List -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
              <div v-if="isLoading && students.length === 0" class="col-span-full py-12 text-center text-secondary">
-                Carregando alunos...
+                <div class="animate-pulse flex flex-col items-center gap-3">
+                    <div class="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+                    <span class="text-sm font-medium">Carregando alunos...</span>
+                </div>
+             </div>
+             
+             <div v-if="!isLoading && students.length === 0" class="col-span-full py-12 text-center text-secondary">
+                 Nenhum aluno encontrado nesta turma.
              </div>
 
              <div v-for="student in students" :key="student.id_matricula" 
-                class="group bg-surface border border-div-15 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 relative flex flex-col"
+                class="group bg-surface border border-div-15 rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative flex flex-col"
             >
-                <!-- Card Header: Student Info -->
-                <div class="p-4 flex items-center gap-4 relative"> 
-                    <!-- Status Bullet (Top Right) -->
-                    <div class="absolute top-4 right-4 text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                <!-- Card Header -->
+                <div class="p-4 flex items-center gap-4 relative bg-gradient-to-br from-white to-background dark:from-surface dark:to-surface"> 
+                    <!-- Status Badge -->
+                    <div class="absolute top-4 right-4 text-[10px] font-bold px-2 py-1 rounded-md border shadow-sm backdrop-blur-sm"
                         :class="[
-                            student.presente === true 
-                                ? 'bg-success/20 text-success border-success/20' :
-                            student.presente === false 
-                                ? (student.observacao === 'Abonada' 
-                                    ? 'bg-secondary/20 text-secondary border-secondary/20' 
-                                    : 'bg-danger/20 text-danger border-danger/20') :
-                            'bg-div-30 text-secondary border-div-15'
+                            student.status === 'P' ? 'bg-success/10 text-success border-success/20' :
+                            student.status === 'F' ? 'bg-danger/10 text-danger border-danger/20' :
+                            student.status === 'A' ? 'bg-secondary/10 text-secondary border-secondary/20' :
+                            'bg-surface text-secondary border-div-15'
                         ]"
                     >
-                        {{ 
-                            student.presente === true ? 'PRESENTE' :
-                            student.presente === false ? (student.observacao === 'Abonada' ? 'ABONADA' : 'FALTA') :
-                            'AGUARDANDO'
-                        }}
+                        {{ student.status === 'P' ? 'PRESENTE' : student.status === 'F' ? 'FALTA' : student.status === 'A' ? 'ABONADA' : 'AGUARDANDO' }}
                     </div>
 
                     <!-- Avatar -->
                     <div 
-                        class="w-10 h-10 rounded-md flex items-center justify-center text-sm font-bold shrink-0 shadow-sm transition-colors mt-1"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center text-base font-bold shrink-0 shadow-inner transition-colors"
                         :class="[
-                            student.presente === true ? '!bg-success/20 text-success' : 
-                            student.presente === false ? (student.observacao === 'Abonada' ? '!bg-secondary/20 text-secondary' : '!bg-danger/20 text-danger') : 
-                            'bg-div-15 text-secondary'
+                            student.status === 'P' ? 'bg-success/20 text-success' : 
+                            student.status === 'F' ? 'bg-danger/20 text-danger' : 
+                            student.status === 'A' ? 'bg-secondary/20 text-secondary' :
+                            'bg-div-15 text-secondary/70'
                         ]"
                     >
                         {{ getInitials(student.aluno_nome) }}
                     </div>
                     
                     <!-- Info -->
-                    <div class="min-w-0 flex-1 pr-20"> <!-- Padding right for badge -->
-                        <h4 class="font-bold text-text text-sm truncate leading-tight mb-0.5" :title="student.aluno_nome">
+                    <div class="min-w-0 flex-1 pr-20">
+                        <h4 class="font-bold text-text text-sm truncate leading-snug mb-1" :title="student.aluno_nome">
                             {{ student.aluno_nome }}
                         </h4>
-                        <!-- Context Info -->
-                        <div class="text-[10px] text-secondary flex flex-col leading-tight">
-                             <div v-if="currentTurmaDetails" class="flex flex-col">
-                                <!-- Turma + Ano Etapa -->
-                                <span class="font-bold text-text/70">
-                                    {{ currentTurmaDetails.nome_turma }} 
-                                    <span v-if="currentTurmaDetails.ano_etapa" class="font-normal text-secondary">
-                                        - {{ currentTurmaDetails.ano_etapa }}
-                                    </span>
-                                </span>
-                             </div>
-                             <span v-else>Carregando info...</span>
+                        <div class="text-[10px] text-secondary flex flex-wrap gap-x-2 leading-none opacity-80">
+                             <span v-if="currentTurmaDetails">{{ currentTurmaDetails.nome_turma }}</span>
+                             <span v-if="componente_id" class="text-primary font-bold">• {{ dailyComponents.find(c => c.id_componente === componente_id)?.nome }}</span>
+                             <span v-else>• Geral</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Controls Body -->
                 <div class="px-4 pb-4">
-                    <!-- Attendance Toggle -->
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-3">
                         
                         <!-- Presente (Success) -->
                         <button 
                             @click="setPresence(student, 'P')" 
-                            class="flex-1 h-8 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
+                            class="flex-1 h-9 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
                             :class="[
-                                student.presente === true 
-                                ? '!bg-success text-white border-success' 
-                                : 'bg-success/10 text-success border-success/20 hover:bg-success hover:text-white'
+                                student.status === 'P' 
+                                ? '!bg-success !text-white !border-success ring-1 ring-success shadow-sm' 
+                                : 'bg-success/20 text-success border-success/30 hover:bg-success hover:text-white'
                             ]"
                         >
-                            <svg v-if="student.presente === true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            <span>P</span>
+                            P
                         </button>
 
                         <!-- Falta (Danger) -->
                         <button 
                             @click="setPresence(student, 'F')" 
-                            class="flex-1 h-8 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
+                            class="flex-1 h-9 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
                             :class="[
-                                student.presente === false && (!student.observacao || student.observacao !== 'Abonada')
-                                ? '!bg-danger text-white border-danger' 
-                                : 'bg-danger/10 text-danger border-danger/20 hover:bg-danger hover:text-white'
+                                student.status === 'F'
+                                ? '!bg-danger !text-white !border-danger ring-1 ring-danger shadow-sm' 
+                                : 'bg-danger/20 text-danger border-danger/30 hover:bg-danger hover:text-white'
                             ]"
                         >
-                            <svg v-if="student.presente === false && (!student.observacao || student.observacao !== 'Abonada')" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            <span>F</span>
+                            F
                         </button>
 
                         <!-- Abono (Secondary) -->
                         <button 
                             @click="setPresence(student, 'A')" 
-                            class="flex-1 h-8 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
+                            class="flex-1 h-9 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
                              :class="[
-                                student.presente === false && student.observacao === 'Abonada'
-                                ? '!bg-secondary text-white border-secondary' 
-                                : 'bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary hover:text-white'
+                                student.status === 'A'
+                                ? '!bg-secondary !text-white !border-secondary ring-1 ring-secondary shadow-sm' 
+                                : 'bg-secondary/20 text-secondary border-secondary/30 hover:bg-secondary hover:text-white'
                             ]"
                             title="Falta Abonada/Justificada"
                         >
-                            <svg v-if="student.presente === false && student.observacao === 'Abonada'" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                            <span>A</span>
+                            A
                         </button>
 
                     </div>
                 </div>
 
-                <!-- Footer: Report Button & Status Indicator -->
+                <!-- Footer -->
                 <button 
                     @click="openReport(student)"
-                    class="w-full py-3 text-xs font-semibold text-secondary hover:text-primary transition-colors flex items-center justify-center gap-2 border-t border-div-15 bg-surface-hover/30 hover:bg-surface-hover"
+                    class="w-full py-3 text-xs font-semibold transition-colors flex items-center justify-center gap-2 border-t border-div-15 bg-surface hover:bg-surface-hover group-hover:border-primary/10"
+                    :class="student.observacao ? 'text-primary' : 'text-secondary'"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        :class="student.observacao && student.observacao !== 'Abonada' ? 'text-primary' : 'text-div-30'"
-                    ><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                    
-                    <span :class="student.observacao && student.observacao !== 'Abonada' ? 'text-primary' : ''">
-                        {{ student.observacao && student.observacao !== 'Abonada' ? 'Ver Observação' : 'Adicionar Observação' }}
-                    </span>
-                    
-                    <span v-if="student.observacao && student.observacao !== 'Abonada'" class="flex h-2 w-2 relative">
+                    <span v-if="student.observacao" class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                     </span>
+                    {{ student.observacao ? 'Observação Salva' : 'Adicionar Observação' }}
                 </button>
 
             </div>
@@ -417,21 +397,32 @@ const getInitials = (name: string) => {
 
         <!-- Report Modal -->
         <div v-if="isReportModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4">
-             <div class="absolute inset-0 bg-text/20 backdrop-blur-sm" @click="isReportModalOpen = false"></div>
-             <div class="relative bg-surface rounded-xl shadow-2xl p-6 w-full max-w-md">
-                 <h3 class="font-bold text-lg mb-4">Relatório / Observação</h3>
-                 <p class="text-sm text-secondary mb-4">{{ selectedStudentForReport?.aluno_nome }}</p>
+             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="isReportModalOpen = false"></div>
+             <div class="relative bg-surface rounded-xl shadow-2xl p-6 w-full max-w-lg border border-div-15 scale-100 animate-in fade-in zoom-in-95 duration-200">
                  
+                 <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="font-bold text-lg text-text">Diário de Classe</h3>
+                        <p class="text-sm text-secondary">{{ selectedStudentForReport?.aluno_nome }}</p>
+                    </div>
+                    <button @click="isReportModalOpen = false" class="text-secondary hover:text-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                 </div>
+                 
+                 <label class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Observações / Ocorrências</label>
                  <textarea 
                     v-model="reportText"
-                    rows="4"
-                    class="w-full bg-input-bg border border-input-border rounded-lg p-3 text-text outline-none focus:border-primary transition-all mb-4"
-                    placeholder="Digite a observação..."
+                    rows="5"
+                    class="w-full bg-input-bg border border-input-border rounded-lg p-3 text-sm text-text outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all mb-6 resize-none"
+                    placeholder="Descreva detalhes sobre a presença ou comportamento do aluno nesta aula..."
                 ></textarea>
 
-                <div class="flex justify-end gap-3">
-                    <button @click="isReportModalOpen = false" class="text-sm font-bold text-secondary hover:text-text">Cancelar</button>
-                    <button @click="saveReport" class="px-4 py-2 bg-primary text-white text-sm font-bold rounded">Salvar</button>
+                <div class="flex justify-end gap-3 pt-4 border-t border-div-15">
+                    <button @click="isReportModalOpen = false" class="px-4 py-2 text-sm font-bold text-secondary hover:text-text transition-colors">Cancelar</button>
+                    <button @click="saveReport" class="px-6 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 transition-all transform active:scale-95">
+                        Salvar Anotação
+                    </button>
                 </div>
              </div>
         </div>

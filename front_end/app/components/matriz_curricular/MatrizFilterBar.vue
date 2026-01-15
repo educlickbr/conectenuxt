@@ -135,7 +135,13 @@ onMounted(() => {
 
 // Update helper
 const updateField = (field: 'escola_id' | 'ano_etapa_id' | 'turma_id', value: any) => {
-    const newValue = { ...props.modelValue, [field]: value }
+    // Convert empty string or the label text from select to null for UUID fields
+    let finalValue = value
+    if (field === 'turma_id' && (value === '' || value === 'Geral (Aplicar ao Ano/Etapa)')) {
+        finalValue = null
+    }
+
+    const newValue = { ...props.modelValue, [field]: finalValue }
     emit('update:modelValue', newValue)
     emit('change', newValue)
 }
@@ -175,13 +181,13 @@ const updateField = (field: 'escola_id' | 'ano_etapa_id' | 'turma_id', value: an
         <!-- Turma Selector -->
         <ManagerField 
             v-if="showTurma"
-            label="Turma" 
+            label="Turma (Opcional)" 
             type="select" 
-            :model-value="modelValue.turma_id ?? undefined"
+            :model-value="modelValue.turma_id ?? ''" 
             @update:modelValue="(v: any) => updateField('turma_id', v)"
             :disabled="(!modelValue.escola_id && !modelValue.ano_etapa_id) || loading.turmas"
         >
-            <option :value="null" disabled>Selecione a Turma</option>
+            <option value="">Geral (Aplicar ao Ano/Etapa)</option>
             <option v-if="turmas.length === 0" disabled>Nenhuma turma encontrada</option>
             <option v-for="turma in turmas" :key="turma.id" :value="turma.id">
                 {{ turma.nome }}
