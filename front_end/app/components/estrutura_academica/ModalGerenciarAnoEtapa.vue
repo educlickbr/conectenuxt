@@ -13,6 +13,12 @@ const emit = defineEmits(['close', 'success'])
 const appStore = useAppStore()
 const toast = useToastStore()
 
+const currentTab = ref('info') // 'info', 'matriz', 'avaliacao'
+const tabs = [
+    { id: 'info', label: 'Ano/Etapa' },
+    { id: 'matriz', label: 'Matriz Curricular' },
+    { id: 'avaliacao', label: 'Modelo Avaliação' }
+]
 
 const formData = ref({
     nome: '',
@@ -34,6 +40,10 @@ const isPolyvalent = ref(false)
 const isAddingWorkload = ref(false)
 const editingWorkloadId = ref(null)
 
+// Avaliacao Tab State
+const avaliacoesList = ref([])
+const isLoadingAvaliacoes = ref(false)
+
 // Calculations
 const currentTotalWorkload = computed(() => {
     return workloads.value.reduce((acc, curr) => acc + (Number(curr.carga_horaria) || 0), 0)
@@ -52,6 +62,7 @@ const workloadStatus = computed(() => {
 
 // Initialize form
 const initForm = async () => {
+    currentTab.value = 'info'
     if (props.initialData) {
         formData.value = { 
             id: props.initialData.id || props.initialData.uuid,
@@ -81,9 +92,7 @@ const isLoadingModels = ref(false)
 const fetchCalendarModels = async () => {
     isLoadingModels.value = true
     try {
-        const { items } = await $fetch('/api/estrutura_academica/modelo_calendario', {
-            // No parameters needed
-        })
+        const { items } = await $fetch('/api/estrutura_academica/modelo_calendario', {})
         
         calendarModels.value = (items || []).map(m => ({
             value: m.id,
@@ -91,7 +100,6 @@ const fetchCalendarModels = async () => {
         }))
     } catch (err) {
         console.error('Erro ao buscar modelos de calendário:', err)
-        toast.showToast('Erro ao carregar modelos de calendário.', 'error')
     } finally {
         isLoadingModels.value = false
     }
@@ -114,17 +122,157 @@ const fetchWorkloads = async () => {
         workloads.value = items || []
     } catch (err) {
         console.error('Erro ao buscar cargas horárias:', err)
-        toast.showToast('Erro ao carregar lista de componentes.', 'error')
     } finally {
         isLoadingWorkloads.value = false
     }
 }
+
+const isTogglingAssociation = ref(null)
+
+const fetchAvaliacoes = async () => {
+    if (!formData.value.id) return // Should not happen if tabs are disabled, but safety check
+    isLoadingAvaliacoes.value = true
+    try {
+        // Parallel fetch: Models and Existing Associations
+        const [modelsResponse, assocResponse] = await Promise.all([
+            $fetch('/api/avaliacao/modelos', {
+                query: { 
+                    id_empresa: appStore.company.empresa_id, 
+                    limite: 100 
+                }
+            }),
+            $fetch('/api/avaliacao/assoc_ano_etapa', {
+                query: { 
+                    id_empresa: appStore.company.empresa_id,
+                    id_ano_etapa: formData.value.id
+                }
+            })
+        ])
+
+        const associations = assocResponse.items || []
+        
+        avaliacoesList.value = (modelsResponse.items || []).map(item => {
+            const assoc = associations.find(a => a.id_modelo_avaliacao === item.id)
+            return {
+             ...item,
+             expanded: false,
+             groups: [],
+             associated: !!assoc,
+             assoc_id: assoc ? assoc.id_assoc : null
+            }
+        })
+    } catch (err) {
+        console.error('Erro ao buscar modelos de avaliação:', err)
+        toast.showToast('Erro ao carregar modelos de avaliação.', 'error')
+    } finally {
+        isLoadingAvaliacoes.value = false
+    }
+}
+
+const toggleAssociation = async (avaliacao) => {
+    isTogglingAssociation.value = avaliacao.id
+    try {
+        if (avaliacao.associated) {
+             // DELETE
+             if (!avaliacao.assoc_id) return // Should not happen
+             
+             await $fetch('/api/avaliacao/assoc_ano_etapa', {
+                 method: 'DELETE',
+                 body: {
+                     id_empresa: appStore.company.empresa_id,
+                     id: avaliacao.assoc_id
+                 }
+             })
+             
+             avaliacao.associated = false
+             avaliacao.assoc_id = null
+             toast.showToast('Modelo desvinculado.')
+        } else {
+             // CREATE (UPSERT)
+             const { data } = await $fetch('/api/avaliacao/assoc_ano_etapa', {
+                 method: 'POST',
+                 body: {
+                     id_empresa: appStore.company.empresa_id,
+                     data: {
+                         id_ano_etapa: formData.value.id,
+                         id_modelo_avaliacao: avaliacao.id
+                     }
+                 }
+             })
+             
+             avaliacao.associated = true
+             avaliacao.assoc_id = data.id
+             toast.showToast('Modelo vinculado com sucesso!')
+        }
+    } catch (err) {
+        console.error('Erro ao atualizar associação:', err)
+        toast.showToast('Erro ao atualizar vínculo.', 'error')
+        // Revert UI state on error
+        avaliacao.associated = !avaliacao.associated 
+    } finally {
+        isTogglingAssociation.value = null
+    }
+}
+
+const toggleAvaliacao = async (avaliacao) => {
+    avaliacao.expanded = !avaliacao.expanded
+    
+    if (avaliacao.expanded && (!avaliacao.groups || avaliacao.groups.length === 0)) {
+        // Fetch Groups for this Model
+        try {
+             // 1. Fetch Groups
+             const groupsResponse = await $fetch('/api/avaliacao/grupos', {
+                query: { 
+                    id_empresa: appStore.company.empresa_id,
+                    id_modelo: avaliacao.id
+                }
+             })
+             
+             const groups = groupsResponse.items || []
+             
+             // 2. Fetch Items for each Group
+             // We can do this in parallel
+             const groupsWithItems = await Promise.all(groups.map(async (group) => {
+                 try {
+                     const itemsResponse = await $fetch('/api/avaliacao/itens_avaliacao', {
+                        query: {
+                            id_empresa: appStore.company.empresa_id,
+                            id_grupo: group.id
+                        }
+                     })
+                     return {
+                         ...group,
+                         items: itemsResponse.items || []
+                     }
+                 } catch (err) {
+                     console.error(`Erro ao buscar itens do grupo ${group.id}:`, err)
+                     return { ...group, items: [] }
+                 }
+             }))
+
+             avaliacao.groups = groupsWithItems
+
+        } catch (err) {
+            console.error('Erro ao buscar detalhes do modelo:', err)
+            toast.showToast('Erro ao carregar detalhes.', 'error')
+        }
+    }
+}
+
 
 watch(() => props.isOpen, (newVal) => {
     if (newVal) {
         initForm()
         errorMessage.value = ''
         resetNewWorkload()
+        avaliacoesList.value = [] // clear previous fetch
+    }
+})
+
+// Watch tab change to fetch data lazily
+watch(currentTab, (newTab) => {
+    if (newTab === 'avaliacao' && avaliacoesList.value.length === 0) {
+        fetchAvaliacoes()
     }
 })
 
@@ -312,17 +460,37 @@ const handleSave = async () => {
                 <div class="px-6 py-4 border-b border-secondary/10 flex items-center justify-between bg-div-15 shrink-0">
                     <div>
                         <h2 class="text-xl font-bold">{{ initialData ? 'Editar Ano/Etapa' : 'Novo Ano/Etapa' }}</h2>
-                        <p class="text-xs text-secondary mt-0.5">Defina o período letivo e a matriz curricular.</p>
+                        <p class="text-xs text-secondary mt-0.5">Defina o período letivo, matriz curricular e avaliações.</p>
                     </div>
                      <button @click="handleCancel" class="p-2 rounded-full hover:bg-div-30 text-secondary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
 
+                <!-- Tabs -->
+                <div class="flex items-center px-6 border-b border-div-15 bg-div-05">
+                    <button 
+                        v-for="tab in tabs" 
+                        :key="tab.id"
+                        @click="currentTab = tab.id"
+                        class="px-4 py-3 text-sm font-bold border-b-2 transition-colors relative"
+                        :class="[
+                            currentTab === tab.id ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-text',
+                            // Disable tabs if not saved yet
+                            (!formData.id && tab.id !== 'info') ? 'opacity-50 cursor-not-allowed' : ''
+                        ]"
+                        :disabled="!formData.id && tab.id !== 'info'"
+                        :title="!formData.id && tab.id !== 'info' ? 'Salve o Ano/Etapa primeiro' : ''"
+                    >
+                        {{ tab.label }}
+                    </button>
+                </div>
+
                 <!-- Body Scrollable -->
-                <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-8">
-                     <!-- 1. Basic Info Section -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-8 bg-background">
+                     
+                     <!-- TAB 1: INFO -->
+                    <div v-if="currentTab === 'info'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="md:col-span-2">
                              <ManagerField 
                                 label="Nome / Ano Escolar"
@@ -350,23 +518,21 @@ const handleSave = async () => {
                                 placeholder="Selecione..."
                             />
                         </div>
+                         <div class="md:col-span-3">
+                             <ManagerField 
+                                label="Meta de Aulas por Semana"
+                                v-model="formData.carg_horaria"
+                                type="number"
+                                placeholder="Ex: 800"
+                            />
+                        </div>
                     </div>
 
-                    <div>
-                         <ManagerField 
-                            label="Meta de Aulas por Semana"
-                            v-model="formData.carg_horaria"
-                            type="number"
-                            placeholder="Ex: 800"
-                        />
-                    </div>
 
-                    <hr class="border-secondary/10" />
-
-                    <!-- 2. Matriz Curricular / Componentes Section -->
-                    <div v-if="formData.id" class="flex flex-col gap-4">
+                    <!-- TAB 2: MATRIZ CURRICULAR -->
+                    <div v-if="currentTab === 'matriz'" class="flex flex-col gap-4">
                         <div class="flex items-center justify-between">
-                            <h3 class="font-bold text-lg">Matriz Curricular</h3>
+                            <h3 class="font-bold text-lg">Componentes e Carga Horária</h3>
                             <div class="px-3 py-1 rounded-full bg-div-15 border border-secondary/10 text-[10px] font-black uppercase tracking-wider">
                                 Total: {{ currentTotalWorkload }} / {{ formData.carg_horaria }}a
                             </div>
@@ -431,7 +597,6 @@ const handleSave = async () => {
                                     class="h-9 px-4 rounded bg-primary text-white font-bold hover:brightness-110 disabled:opacity-50 transition-all flex items-center gap-2"
                                 >
                                      <span v-if="isAddingWorkload" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                                     <span v-if="isAddingWorkload" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
                                      {{ isAddingWorkload ? '...' : (editingWorkloadId ? 'Atualizar' : '+ Adicionar') }}
                                 </button>
                                 <button
@@ -483,15 +648,107 @@ const handleSave = async () => {
                              </div>
                         </div>
                     </div>
-                    <div v-else class="p-8 bg-div-15 rounded border border-dashed border-secondary/20 text-center">
-                        <p class="text-xs text-secondary italic">Salve o Ano/Etapa primeiro para gerenciar a Matriz Curricular.</p>
+
+                    <!-- TAB 3: MODELO AVALIAÇÃO -->
+                    <div v-if="currentTab === 'avaliacao'" class="flex flex-col gap-4">
+                        <div class="px-3 py-2 bg-div-15 border-l-4 border-primary rounded text-xs text-secondary italic">
+                            Selecione os modelos de avaliação que serão aplicados neste período.
+                        </div>
+
+                        <div v-if="isLoadingAvaliacoes" class="flex justify-center py-8">
+                             <div class="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                        </div>
+                        
+                        <div v-else-if="avaliacoesList.length === 0" class="text-center py-10 text-secondary italic text-xs">
+                             Nenhum modelo de avaliação cadastrado.
+                        </div>
+
+                        <div v-else class="flex flex-col gap-2">
+                             <div 
+                                v-for="avaliacao in avaliacoesList" 
+                                :key="avaliacao.id"
+                                class="border border-div-15 rounded overflow-hidden bg-div-05"
+                                :class="{'border-primary/30': avaliacao.associated}"
+                             >
+                                <!-- Header -->
+                                <div class="flex items-center w-full bg-div-05 hover:bg-div-10 transition-colors pr-3">
+                                    <div class="pl-3 py-3">
+                                         <input 
+                                            type="checkbox" 
+                                            :checked="avaliacao.associated" 
+                                            @change="toggleAssociation(avaliacao)"
+                                            :disabled="isTogglingAssociation === avaliacao.id"
+                                            class="w-4 h-4 rounded text-primary focus:ring-primary border-gray-300 bg-surface cursor-pointer"
+                                         />
+                                    </div>
+                                    <button 
+                                        @click="toggleAvaliacao(avaliacao)"
+                                        class="flex-1 flex items-center justify-between p-3"
+                                    >
+                                         <div class="flex items-center gap-3">
+                                             <div class="p-1 text-secondary">
+                                                 <svg class="transition-transform duration-200" :class="{'rotate-90': avaliacao.expanded}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                             </div>
+                                             <div class="flex flex-col items-start gap-1">
+                                                <span class="text-sm font-bold text-left">{{ avaliacao.nome_modelo }}</span>
+                                                <span v-if="avaliacao.associated" class="text-[9px] bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Ativo</span>
+                                             </div>
+                                         </div>
+                                         <div v-if="isTogglingAssociation === avaliacao.id">
+                                             <div class="w-3 h-3 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                                         </div>
+                                    </button>
+                                </div>
+
+                                <!-- Details (Groups and Items) -->
+                                <div v-if="avaliacao.expanded" class="border-t border-div-15 bg-background p-4">
+                                     <div v-if="!avaliacao.groups || avaliacao.groups.length === 0" class="text-xs text-secondary italic p-2">
+                                          Carregando ou sem itens...
+                                     </div>
+                                     <div v-else class="flex flex-col gap-4">
+                                          <!-- Group Loop -->
+                                          <div 
+                                            v-for="grupo in avaliacao.groups" 
+                                            :key="grupo.id"
+                                            class="border border-div-15 rounded p-3 bg-div-05/50"
+                                          >
+                                               <div class="flex justify-between items-center mb-2">
+                                                   <span class="text-xs font-bold uppercase tracking-wide text-primary">{{ grupo.nome_grupo }}</span>
+                                                   <span class="text-[10px] bg-div-30 px-2 py-0.5 rounded font-mono">Peso: {{ grupo.peso_grupo }}</span>
+                                               </div>
+                                               
+                                               <!-- Items Loop -->
+                                               <div class="flex flex-col gap-1 pl-2">
+                                                    <div 
+                                                        v-for="item in grupo.items" 
+                                                        :key="item.id"
+                                                        class="flex justify-between items-center text-xs p-2 bg-background border border-div-15 rounded hover:border-primary/20 transition-colors"
+                                                    >
+                                                        <div class="flex flex-col">
+                                                             <span class="font-medium text-secondary">{{ item.texto_pergunta }}</span>
+                                                             <span class="text-[9px] text-secondary/50 font-mono" v-if="item.nome_modelo_criterio">Critério: {{ item.nome_modelo_criterio }}</span>
+                                                        </div>
+                                                        <span class="text-[10px] font-mono font-bold whitespace-nowrap ml-2">Peso: {{ item.peso_item }}</span>
+                                                    </div>
+                                                    <div v-if="!grupo.items || grupo.items.length === 0" class="text-[10px] text-secondary/50 italic px-2">
+                                                        Sem itens neste grupo.
+                                                    </div>
+                                               </div>
+                                          </div>
+                                     </div>
+                                </div>
+                             </div>
+                        </div>
+
                     </div>
                 </div>
 
                 <!-- Footer -->
                 <div class="px-6 py-4 border-t border-secondary/10 flex items-center justify-between bg-div-15 shrink-0">
                     <div class="text-[10px] text-secondary font-medium">
-                        {{ workloads.length }} componentes configurados
+                        <!-- Hint or status -->
+                        <span v-if="currentTab === 'matriz'">{{ workloads.length }} componentes</span>
+                        <span v-else></span>
                     </div>
                     <div class="flex items-center gap-3">
                         <button 
@@ -506,7 +763,7 @@ const handleSave = async () => {
                             class="px-6 py-2 rounded bg-primary text-white font-bold hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-2"
                         >
                             <span v-if="isSaving" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                            {{ isSaving ? 'Salvando...' : 'Finalizar' }}
+                            {{ isSaving ? 'Salvando...' : 'Salvar Alterações' }}
                         </button>
                     </div>
                 </div>
