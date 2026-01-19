@@ -1,0 +1,327 @@
+[
+  {
+    "nome": "CMEI BARTOLOMEU AROUCHA",
+    "endereco": "Rua Álvaro da Boa Vista Maia, 355, Jardim Atlântico, Olinda - PE",
+    "cep": "53140-200"
+  },
+  {
+    "nome": "CMEI MARIA DAS DORES DA SILVA",
+    "endereco": "Avenida Asa Branca, 65, Rio Doce, Olinda - PE",
+    "cep": "53070-195"
+  },
+  {
+    "nome": "CMEI MESTRE SALUSTIANO",
+    "endereco": "Rua Caminho do Sol, Cidade Tabajara, Olinda - PE",
+    "cep": "53350-825"
+  },
+  {
+    "nome": "CMEI METODISTA GLADYS OBERLYN",
+    "endereco": "Avenida Leopoldino Canuto de Melo, 437, Caixa D'Água, Olinda - PE",
+    "cep": "53210-240"
+  },
+  {
+    "nome": "CMEI MÃE OUTRA",
+    "endereco": "Rua Jorge Albuquerque Carvalho, 142, Peixinhos, Olinda - PE",
+    "cep": "53230-330"
+  },
+  {
+    "nome": "CMEI PROFESSOR JOSÉ ANTÔNIO FERREIRA SOBRAL",
+    "endereco": "Avenida da Integração, 59, Ilha de Santana, Olinda - PE",
+    "cep": "53060-001"
+  },
+  {
+    "nome": "CMEI PROFESSORA CLEIDE BETÂNIA DO AMARAL",
+    "endereco": "Rua Austrália, S/Nº, Alto do Cajueiro, Olinda - PE",
+    "cep": "53160-830"
+  },
+  {
+    "nome": "CMEI PROFESSORA NORMA COELHO",
+    "endereco": "Avenida Presidente Kennedy, S/N, Peixinhos, Olinda - PE",
+    "cep": "53230-630"
+  },
+  {
+    "nome": "CMEI REVERENDO JULIÃO FERREIRA",
+    "endereco": "Rua Alto Nova Olinda, 95, Águas Compridas, Olinda - PE",
+    "cep": "53180-050"
+  },
+  {
+    "nome": "CMEI SANTA BÁRBARA",
+    "endereco": "Rua Golfinho, S/N, Ouro Preto, Olinda - PE",
+    "cep": "53370-192"
+  },
+  {
+    "nome": "CRECHE EMANUEL",
+    "endereco": "Praça Dantas Barreto, 15, Carmo, Olinda - PE",
+    "cep": "53120-370"
+  },
+  {
+    "nome": "ESCOLA DE EDUCAÇÃO INFANTIL E ENSINO FUNDAMENTAL ARCEBISPO DOM JOÃO COSTA",
+    "endereco": "Rua Manuel Regueira, 49, Bultrins, Olinda - PE",
+    "cep": "53320-160"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL 19 DE SETEMBRO",
+    "endereco": "Estrada de Águas Compridas, 796-A, Águas Compridas, Olinda - PE",
+    "cep": "53160-800"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL AGEU MAGALHÃES",
+    "endereco": "Rua Ageu Magalhães, 758, Vila Popular, Olinda - PE",
+    "cep": "53230-060"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL ALLAN KARDEC",
+    "endereco": "Avenida Professor Andrade Bezerra, 826, Salgadinho, Olinda - PE",
+    "cep": "53110-110"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL ALTO DA MACAÍBA",
+    "endereco": "Rua Dezoito de Fevereiro, 353, Águas Compridas, Olinda - PE",
+    "cep": "53160-350"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL ANTÔNIO CORREIA DA SILVA",
+    "endereco": "Rua da Tijuca, Alto Jardim Conquista, Olinda - PE",
+    "cep": "53190-000"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL CENTRO DE ASSISTÊNCIA SOCIAL",
+    "endereco": "Estrada de Águas Compridas, 94, Águas Compridas, Olinda - PE",
+    "cep": "53160-800"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL CORONEL JOSÉ DOMINGOS DA SILVA",
+    "endereco": "Rua Dracena, 9, Ouro Preto, Olinda - PE",
+    "cep": "53370-560"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL CRIANÇA FELIZ",
+    "endereco": "Rua Joaquim Mendes da Silva, 218, Bultrins, Olinda - PE",
+    "cep": "53320-150"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DE EDUCAÇÃO INFANTIL E ENSINO FUNDAMENTAL CHICO SCIENCE",
+    "endereco": "Avenida das Acácias, Terceira Etapa, Rio Doce, Olinda - PE",
+    "cep": "53070-100"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DE EDUCAÇÃO INFANTIL E ENSINO FUNDAMENTAL DONA GUIOMAR BARBOSA",
+    "endereco": "Rua Clarice, 77, Jardim Brasil V, Olinda - PE",
+    "cep": "53270-180"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DE EDUCAÇÃO INFANTIL E ENSINO FUNDAMENTAL PASTOR CONRADO PAULINO",
+    "endereco": "Avenida E, S/N, Rio Doce IV Etapa, Olinda - PE",
+    "cep": "53080-230"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DE EDUCAÇÃO INFANTIL E ENSINO FUNDAMENTAL PRINCESA ISABEL",
+    "endereco": "Rua Belém, 13, Jardim Brasil, Olinda - PE",
+    "cep": "53290-200"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DO BEM ESTAR SOCIAL",
+    "endereco": "Rua Pacificador, 94, Sapucaia, Olinda - PE",
+    "cep": "53280-010"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DOM AZEREDO COUTINHO",
+    "endereco": "Avenida Presidente Kennedy, 660, São Benedito, Olinda - PE",
+    "cep": "53230-630"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DONA BRITES DE ALBUQUERQUE",
+    "endereco": "Rua Cleto Campelo, S/N, Bairro Novo, Olinda - PE",
+    "cep": "53030-150"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DOUTOR MANOEL BORBA",
+    "endereco": "Rua Benjamin Constant, Sítio Novo, Olinda - PE",
+    "cep": "53110-270"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DR JOSÉ MARIANO",
+    "endereco": "Estrada de Águas Compridas, 269, Águas Compridas, Olinda - PE",
+    "cep": "53160-800"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL DUARTE COELHO",
+    "endereco": "Rua do Bonfim, 315, Carmo, Olinda - PE",
+    "cep": "53120-090"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL ELPÍDIO DE FRANÇA",
+    "endereco": "Rua Alto Nova Olinda, S/N, Águas Compridas, Olinda - PE",
+    "cep": "53180-050"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL EM TEMPO INTEGRAL ALBERTO TORRES",
+    "endereco": "Endereço não encontrado",
+    "cep": null
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL EM TEMPO INTEGRAL BASE RURAL MARGARIDA ALVES",
+    "endereco": "Sítio Ouro Preto, SN, Ouro Preto, Olinda - PE",
+    "cep": "53370-000"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL EM TEMPO INTEGRAL CAIC PROFESSORA NORMA COELHO",
+    "endereco": "Avenida Presidente Kennedy, S/N, Peixinhos, Olinda - PE",
+    "cep": "53230-630"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL EM TEMPO INTEGRAL LIONS DIRCEU VELOSO",
+    "endereco": "Rua Prefeito Manoel Regueira, S/N, Bultrins, Olinda - PE",
+    "cep": "53320-160"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL EM TEMPO INTEGRAL MONTE CASTELO",
+    "endereco": "Rua Jules Rimet, Rio Doce, Olinda - PE",
+    "cep": "53150-590"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL EM TEMPO INTEGRAL SAGRADO CORAÇÃO DE JESUS",
+    "endereco": "Rua Frei Afonso Maria, 199, Amaro Branco, Olinda - PE",
+    "cep": "53120-170"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL GREGÓRIO BEZERRA",
+    "endereco": "Rua Santana, S/N, Jardim Atlântico, Olinda - PE",
+    "cep": "53050-030"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL IRACEMA PIRES",
+    "endereco": "Rua Maria dos Prazeres, 775, Aguazinha, Olinda - PE",
+    "cep": "53260-000"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL ISAAC PEREIRA DA SILVA",
+    "endereco": "Avenida Carlos de Lima Cavalcante, 2293, Casa Caiada, Olinda - PE",
+    "cep": "53030-260"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL IZAULINA DE CASTRO E SILVA",
+    "endereco": "Quadra C 14, S/N, Ouro Preto, Olinda - PE",
+    "cep": "53370-100"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL LAR ESPÍRITA BEZERRA DE MENEZES",
+    "endereco": "Rua Professor Agamenon Magalhães, 29, Vila Popular, Olinda - PE",
+    "cep": "53230-010"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL LAR TRANSITÓRIO DE CHRISTIE",
+    "endereco": "Rua 48 A, 2-78, Rio Doce, Olinda - PE",
+    "cep": "53080-730"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL MARIA JOSÉ DOS PRAZERES",
+    "endereco": "Rua General Sampaio, 48, Caixa D'água, Olinda - PE",
+    "cep": "53160-160"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL MINISTRO MARCOS FREIRE",
+    "endereco": "Avenida Pirâmides, S/N, Alto do Sol Nascente, Olinda - PE",
+    "cep": "53200-080"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL MIZAEL MONTENEGRO FILHO",
+    "endereco": "Rua Catarina Batista de Alencar, 791, Casa Caiada, Olinda - PE",
+    "cep": "53130-020"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL MONSENHOR VIANA",
+    "endereco": "Rua Edmundo Gonçalves da Silva, 194, Caixa D'água, Olinda - PE",
+    "cep": "53210-310"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL NOSSA SENHORA DE LOURDES",
+    "endereco": "Rua Alto do Bonfim, 126, Águas Compridas, Olinda - PE",
+    "cep": "53210-000"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL NOSSA SENHORA DO CARMO",
+    "endereco": "Estrada do Caenga, 23, Beberibe, Olinda - PE",
+    "cep": "53210-460"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL NOSSA SENHORA DO MONTE",
+    "endereco": "Rua Irmã Gertrudes de Alencar, 50, Bultrins, Olinda - PE",
+    "cep": "53240-290"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL NOVA OLINDA",
+    "endereco": "Rua Alto Nova Olinda, 133, Águas Compridas, Olinda - PE",
+    "cep": "53180-050"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PASTOR DAVID BLACKBURN",
+    "endereco": "Avenida Hamurabi, S/N, Alto da Bondade, Olinda - PE",
+    "cep": "53170-310"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PRO MENOR",
+    "endereco": "Rua C-6, 15, Rio Doce, Olinda - PE",
+    "cep": "53150-100"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PROFESSOR HÉLIO FERREIRA MAIA",
+    "endereco": "Rua São José do Monte, 283, Guadalupe, Olinda - PE",
+    "cep": "53320-570"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PROFESSOR JOÃO FRANCISCO DE SOUZA",
+    "endereco": "Rua Humberto de Lima Mendes, 405, Jardim Fragoso, Olinda - PE",
+    "cep": "53130-090"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PROFESSOR MARCOLINO BOTELHO",
+    "endereco": "Rua Cláudio Nigro, 303, Salgadinho, Olinda - PE",
+    "cep": "53110-610"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PROFESSOR WILSON DE SOUZA",
+    "endereco": "Rua Manuel Clementino Marques, S/N, Ouro Preto, Olinda - PE",
+    "cep": "53330-170"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PROFESSORA ANA PAULA SILVA DE ALBUQUERQUE PONTES RAMOS",
+    "endereco": "Rua Teresópolis, 10, Sapucaia de Dentro, Olinda - PE",
+    "cep": "53280-250"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PROFESSORA IZABEL BURITY",
+    "endereco": "Avenida Brasil, SN 2ª Etapa, Rio Doce, Olinda - PE",
+    "cep": "53150-470"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL PROFESSORA JOANA SENA COSTA",
+    "endereco": "Rua da Boa Vontade, S/N, Aguazinha, Olinda - PE",
+    "cep": "53270-280"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL RECANTO DA ARTE E DO SABER",
+    "endereco": "Rua Nova, 37, Sapucaia, Olinda - PE",
+    "cep": "53280-090"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL SANTA TEREZA",
+    "endereco": "Avenida Olinda Dom Helder Camara, 750, Santa Tereza, Olinda - PE",
+    "cep": "53010-005"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL SHEKINÁ",
+    "endereco": "Rua Monte Alegre, 300, Ouro Preto, Olinda - PE",
+    "cep": "53160-270"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL SÃO BENTO",
+    "endereco": "Rua Presidente Kennedy, 10, Monte, Olinda - PE",
+    "cep": "53240-720"
+  },
+  {
+    "nome": "ESCOLA MUNICIPAL VEREADOR JOSÉ MENDES DE LIMA",
+    "endereco": "Estrada do Passarinho, S/N, Passarinho, Olinda - PE",
+    "cep": "53170-110"
+  }
+]
