@@ -1,4 +1,5 @@
 <script setup>
+import { useAppStore, ROLES } from '@/stores/app'
 const props = defineProps({
   isOpen: {
     type: Boolean,

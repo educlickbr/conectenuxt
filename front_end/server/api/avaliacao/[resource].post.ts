@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
         console.error(`[API Avaliacao POST] Erro ao salvar ${resource}:`, err)
         throw createError({
             statusCode: err.statusCode || 500,
-            statusMessage: err.statusMessage || `Erro ao salvar dados de ${resource}`
+            statusMessage: err.message || err.details || `Erro ao salvar dados de ${resource}`
         })
     }
 })
