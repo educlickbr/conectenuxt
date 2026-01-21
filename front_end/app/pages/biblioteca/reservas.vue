@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useToastStore } from '@/stores/toast'
+import ManagerDashboard from '@/components/ManagerDashboard.vue'
+import ModalEntrega from '@/components/biblioteca/reservas/ModalEntrega.vue'
 
-// Layout
 definePageMeta({
-    layout: 'default' as any,
-
+    layout: false,
 })
 
 const appStore = useAppStore()
@@ -17,15 +17,23 @@ const items = ref<any[]>([])
 const stats = ref({ total: 0, no_prazo: 0, atrasadas: 0 })
 const page = ref(1)
 const totalPages = ref(0)
-const limit = ref(10)
+const limit = ref(12) 
 const search = ref('')
 const isLoading = ref(false)
+
+// Modal State
+const showDeliveryModal = ref(false)
+const selectedReserva = ref<any>(null)
 const isDelivering = ref(false)
-const deliveryId = ref<string | null>(null)
 
 // Format Date
 const formatDate = (dateString: string) => {
     if (!dateString) return '-'
+    return new Date(dateString).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+const formatDateShort = (dateString: string) => {
+     if (!dateString) return '-'
     return new Date(dateString).toLocaleDateString('pt-BR')
 }
 
@@ -61,36 +69,41 @@ const fetchItems = async () => {
 }
 
 // Actions
-const handleDeliver = async (reserva: any) => {
-    if (isDelivering.value) return
+const openDeliveryModal = (reserva: any) => {
+    selectedReserva.value = reserva
+    showDeliveryModal.value = true
+}
+
+const handleConfirmDelivery = async () => {
+    if (!selectedReserva.value) return
     isDelivering.value = true
-    deliveryId.value = reserva.uuid
     
     try {
-        await $fetch('/api/biblioteca/reservas', {
+        await $fetch('/api/biblioteca/reservas/entregar', {
             method: 'POST',
             body: {
-                action: 'deliver',
-                id: reserva.uuid,
+                reserva_uuid: selectedReserva.value.uuid,
                 id_empresa: appStore.company?.empresa_id
             }
         })
         
         toast.showToast('Livro entregue com sucesso.', 'success')
+        showDeliveryModal.value = false
+        selectedReserva.value = null
         fetchItems()
         fetchStats()
         
     } catch (e: any) {
-        toast.showToast('Erro ao entregar livro.', 'error')
+        toast.showToast(e.message || 'Erro ao entregar livro.', 'error')
     } finally {
         isDelivering.value = false
-        deliveryId.value = null
     }
 }
 
 // Init
 onMounted(() => {
     fetchStats()
+    fetchItems()
 })
 
 // Debounce Search
@@ -102,135 +115,183 @@ watch(search, () => {
         fetchItems()
     }, 400)
 })
+
+// Dashboard Stats Computed
+const dashboardStats = computed(() => [
+  { label: 'Total', value: stats.value.total },
+  { label: 'No Prazo', value: stats.value.no_prazo },
+  { label: 'Atrasadas', value: stats.value.atrasadas }
+])
 </script>
 
 <template>
-    <div class="h-full flex flex-col p-4 md:p-6 gap-6">
+    <NuxtLayout name="manager">
+        <!-- Header Slots -->
+        <template #header-icon>
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <span class="text-xl">📕</span>
+            </div>
+        </template>
+        <template #header-title>Reservas</template>
+        <template #header-subtitle>Gestão de empréstimos e devoluções.</template>
         
-        <!-- Header -->
-        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
-             <div>
-                 <h1 class="text-2xl font-bold text-text flex items-center gap-2">
-                    <span class="text-3xl">📕</span>
-                    Reservas
-                 </h1>
-                 <p class="text-sm text-secondary mt-1">Gestão de empréstimos e devoluções.</p>
+        <template #header-actions>
+            <div class="relative w-64">
+                <input 
+                    v-model="search"
+                    type="text" 
+                    placeholder="Buscar reserva..." 
+                    class="w-full h-9 pl-9 pr-4 bg-surface border border-div-15 rounded text-sm text-text focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm"
+                >
+                <span class="absolute left-3 top-2.5 text-secondary/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </span>
             </div>
+        </template>
 
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                 <div class="relative flex-1 md:w-64">
-                    <input 
-                        v-model="search"
-                        type="text" 
-                        placeholder="Buscar reserva..." 
-                        class="w-full h-10 pl-10 pr-4 bg-surface border border-div-15 rounded-lg text-sm text-text focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm"
-                    >
-                    <span class="absolute left-3 top-2.5 text-secondary/50">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    </span>
-                 </div>
-            </div>
-        </header>
-
-        <div class="flex flex-col md:flex-row gap-6 h-full min-h-0">
-            
-            <!-- Main List -->
-            <div class="flex-1 overflow-y-auto min-h-0 bg-surface border border-div-15 rounded-xl p-4 shadow-sm flex flex-col">
-                
-                <div v-if="isLoading && items.length === 0" class="flex-1 flex flex-col items-center justify-center text-secondary gap-3">
-                     <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                     Carregando reservas...
-                </div>
-
-                <div v-else-if="items.length === 0" class="flex-1 flex flex-col items-center justify-center text-secondary">
-                     <div class="text-4xl mb-2 opacity-50">📂</div>
-                     <p>Nenhuma reserva encontrada.</p>
-                </div>
-
-                <div v-else class="flex flex-col gap-3">
-                    <div 
-                        v-for="res in items" 
-                        :key="res.uuid"
-                        class="bg-div-05/50 p-3 rounded-xl border border-div-15 hover:border-primary/30 transition-all flex flex-col md:flex-row items-center justify-between gap-4 group"
-                    >
-                        <div class="flex items-center gap-3 min-w-0 flex-1">
-                             <div class="w-10 h-14 rounded bg-surface flex items-center justify-center text-secondary overflow-hidden border border-div-15 flex-shrink-0">
-                                <img v-if="res.livro_capa" :src="res.livro_capa" alt="Capa" class="w-full h-full object-cover">
-                                <span v-else class="text-xl">📖</span>
-                            </div>
-                            <div class="min-w-0 flex flex-col gap-0.5">
-                                <h3 class="font-bold text-text text-sm leading-tight truncate" :title="res.livro_titulo">{{ res.livro_titulo }}</h3>
-                                <div class="flex flex-col gap-0.5">
-                                    <span class="text-xs text-secondary flex items-center gap-1">👤 <span class="truncate">{{ res.usuario_nome }}</span></span>
-                                    <span class="text-[10px] text-secondary/60">🆔 {{ res.usuario_matricula }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                         <div class="flex items-center gap-3 self-end md:self-center flex-wrap justify-end">
-                            <span class="px-2 py-1 rounded bg-info/10 text-info text-xs font-bold">
-                                {{ formatDate(res.data_inicio) }}
-                            </span>
-                            
-                            <span v-if="res.status_calculado !== 'Entregue'" 
-                                class="px-2 py-1 rounded text-xs font-bold"
-                                :class="res.status_calculado === 'Atrasado' ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'"
-                            >
-                                Até {{ formatDate(res.data_prevista_devolucao) }}
-                            </span>
-
-                            <div v-if="res.status_calculado === 'Entregue'" class="px-2 py-1 rounded bg-secondary/10 text-secondary text-xs font-bold flex items-center gap-1">
-                                ✅ Entregue
-                            </div>
-                            <button v-else @click="handleDeliver(res)" :disabled="isDelivering && deliveryId === res.uuid" class="px-3 py-1.5 rounded bg-success text-white text-xs font-bold hover:bg-success-hover transition-colors flex items-center gap-1 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span v-if="isDelivering && deliveryId === res.uuid" class="w-3 h-3 border-2 border-white/50 border-t-white rounded-full animate-spin"></span>
-                                <span v-else>✅</span>
-                                Entregar
-                            </button>
-                        </div>
+        <!-- Sidebar Slot -->
+        <template #sidebar>
+            <ManagerDashboard title="Dashboard Reservas" :stats="dashboardStats">
+                <template #visualization>
+                    <div class="h-full flex flex-col items-center justify-center gap-2 opacity-50">
+                        <span class="text-4xl">📊</span>
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-secondary">Estatísticas em breve</p>
                     </div>
-                </div>
+                </template>
 
-                 <!-- Pagination -->
-                <div v-if="totalPages > 1" class="flex justify-center shrink-0 mt-4 border-t border-div-15 pt-4">
-                     <div class="flex items-center gap-2 bg-surface p-1 rounded-lg border border-div-15 shadow-sm">
-                        <button @click="page--" :disabled="page <= 1" class="p-1.5 rounded hover:bg-div-05 disabled:opacity-50 text-secondary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                        <span class="text-xs font-bold text-secondary px-2">{{ page }} / {{ totalPages }}</span>
-                        <button @click="page++" :disabled="page >= totalPages" class="p-1.5 rounded hover:bg-div-05 disabled:opacity-50 text-secondary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
-                     </div>
-                </div>
-
-            </div>
-
-             <!-- Stats Sidebar -->
-            <div class="hidden md:flex w-64 flex-col gap-4 shrink-0">
-                <div class="bg-surface rounded-xl border border-div-15 shadow-sm p-4 h-full flex flex-col gap-4">
-                    <h2 class="text-sm font-bold text-text uppercase tracking-wider">Visão Geral</h2>
-                    
-                    <div class="grid grid-cols-1 gap-3">
-                        <div class="bg-div-05 p-4 rounded-xl border border-div-15 flex flex-col items-center justify-center gap-1">
-                            <span class="text-secondary text-xs uppercase font-bold tracking-wider">Ativas</span>
-                            <span class="text-3xl font-bold text-text">{{ stats.total }}</span>
-                        </div>
-                        <div class="bg-success/5 p-4 rounded-xl border border-success/20 flex flex-col items-center justify-center gap-1">
-                            <span class="text-success text-xs uppercase font-bold tracking-wider">No Prazo</span>
-                            <span class="text-3xl font-bold text-success">{{ stats.no_prazo }}</span>
-                        </div>
-                        <div class="bg-danger/5 p-4 rounded-xl border border-danger/20 flex flex-col items-center justify-center gap-1">
-                            <span class="text-danger text-xs uppercase font-bold tracking-wider">Atrasadas</span>
-                            <span class="text-3xl font-bold text-danger">{{ stats.atrasadas }}</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-auto p-4 bg-div-05 rounded-lg border border-div-15">
-                        <p class="text-[10px] text-secondary text-center leading-relaxed">
-                            Acompanhe as reservas e realize a baixa dos livros devolvidos utilizando o botão de entrega.
+                <template #extra>
+                     <div class="p-4 bg-primary/5 border border-primary/10 rounded-lg">
+                        <h4 class="text-xs font-bold text-primary mb-1">Dica</h4>
+                        <p class="text-[11px] text-secondary leading-normal">
+                             Clique em "Entregar" para registrar a devolução de um item e torná-lo disponível novamente.
                         </p>
-                    </div>
+                     </div>
+                </template>
+            </ManagerDashboard>
+        </template>
+
+        <!-- Content Slot -->
+        <div class="h-full flex flex-col">
+            
+            <!-- Modal Confirmation -->
+            <ModalEntrega 
+                v-if="showDeliveryModal" 
+                :reserva="selectedReserva" 
+                :is-loading="isDelivering"
+                @close="showDeliveryModal = false"
+                @confirm="handleConfirmDelivery"
+            />
+
+            <!-- Loading/Empty States -->
+            <div v-if="isLoading && items.length === 0" class="h-full flex flex-col items-center justify-center text-secondary gap-3">
+                 <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                 Carregando reservas...
+            </div>
+
+            <div v-else-if="items.length === 0" class="h-full flex flex-col items-center justify-center text-secondary">
+                 <div class="text-4xl mb-2 opacity-50">📂</div>
+                 <p>Nenhuma reserva encontrada.</p>
+            </div>
+
+            <!-- Horizontal List View -->
+            <div v-else class="flex-1 overflow-y-auto flex flex-col gap-2 pr-2 pb-4">
+                
+                 <!-- Header Row (Optional, for clarity) -->
+                <div class="grid grid-cols-12 gap-4 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-secondary">
+                    <div class="col-span-4 pl-12">Obra / Usuário</div>
+                    <div class="col-span-2">Datas</div>
+                    <div class="col-span-2">Localização</div>
+                    <div class="col-span-2">Status</div>
+                    <div class="col-span-2 text-right">Ações</div>
                 </div>
+
+                <div 
+                    v-for="res in items" 
+                    :key="res.uuid"
+                    class="group relative bg-surface rounded-lg border border-div-15 hover:border-primary/30 transition-all shadow-sm grid grid-cols-12 gap-4 items-center p-3"
+                >   
+                    <!-- Icon / Image -->
+                     <div class="col-span-1 hidden sm:flex items-center justify-center">
+                        <div class="w-10 h-14 bg-div-05 rounded overflow-hidden border border-div-15 shrink-0">
+                            <img v-if="res.livro_capa" :src="res.livro_capa" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full flex items-center justify-center text-secondary text-xs">📘</div>
+                        </div>
+                    </div>
+
+                    <!-- Col 1: Book & User info -->
+                    <div class="col-span-4 sm:col-span-3 flex flex-col justify-center min-w-0">
+                        <h3 class="font-bold text-sm text-text truncate" :title="res.livro_titulo">{{ res.livro_titulo }}</h3>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-xs text-secondary truncate" :title="res.usuario_nome">👤 {{ res.usuario_nome }}</span>
+                            <span class="text-[10px] bg-div-05 px-1.5 py-0.5 rounded text-secondary/70 font-mono hidden xl:inline-block">Reg: {{ res.copia_registro || 'N/A' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Col 2: Dates -->
+                    <div class="col-span-2 flex flex-col justify-center text-xs">
+                         <div class="text-secondary">Início: <span class="text-text">{{ formatDateShort(res.data_inicio) }}</span></div>
+                         <div class="text-secondary mt-0.5">
+                            Devolução: 
+                            <span class="font-bold" :class="{'text-danger': res.status_calculado === 'Atrasado'}">
+                                {{ formatDateShort(res.data_prevista_devolucao) }}
+                            </span>
+                         </div>
+                    </div>
+
+                    <!-- Col 3: Location -->
+                    <div class="col-span-2 flex flex-col justify-center text-xs">
+                        <div class="flex items-center gap-1.5 text-secondary">
+                            <span>📍</span>
+                            <span class="text-text truncate" :title="res.copia_estante || 'Não informado'">{{ res.copia_estante || 'Geral' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Col 4: Status / Audit -->
+                    <div class="col-span-2 flex flex-col justify-center">
+                         <div v-if="res.status_calculado !== 'Entregue'" class="flex items-center gap-2">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span v-if="res.status_calculado === 'Atrasado'" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5" :class="res.status_calculado === 'Atrasado' ? 'bg-danger' : 'bg-primary'"></span>
+                            </span>
+                            <span class="text-xs font-bold" :class="res.status_calculado === 'Atrasado' ? 'text-danger' : 'text-primary'">
+                                {{ res.status_calculado }}
+                            </span>
+                         </div>
+                         <div v-else class="flex flex-col">
+                            <span class="text-xs font-bold text-success flex items-center gap-1">✅ Entregue</span>
+                            <span v-if="res.recebido_por_nome" class="text-[10px] text-secondary truncate mt-0.5" :title="'Recebido por ' + res.recebido_por_nome">
+                                Por: {{ res.recebido_por_nome.split(' ')[0] }}
+                            </span>
+                         </div>
+                    </div>
+
+                    <!-- Col 5: Actions -->
+                    <div class="col-span-2 flex items-center justify-end">
+                        <button 
+                            v-if="res.status_calculado !== 'Entregue' && res.status_calculado !== 'Cancelado'"
+                            @click="openDeliveryModal(res)" 
+                            class="px-3 py-1.5 rounded bg-surface border border-div-15 text-xs font-bold text-text hover:bg-success hover:text-white hover:border-success transition-all shadow-sm flex items-center gap-1.5 group/btn"
+                        >
+                            <span class="group-hover/btn:scale-110 transition-transform">✅</span>
+                            Entregar
+                        </button>
+                        <div v-else class="text-[10px] text-secondary text-right">
+                             {{ formatDate(res.recebido_em || res.modificado_em) }}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Pagination -->
+             <div v-if="totalPages > 1" class="flex justify-center shrink-0 pt-4 border-t border-div-15 mt-auto">
+                 <div class="flex items-center gap-2 bg-surface p-1 rounded-lg border border-div-15 shadow-sm">
+                    <button @click="page--" :disabled="page <= 1" class="p-1.5 rounded hover:bg-div-05 disabled:opacity-50 text-secondary"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                    <span class="text-xs font-bold text-secondary px-2">{{ page }} / {{ totalPages }}</span>
+                    <button @click="page++" :disabled="page >= totalPages" class="p-1.5 rounded hover:bg-div-05 disabled:opacity-50 text-secondary"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+                 </div>
             </div>
 
         </div>
-
-    </div>
+    </NuxtLayout>
 </template>

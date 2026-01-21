@@ -139,24 +139,23 @@ const handleReserve = async () => {
 </script>
 
 <template>
-    <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200" @click.self="$emit('close')">
-        <div class="bg-surface w-full md:w-[90%] md:h-[90%] max-w-5xl rounded-xl shadow-2xl border border-div-15 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+    <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="$emit('close')"></div>
+        <div class="relative bg-background w-full md:w-[90%] max-w-5xl md:h-[90%] flex flex-col rounded shadow-2xl border border-[#6B82A71A] overflow-hidden animate-in zoom-in-95 duration-200">
             
             <!-- Header -->
-            <div class="bg-div-05 p-4 border-b border-div-15 flex items-center justify-between shrink-0">
+            <div class="px-6 py-4 border-b border-[#6B82A71A] flex items-center justify-between bg-div-15" @click.stop="">
                 <h2 class="text-xl font-bold text-text flex items-center gap-2">
                     <span class="text-2xl">📅</span> Reservar Livro
                 </h2>
-                <button @click="$emit('close')" class="p-2 hover:bg-div-15 rounded-lg text-secondary transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
+                <button @click="$emit('close')" class="p-2 rounded hover:bg-div-30"><span class="text-xl">×</span></button>
             </div>
 
             <!-- Body -->
-            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            <div class="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 bg-background">
                 <!-- Book Info -->
-                <div class="flex flex-col sm:flex-row gap-6 items-start bg-div-05/50 p-6 rounded-xl border border-div-15">
-                    <div class="w-24 h-36 bg-div-15 rounded-lg border border-div-15 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm self-center sm:self-start">
+                <div class="flex flex-col sm:flex-row gap-6 items-start bg-div-05/50 p-6 border border-[#6B82A71A]">
+                    <div class="w-24 h-36 bg-div-15 border border-[#6B82A71A] flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm self-center sm:self-start">
                         <img v-if="item?.capaUrl" :src="item.capaUrl" class="w-full h-full object-cover">
                         <span v-else class="text-4xl text-secondary/50">📘</span>
                     </div>
@@ -164,8 +163,8 @@ const handleReserve = async () => {
                         <h3 class="font-bold text-text text-xl leading-tight mb-1">{{ item?.titulo || item?.titulo_principal }}</h3>
                         <p class="text-base text-secondary font-medium">{{ item?.nome_autor || item?.autor_principal }}</p>
                         <div class="flex items-center gap-3 mt-3">
-                            <span class="text-xs bg-div-15 px-2 py-1 rounded text-secondary border border-div-15">{{ item?.editora }}</span>
-                            <span class="text-xs bg-div-15 px-2 py-1 rounded text-secondary border border-div-15">{{ item?.ano_edicao }}</span>
+                            <span class="text-xs bg-background px-3 py-1 text-text border border-[#6B82A74D]">{{ item?.editora }}</span>
+                            <span class="text-xs bg-background px-3 py-1 text-text border border-[#6B82A74D]">{{ item?.ano_edicao }}</span>
                         </div>
                     </div>
                 </div>
@@ -175,13 +174,13 @@ const handleReserve = async () => {
                     <span class="font-medium">Verificando disponibilidade...</span>
                 </div>
 
-                <div v-else-if="copies.length === 0" class="bg-danger/5 p-6 rounded-xl border border-danger/20 text-center">
+                <div v-else-if="copies.length === 0" class="bg-danger/5 p-6 border border-danger/20 text-center">
                     <p class="text-danger font-bold text-lg mb-2">Indisponível</p>
                     <p class="text-danger/80">Não há cópias físicas disponíveis para reserva neste momento.</p>
                 </div>
 
                 <div v-else class="space-y-6 max-w-3xl mx-auto">
-                    <div class="bg-success/5 p-4 rounded-xl border border-success/20 flex items-start gap-4">
+                    <div class="bg-success/5 p-4 border border-success/20 flex items-start gap-4">
                         <div class="bg-success/10 text-success p-2 rounded-full mt-0.5">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                         </div>
@@ -192,45 +191,45 @@ const handleReserve = async () => {
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <div class="bg-div-05 p-4 rounded-xl border border-div-15">
-                            <label class="block text-xs text-secondary uppercase tracking-wider font-bold mb-2">Data de Retirada (Reserva)</label>
+                         <div class="p-4 border border-[#6B82A74D]">
+                            <label class="block text-xs text-secondary uppercase font-bold mb-2">Data de Retirada (Reserva)</label>
                             <input 
                                 type="date" 
                                 v-model="reservaDate" 
                                 :min="formatDateIso(new Date())"
-                                class="w-full bg-input-bg border border-div-15 rounded-lg px-3 py-2 text-text font-medium focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+                                class="w-full bg-background border border-[#6B82A74D] px-3 py-2 text-text text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none"
                             >
                          </div>
-                         <div class="bg-div-05 p-4 rounded-xl border border-div-15 opacity-80">
-                            <label class="block text-xs text-secondary uppercase tracking-wider font-bold mb-2">Devolução Prevista</label>
-                            <div class="w-full bg-input-bg/50 border border-div-15 rounded-lg px-3 py-2 text-text font-medium">
+                         <div class="p-4 border border-[#6B82A74D] opacity-80 bg-div-05/30">
+                            <label class="block text-xs text-secondary uppercase font-bold mb-2">Devolução Prevista</label>
+                            <div class="w-full bg-transparent border-b border-[#6B82A74D] px-3 py-2 text-text font-medium text-sm">
                                 {{ formattedDelivery }}
                             </div>
                          </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-secondary mb-2 uppercase tracking-wider">Localização / Disponibilidade</label>
-                        <select v-model="selectedLocationKey" class="w-full p-4 rounded-xl border border-div-15 bg-input-bg text-text focus:outline-none focus:border-primary transition-colors text-base shadow-sm">
+                        <label class="block text-xs font-bold text-secondary mb-2 uppercase">Localização / Disponibilidade</label>
+                        <select v-model="selectedLocationKey" class="w-full p-3 bg-background border border-[#6B82A74D] text-text focus:outline-none focus:border-primary transition-colors text-sm shadow-sm">
                             <option v-for="(group, key) in groupedCopies" :key="key" :value="key">
                                 {{ key }} ({{ group.length }} disponíveis)
                             </option>
                         </select>
                     </div>
 
-                    <p class="text-xs text-secondary text-center pt-4 border-t border-div-15">
+                    <p class="text-xs text-secondary text-center pt-4 border-t border-[#6B82A71A]">
                         Ao confirmar, uma das cópias deste local será reservada em seu nome a partir da data de retirada selecionada.
                     </p>
                 </div>
             </div>
 
             <!-- Footer -->
-            <div class="p-4 bg-div-05 border-t border-div-15 flex justify-end gap-3 shrink-0">
-                <button @click="$emit('close')" class="px-6 py-2.5 rounded-xl text-secondary hover:bg-div-15 font-medium transition-colors">Cancelar</button>
+            <div class="p-4 border-t border-[#6B82A71A] flex justify-end gap-3 shrink-0 bg-div-15">
+                <button @click="$emit('close')" class="px-4 py-2 text-xs font-bold text-secondary hover:text-text transition-colors">Cancelar</button>
                 <button 
                     @click="handleReserve" 
                     :disabled="loading || copies.length === 0 || !selectedLocationKey || saving"
-                    class="px-8 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="px-6 py-2 bg-primary text-white rounded text-xs font-bold hover:brightness-110 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <span v-if="saving" class="animate-spin text-sm">⌛</span>
                     Confirmar Reserva

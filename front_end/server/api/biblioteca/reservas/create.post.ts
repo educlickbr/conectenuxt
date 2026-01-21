@@ -14,17 +14,21 @@ export default defineEventHandler(async (event) => {
     
     if (!user) throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
 
+
+    // Remove direct user_expandido lookup to rely on SQL function internal resolution
+    // This avoids "Perfil de usuário não encontrado" errors due to client-side visibility issues
+
     const { error } = await client.rpc('bbtk_reserva_create', {
         p_copia_uuid: body.copia_uuid,
-        p_user_uuid: user.id,
         p_id_empresa: body.id_empresa,
         p_data_inicio: body.data_inicio
     } as any)
 
     if (error) {
+        console.error('RPC Error:', error)
         throw createError({
             statusCode: 500,
-            statusMessage: (error as any).message
+            statusMessage: (error as any).message || 'Erro ao realizar reserva'
         })
     }
 

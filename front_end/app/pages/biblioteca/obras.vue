@@ -75,6 +75,7 @@ watch(search, () => {
 // Initial Load
 onMounted(() => {
     fetchItems()
+    fetchStats()
 })
 
 const dashboardStats = computed(() => [
@@ -82,21 +83,32 @@ const dashboardStats = computed(() => [
   { label: 'Página Atual', value: page.value }
 ])
 
+const statsCategories = ref<any[]>([])
+
+const fetchStats = async () => {
+    try {
+        const result = await $fetch('/api/biblioteca/obras/stats-categoria', {
+            params: {
+                id_empresa: appStore.company?.empresa_id
+            }
+        })
+        statsCategories.value = result as any[]
+    } catch (e) {
+        console.error('Erro ao carregar estatísticas:', e)
+    }
+}
+
 const categoryStats = computed(() => {
-    if (!items.value.length) return []
-    const counts: Record<string, number> = {}
-    items.value.forEach(i => {
-        const cat = i.categoria_nome || 'Sem Categoria'
-        counts[cat] = (counts[cat] || 0) + 1
-    })
-    const totalOnPage = items.value.length
-    return Object.entries(counts)
-        .map(([label, value]) => ({ 
-            label, 
-            value,
-            percentage: Math.round((value / totalOnPage) * 100) 
+    if (!statsCategories.value.length) return []
+    
+    const totalWorks = statsCategories.value.reduce((acc, curr) => acc + Number(curr.quantidade), 0)
+    
+    return statsCategories.value
+        .map((item) => ({ 
+            label: item.categoria_nome || 'Sem Categoria', 
+            value: Number(item.quantidade),
+            percentage: totalWorks > 0 ? Math.round((Number(item.quantidade) / totalWorks) * 100) : 0
         }))
-        .sort((a, b) => b.value - a.value)
         .slice(0, 5) // Top 5
 })
 </script>
@@ -152,13 +164,13 @@ const categoryStats = computed(() => {
                             </div>
                         </div>
                         <div class="flex justify-between px-2 pt-2 border-t border-div-15">
-                             <div 
+                            <div 
                                 v-for="(stat, i) in categoryStats" 
                                 :key="i"
                                 class="text-[9px] text-secondary text-center w-full truncate px-0.5"
                                 :title="stat.label"
                             >
-                                {{ stat.label.split(' ')[0] }}
+                                {{ stat.label }}
                             </div>
                         </div>
                     </div>
