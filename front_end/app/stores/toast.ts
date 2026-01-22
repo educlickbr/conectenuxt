@@ -3,12 +3,12 @@ import { defineStore } from 'pinia'
 export const useToastStore = defineStore('toast', {
     state: () => ({
         message: '',
-        type: 'success' as 'success' | 'error',
+        type: 'success' as 'success' | 'error' | 'info',
         isVisible: false,
         timeout: null as any
     }),
     actions: {
-        showToast(message: string, type: 'success' | 'error' = 'success') {
+        showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {
             this.message = message
             this.type = type
             this.isVisible = true

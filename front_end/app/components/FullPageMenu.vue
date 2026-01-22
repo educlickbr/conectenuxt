@@ -238,7 +238,7 @@ const hasAccess = (allowedRoles) => {
         <div class="space-y-4">
           <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Aprendizado</h3>
           <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
-             <button @click="handleNavigation('/lms')" v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="menu-item group">
+            <button @click="handleNavigation('/pedagogico/gestao-atividades')" v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="menu-item group">
               <div class="menu-icon bg-sky-500/10 text-sky-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Gestão de Atividades</span>
             </button>

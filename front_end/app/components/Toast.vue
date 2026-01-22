@@ -7,9 +7,14 @@ const store = useToastStore()
     <div 
       v-if="store.isVisible"
       class="fixed bottom-5 right-5 z-[999] px-6 py-4 rounded shadow-lg text-white font-medium flex items-center gap-3 min-w-[300px]"
-      :class="store.type === 'error' ? 'bg-danger' : 'bg-success'"
+      :class="{
+        'bg-danger': store.type === 'error',
+        'bg-success': store.type === 'success',
+        'bg-primary': store.type === 'info'
+      }"
     >
       <span v-if="store.type === 'error'">⚠️</span>
+      <span v-else-if="store.type === 'info'">ℹ️</span>
       <span v-else>✅</span>
 
       <span>{{ store.message }}</span>
