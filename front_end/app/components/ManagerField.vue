@@ -62,6 +62,22 @@ const onChange = (e) => emit('change', e.target.value)
           <slot></slot>
       </template>
 
+      <!-- TEXTAREA -->
+      <template v-else-if="type === 'textarea'">
+        <textarea
+          :value="modelValue"
+          @input="onInput"
+          :placeholder="placeholder"
+          :disabled="disabled"
+          :readonly="readonly"
+          class="w-full px-4 py-3 bg-div-15 border border-[#6B82A71A] text-text text-sm focus:outline-none focus:border-[#3571CB80] focus:ring-4 focus:ring-[#3571CB0D] transition-all disabled:opacity-50 resize-y min-h-[120px]"
+          :class="[
+            error ? 'border-red-500/50' : 'hover:border-[#6B82A74D]',
+            'rounded-[var(--radius-sm)]'
+          ]"
+        ></textarea>
+      </template>
+
       <!-- INPUT -->
       <template v-else>
         <input

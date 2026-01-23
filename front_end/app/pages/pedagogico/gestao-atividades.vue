@@ -4,6 +4,7 @@ import { useAppStore } from '@/stores/app'
 import { useToastStore } from '@/stores/toast'
 import ManagerDashboard from '@/components/ManagerDashboard.vue'
 import ModalFolder from '@/components/pedagogico/ModalFolder.vue'
+import ModalContentItem from '@/components/pedagogico/ModalContentItem.vue'
 
 // Layout
 definePageMeta({
@@ -33,6 +34,11 @@ const limit = ref(10)
 // Modal State
 const isModalOpen = ref(false)
 const selectedFolder = ref<any>(null)
+
+// Item Modal State
+const isItemModalOpen = ref(false)
+const activeFolderId = ref<string | null>(null)
+const selectedItem = ref<any>(null)
 
 // Data Fetching
 const { data: atividadesData, refresh: refreshAtividades, pending: isLoading } = await useFetch('/api/pedagogico/atividades', {
@@ -130,11 +136,15 @@ const handleDelete = (item: any) => {
 }
 
 const handleEditItem = (content: any, item: any) => {
-    toast.showToast(`Editar item: ${item.titulo}`, 'info')
+    activeFolderId.value = content.id
+    selectedItem.value = item
+    isItemModalOpen.value = true
 }
 
 const handleAddItem = (content: any) => {
-    toast.showToast(`Adicionar item ao folder: ${content.titulo}`, 'info')
+    activeFolderId.value = content.id
+    selectedItem.value = null
+    isItemModalOpen.value = true
 }
 
 // Helpers
@@ -256,6 +266,13 @@ const dashboardStats = computed(() => {
                 :initialData="selectedFolder" 
                 @close="isModalOpen = false" 
                 @success="fetchItems" 
+            />
+            <ModalContentItem
+                :isOpen="isItemModalOpen"
+                :initialData="selectedItem"
+                :folderId="activeFolderId"
+                @close="isItemModalOpen = false"
+                @success="fetchItems"
             />
         </template>
 

@@ -20,15 +20,18 @@ const isSaving = ref(false)
 const errorMessage = ref('')
 const turmas = ref<any[]>([])
 const anoEtapas = ref<any[]>([])
+const componentes = ref<any[]>([])
 const alunoResults = ref<any[]>([])
 const alunoSearchTerm = ref('')
 let turmaSearchTimer: any
 
 const scopeOptions = [
-    { value: 'Global', label: 'Global (Toda a Escola)' },
-    { value: 'Turma', label: 'Por Turma' },
-    { value: 'AnoEtapa', label: 'Por Ano/Etapa' },
-    { value: 'Aluno', label: 'Aluno Específico' }
+    { value: 'Global', label: 'Global' },
+    { value: 'AnoEtapa', label: 'Ano/Etapa' },
+    { value: 'Turma', label: 'Turma' },
+    { value: 'Grupo', label: 'Grupo' },
+    { value: 'Componente', label: 'Componente' },
+    { value: 'Aluno', label: 'Aluno' }
 ]
 
 // Form Data
@@ -38,22 +41,31 @@ const form = ref({
     escopo: 'Global',
     id_turma: '',
     id_ano_etapa: '',
+    id_componente: '',
     id_aluno: '',
-    data_referencia: new Date().toISOString().split('T')[0],
+
+    data_disponivel: '',
+    liberar_por: 'Conteúdo',
     visivel_para_alunos: true
 })
 
 // Fetch Turmas
-const fetchTurmas = async () => {
-    if (turmas.value.length > 0) return
+const fetchTurmas = async (idAnoEtapa?: string) => {
     try {
-        const result = await $fetch(`/api/estrutura_academica/turmas`, {
-            params: {
-                id_empresa: appStore.company?.empresa_id,
-                limite: 100
-            }
-        }) as any
-        turmas.value = result.items || []
+        const params: any = {
+            id_empresa: appStore.company?.empresa_id,
+            limite: 100
+        }
+        if (idAnoEtapa) params.id_ano_etapa = idAnoEtapa
+
+        const result = await $fetch(`/api/estrutura_academica/turmas`, { params }) as any
+        
+        let items = result.items || []
+        // Client-side filter fallback if API ignores it (safe bet)
+        if (idAnoEtapa && items.length > 0) {
+             items = items.filter((t: any) => t.id_ano_etapa === idAnoEtapa)
+        }
+        turmas.value = items
     } catch (e) {
         console.error('Erro ao buscar turmas', e)
     }
@@ -129,9 +141,50 @@ watch(() => form.value.escopo, async (newVal, oldVal) => {
         alunoResults.value = []
     }
     
-    if (newVal === 'Turma') fetchTurmas()
-    if (newVal === 'AnoEtapa') fetchAnoEtapas()
+    if (['AnoEtapa', 'Turma', 'Componente', 'Aluno'].includes(newVal)) {
+        fetchAnoEtapas()
+    }
 })
+
+// Cascade: AnoEtapa -> Turma / Componente
+watch(() => form.value.id_ano_etapa, async (newVal) => {
+    if (!props.isOpen) return
+    
+    // Reset dependant fields
+    form.value.id_turma = ''
+    form.value.id_componente = ''
+    form.value.id_aluno = ''
+    
+    if (newVal) {
+        if (['Turma', 'Componente', 'Aluno'].includes(form.value.escopo)) {
+            fetchTurmas(newVal)
+        }
+        if (form.value.escopo === 'Componente') {
+            fetchComponentes(newVal)
+        }
+    }
+})
+
+// Fetch Componentes (via BFF)
+const fetchComponentes = async (idAnoEtapa: string) => {
+    if (!idAnoEtapa) return
+    try {
+        const result = await $fetch('/api/pedagogico/atividades/componentes', {
+            params: {
+                id_empresa: appStore.company?.empresa_id,
+                id_ano_etapa: idAnoEtapa
+            }
+        }) as any
+        
+        componentes.value = (result.items || []).map((ch: any) => ({
+             value: ch.id, 
+             label: ch.nome,
+             cor: ch.cor
+        }))
+    } catch (e) {
+        console.error('Erro ao buscar componentes:', e)
+    }
+}
 
 watch(() => props.isOpen, async (val) => {
     if (val) {
@@ -143,16 +196,21 @@ watch(() => props.isOpen, async (val) => {
                 escopo: props.initialData.escopo || 'Global',
                 id_turma: props.initialData.id_turma || '',
                 id_ano_etapa: props.initialData.id_ano_etapa || '',
+                id_componente: props.initialData.id_componente || '',
                 id_aluno: props.initialData.id_aluno || '',
-                data_referencia: props.initialData.data_referencia?.split('T')[0] || new Date().toISOString().split('T')[0],
-                visivel_para_alunos: props.initialData.visivel_para_alunos
+                data_disponivel: props.initialData.data_disponivel ? new Date(props.initialData.data_disponivel).toISOString().slice(0, 16) : '',
+                liberar_por: props.initialData.liberar_por || 'Conteúdo',
+                visivel_para_alunos: props.initialData.visivel_para_alunos ?? true
             }
             if (props.initialData.nome_aluno) {
                 alunoSearchTerm.value = props.initialData.nome_aluno
             }
              // Fetch required data based on initial scope
-            if (form.value.escopo === 'Turma') fetchTurmas()
-            if (form.value.escopo === 'AnoEtapa') fetchAnoEtapas()
+            if (['AnoEtapa', 'Turma', 'Componente', 'Aluno'].includes(form.value.escopo)) await fetchAnoEtapas()
+            if (form.value.id_ano_etapa) {
+                 await fetchTurmas(form.value.id_ano_etapa)
+                 if (form.value.escopo === 'Componente') await fetchComponentes(form.value.id_ano_etapa)
+            }
         } else {
              // Defaults
              form.value = {
@@ -161,8 +219,10 @@ watch(() => props.isOpen, async (val) => {
                 escopo: 'Global',
                 id_turma: '',
                 id_ano_etapa: '',
+                id_componente: '',
                 id_aluno: '',
-                data_referencia: new Date().toISOString().split('T')[0],
+                data_disponivel: '',
+                liberar_por: 'Conteúdo',
                 visivel_para_alunos: true
             }
             alunoSearchTerm.value = ''
@@ -211,17 +271,17 @@ const handleSave = async () => {
 
 <template>
     <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" @click.self="emit('close')">
-        <div class="bg-surface w-full max-w-2xl rounded-2xl shadow-xl border border-div-15 overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="bg-background w-full max-w-lg rounded shadow-2xl border border-[#6B82A71A] overflow-hidden flex flex-col max-h-[90vh]">
             
             <!-- Header -->
-            <div class="p-6 border-b border-div-15 flex items-center justify-between shrink-0 bg-div-05/30">
+            <div class="px-6 py-4 border-b border-[#6B82A71A] flex items-center justify-between shrink-0 bg-div-15">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center text-xl font-bold shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xl font-bold shadow-sm">
                         📁
                     </div>
                     <div>
-                        <h2 class="text-lg font-black text-text">{{ initialData ? 'Editar Folder' : 'Novo Folder' }}</h2>
-                        <p class="text-xs text-secondary font-medium mt-0.5">Organize o conteúdo pedagógico (BETA)</p>
+                        <h2 class="text-lg font-bold text-text">{{ initialData ? 'Editar Folder' : 'Novo Folder' }}</h2>
+                        <p class="text-xs text-secondary font-medium mt-0.5">Conteúdo Pedagógico</p>
                     </div>
                 </div>
                 <button @click="emit('close')" class="p-2 text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors">
@@ -230,125 +290,151 @@ const handleSave = async () => {
             </div>
 
             <!-- Body -->
-            <div class="p-6 overflow-y-auto space-y-6 relative">
+            <div class="p-6 flex flex-col gap-5 overflow-y-auto">
                  <div v-if="errorMessage" class="p-3 rounded-lg bg-danger/10 border border-danger/20 text-danger text-xs font-bold flex items-center gap-2">
                     <span>⚠️</span> {{ errorMessage }}
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Left Column -->
-                    <div class="space-y-4">
-                        <ManagerField label="Identificação do Folder">
-                            <input v-model="form.titulo" type="text" placeholder="Ex: Aula de História - Revolução Francesa" class="w-full bg-background border border-div-15 rounded-xl px-4 py-2.5 text-sm font-bold text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all placeholder:font-normal">
-                        </ManagerField>
+                <!-- 1. Scope and Hierarchy -->
+                <ManagerField 
+                    label="Escopo"
+                    v-model="form.escopo"
+                    type="select"
+                    :options="scopeOptions"
+                    placeholder="Selecione o escopo..."
+                />
 
-                         <ManagerField label="Descrição (Opcional)">
-                            <textarea v-model="form.descricao" rows="4" placeholder="Breve resumo sobre o conteúdo..." class="w-full bg-background border border-div-15 rounded-xl px-4 py-2.5 text-sm text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all resize-none"></textarea>
-                        </ManagerField>
-                    </div>
+                <!-- Dynamic Fields -->
+                
+                <!-- 1. Ano/Etapa: Visible for AnoEtapa, Turma, Componente, Aluno -->
+                <div v-if="['AnoEtapa', 'Turma', 'Componente', 'Aluno'].includes(form.escopo)" class="animate-in slide-in-from-top-2 duration-200">
+                     <ManagerField 
+                        label="Ano / Etapa"
+                        v-model="form.id_ano_etapa"
+                        type="select"
+                        :options="anoEtapas.map(a => ({ value: a.id, label: a.nome }))"
+                        placeholder="Selecione o ano/etapa..."
+                     />
+                </div>
 
-                    <!-- Right Column -->
-                    <div class="space-y-4">
+                <!-- 2. Turma: Visible for Turma, Componente, Aluno -->
+                <div v-if="['Turma', 'Componente', 'Aluno'].includes(form.escopo)" class="animate-in slide-in-from-top-2 duration-200">
+                     <ManagerField 
+                        label="Turma"
+                        v-model="form.id_turma"
+                        type="select"
+                        :options="turmas.map(t => ({ value: t.id, label: `${t.nome_turma || t.ano} - ${t.periodo || ''}` }))"
+                        placeholder="Selecione a turma..."
+                        :disabled="!form.id_ano_etapa"
+                     />
+                </div>
 
+                <!-- 3. Componente: Visible for Componente -->
+                <div v-if="form.escopo === 'Componente'" class="animate-in slide-in-from-top-2 duration-200">
+                     <ManagerField 
+                        label="Componente Curricular"
+                        v-model="form.id_componente"
+                        type="select"
+                        :options="componentes"
+                        placeholder="Selecione o componente..."
+                        :disabled="!form.id_ano_etapa"
+                     />
+                </div>
 
-                        <!-- Scope Selection -->
-                        <div class="col-span-12">
-                             <ManagerField 
-                                label="Escopo de Visibilidade"
-                                v-model="form.escopo"
-                                type="select"
-                                :options="scopeOptions"
-                                required
-                             />
-                        </div>
+                <!-- 4. Grupo: Placeholder -->
+                <div v-if="form.escopo === 'Grupo'" class="p-4 bg-div-05 rounded border border-div-15 text-center text-xs text-secondary italic animate-in slide-in-from-top-2 duration-200">
+                    🚧 Funcionalidade de Grupos em desenvolvimento.
+                </div>
 
-                        <!-- Conditional Scope Fields -->
-                        
-                        <!-- 1. Turma: Select -->
-                        <div v-if="form.escopo === 'Turma'" class="col-span-12 animate-in slide-in-from-top-2 duration-200">
-                             <ManagerField 
-                                label="Selecionar Turma"
-                                v-model="form.id_turma"
-                                type="select"
-                                :options="turmas.map(t => ({ value: t.id, label: `${t.nome_turma || t.ano} - ${t.periodo || ''}` }))"
-                                placeholder="Escolha uma turma..."
-                             />
-                        </div>
-
-                        <!-- 2. Ano Etapa: Select -->
-                        <div v-if="form.escopo === 'AnoEtapa'" class="col-span-12 animate-in slide-in-from-top-2 duration-200">
-                             <ManagerField 
-                                label="Selecionar Ano/Etapa"
-                                v-model="form.id_ano_etapa"
-                                type="select"
-                                :options="anoEtapas.map(a => ({ value: a.id, label: a.nome }))"
-                                placeholder="Escolha um ano/etapa..."
-                             />
-                        </div>
-                        
-                        <!-- 3. Aluno: Search Input -->
-                        <div v-if="form.escopo === 'Aluno'" class="col-span-12 animate-in slide-in-from-top-2 duration-200 relative">
-                             <ManagerField label="Buscar Aluno" type="custom">
-                                <input 
-                                    type="text" 
-                                    :value="alunoSearchTerm"
-                                    @input="(e) => onAlunoSearch((e.target as HTMLInputElement).value)"
-                                    placeholder="Digite o nome do aluno..." 
-                                    class="w-full px-4 py-2.5 bg-background border border-div-15 rounded-lg text-sm text-text focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
-                                >
-                                <!-- Aluno Results -->
-                                <div v-if="alunoResults.length > 0 && !form.id_aluno" class="absolute left-0 top-full z-10 w-full mt-1 bg-surface border border-div-15 rounded-lg shadow-xl max-h-48 overflow-y-auto">
-                                    <div 
-                                        v-for="aluno in alunoResults" 
-                                        :key="aluno.value" 
-                                        @click="selectAluno(aluno)"
-                                        class="p-3 text-xs font-bold hover:bg-primary/10 hover:text-primary cursor-pointer border-b border-div-15 last:border-0"
-                                    >
-                                        {{ aluno.label }}
-                                    </div>
-                                </div>
-                                <div v-if="form.id_aluno" class="mt-2 flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 w-fit">
-                                    <span>Aluno selecionado</span>
-                                    <button @click="clearAlunoSelection" class="hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                </div>
-                            </ManagerField>
-                        </div>
-                        
-                        <!-- 4. Global Info -->
-                         <div v-if="form.escopo === 'Global'" class="col-span-12 animate-in slide-in-from-top-2 duration-200">
-                            <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg flex items-start gap-3">
-                                <div class="p-1 bg-emerald-500/20 rounded text-emerald-600 shrink-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                </div>
-                                <div>
-                                    <h4 class="text-xs font-bold text-emerald-600 uppercase tracking-wide mb-1">Visibilidade Global</h4>
-                                    <p class="text-[11px] text-emerald-600/80 leading-relaxed">Este conteúdo ficará visível para <b>toda a escola</b>.</p>
-                                </div>
+                <!-- 5. Aluno: Visible for Aluno -->
+                <div v-if="form.escopo === 'Aluno'" class="animate-in slide-in-from-top-2 duration-200 relative">
+                     <ManagerField label="Aluno" type="custom">
+                        <input 
+                            type="text" 
+                            :value="alunoSearchTerm"
+                            @input="(e) => onAlunoSearch((e.target as HTMLInputElement).value)"
+                            placeholder="Buscar aluno por nome..." 
+                            class="w-full px-4 py-2.5 bg-background border border-div-15 rounded text-sm text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                            :disabled="!form.id_turma"
+                        >
+                        <!-- Aluno Results -->
+                        <div v-if="alunoResults.length > 0 && !form.id_aluno" class="absolute left-0 top-full z-10 w-full mt-1 bg-surface border border-div-15 rounded shadow-xl max-h-48 overflow-y-auto">
+                            <div 
+                                v-for="aluno in alunoResults" 
+                                :key="aluno.value" 
+                                @click="selectAluno(aluno)"
+                                class="p-3 text-xs font-bold hover:bg-primary/10 hover:text-primary cursor-pointer border-b border-div-15 last:border-0"
+                            >
+                                {{ aluno.label }}
                             </div>
                         </div>
-                        
-                         <div class="pt-2 flex items-center gap-4">
-                            <ManagerField label="Data de Referência" class="flex-1">
-                                <input v-model="form.data_referencia" type="date" class="w-full bg-background border border-div-15 rounded-xl px-4 py-2.5 text-sm font-bold text-text focus:outline-none focus:border-primary transition-all">
-                            </ManagerField>
-                            <div class="flex flex-col items-center justify-center pt-6">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" v-model="form.visivel_para_alunos" class="sr-only peer">
-                                    <div class="w-10 h-6 bg-div-30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>
-                                <span class="text-[9px] font-black text-secondary uppercase tracking-tighter mt-1">{{ form.visivel_para_alunos ? 'Visível' : 'Oculto' }}</span>
-                             </div>
+                        <div v-if="form.id_aluno" class="mt-2 flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded border border-primary/20 w-fit">
+                            <span>{{ alunoSearchTerm }}</span>
+                            <button @click="clearAlunoSelection" class="hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                        </div>
+                    </ManagerField>
+                </div>
+
+                <!-- 2. Content Details -->
+                <div class="h-px bg-div-15 w-full my-1"></div>
+
+                <ManagerField 
+                    label="Título"
+                    v-model="form.titulo"
+                    placeholder="Ex: Material de Apoio - Matemática"
+                />
+
+                <ManagerField 
+                    label="Descrição"
+                    v-model="form.descricao"
+                    type="textarea"
+                    placeholder="Breve descrição do conteúdo..."
+                />
+
+                 <!-- 3. Settings -->
+                 <div class="h-px bg-div-15 w-full my-1"></div>
+
+                 <!-- 3. Settings -->
+                 <div class="h-px bg-div-15 w-full my-1"></div>
+
+                 <!-- Date -->
+                <ManagerField 
+                    label="Disponível a partir de"
+                    v-model="form.data_disponivel"
+                    type="datetime-local"
+                />
+                
+                <!-- Toggles -->
+                 <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold text-secondary">Configurações</label>
+                    <div class="flex flex-col gap-3 p-3 border border-div-15 rounded bg-background">
+                        <!-- Liberar Por Toggle -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-text">Liberar por Conteúdo</span>
+                            <input 
+                                type="checkbox" 
+                                class="toggle toggle-primary toggle-sm"
+                                :checked="form.liberar_por === 'Conteúdo'"
+                                @change="(e) => form.liberar_por = (e.target as HTMLInputElement).checked ? 'Conteúdo' : 'Data'"
+                            />
+                        </div>
+                         <!-- Visivel Toggle -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-text">Visível para Alunos</span>
+                            <input 
+                                type="checkbox" 
+                                class="toggle toggle-primary toggle-sm" 
+                                v-model="form.visivel_para_alunos"
+                            />
                         </div>
                     </div>
                 </div>
-
-                <LoadingOverlay v-if="isSaving" text="Salvando..." />
             </div>
 
             <!-- Footer -->
-            <div class="p-4 border-t border-div-15 bg-div-05/30 flex justify-end gap-3 shrink-0">
-                <button @click="emit('close')" class="px-6 py-2.5 rounded-xl font-bold text-secondary hover:bg-div-15 transition-colors text-sm">Cancelar</button>
-                <button @click="handleSave" class="px-6 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all text-sm flex items-center gap-2">
+            <div class="px-6 py-4 border-t border-[#6B82A71A] bg-div-15 flex justify-end gap-3 shrink-0">
+                <button @click="emit('close')" class="px-6 py-2.5 rounded hover:bg-div-30 transition-colors text-sm font-bold text-secondary">Cancelar</button>
+                <button @click="handleSave" class="px-6 py-2.5 rounded bg-primary text-white font-bold hover:brightness-110 shadow-lg shadow-primary/20 transition-all text-sm flex items-center gap-2">
                     <span>Salvar Folder</span>
                 </button>
             </div>

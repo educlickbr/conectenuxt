@@ -21,7 +21,10 @@ export default defineEventHandler(async (event) => {
         escopo,
         id_turma,
         id_aluno,
-        data_referencia,
+        id_ano_etapa,
+        id_componente,
+        data_disponivel,
+        liberar_por,
         visivel_para_alunos
     } = body
 
@@ -37,18 +40,19 @@ export default defineEventHandler(async (event) => {
         p_id_empresa: id_empresa,
         p_criado_por: user.data.user.id,
         p_escopo: escopo,
-        p_id_turma: escopo === 'Turma' ? id_turma : null,
+        p_id_turma: (escopo === 'Turma' || escopo === 'Componente' || escopo === 'Aluno') ? id_turma : null,
         p_id_aluno: escopo === 'Aluno' ? id_aluno : null,
+        p_id_ano_etapa: id_ano_etapa || null,
+        p_id_componente: escopo === 'Componente' ? id_componente : null,
         p_id_meta_turma: null,
-        p_id_componente: null,
         p_titulo: titulo,
         p_descricao: descricao || null,
-        p_data_referencia: data_referencia,
         p_visivel_para_alunos: visivel_para_alunos,
-        p_json_itens: null
+        p_data_disponivel: data_disponivel || null,
+        p_liberar_por: liberar_por || 'Conteúdo'
     }
 
-    const { error } = await client.rpc('lms_conteudo_upsert', payload)
+    const { data, error } = await client.rpc('lms_conteudo_upsert', payload)
 
     if (error) {
         // Handle specific error codes if needed, e.g., foreign key violations
@@ -61,6 +65,16 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 500,
             statusMessage: error.message
+        })
+    }
+
+    // Check for application-level errors captured by the RPC's exception handler
+    const result = data as any
+    if (result && result.success === false) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: result.message || 'Erro desconhecido ao salvar conteúdo.',
+            data: result.detail
         })
     }
 

@@ -1,4 +1,8 @@
 {
-    "css.customData": [],
-    "css.lint.unknownAtRules": "ignore"
+  "css.customData": [],
+  "css.lint.unknownAtRules": "ignore",
+  
+"terminal.integrated.env.linux": {
+    "SUPABASE_ACCESS_TOKEN": "sbp_ec08b52a140e07c7578a505bcf186aaabdcad7e0"
+  }
 }
