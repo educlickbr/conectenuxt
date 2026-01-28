@@ -24,8 +24,10 @@ export default defineEventHandler(async (event) => {
         })
     }
 
+    const res = data as any
+
     return {
-        items: data?.itens || [],
-        total: data?.total_registros || 0
+        items: res?.itens || [],
+        total: res?.total_registros || 0
     }
 })

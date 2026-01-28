@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import daisyui from 'daisyui'
 
 export default <Partial<Config>>{
     theme: {
@@ -34,7 +35,9 @@ export default <Partial<Config>>{
             }
         }
     },
-    plugins: [],
+    plugins: [
+        daisyui
+    ],
     content: [
         `app/components/**/*.{vue,js,ts}`,
         `app/layouts/**/*.vue`,

@@ -6,7 +6,9 @@ export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
 
     const rpcMap: Record<string, string> = {
-        matriculas: 'matricula_delete'
+        matriculas: 'matricula_delete',
+        atribuicao_turmas: 'atrib_turmas_delete',
+        atribuicao_componentes: 'atrib_componentes_delete'
     }
 
     const rpcName = rpcMap[resource as string]

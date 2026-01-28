@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
             p_escopo: escopo,
             p_id_turma: id_turma,
             p_id_aluno: id_aluno
-        })
+        } as any)
 
         if (error) throw error
 

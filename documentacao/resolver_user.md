@@ -18,17 +18,18 @@ Isso funciona no início, mas cria problemas estruturais:
 - Lógica duplicada entre páginas
 - Dificuldade de escalar regras de acesso
 
-O Vue **não está errado** — ele é uma lib de UI.  
+O Vue **não está errado** — ele é uma lib de UI.\
 Mas ele **não impõe fronteiras**.
 
 ---
 
 ## O problema central
 
-> **Estado persistido não entende tempo.**  
+> **Estado persistido não entende tempo.**\
 > **Página não deveria decidir autenticação.**
 
 Quando essas responsabilidades se misturam:
+
 - surgem race conditions
 - surgem acessos indevidos momentâneos
 - surgem decisões baseadas em dados não validados
@@ -63,5 +64,17 @@ Pinia deixa de ser “verdade” e vira **cache confiável após validação**.
 - Estado consistente
 - Arquitetura que cresce sem virar gambiarra
 
-> **Nuxt não substitui Vue.  
+> **Nuxt não substitui Vue.\
 > Ele organiza responsabilidades que o Vue deixa em aberto.**
+
+no interior de cada função quando vamos tratar um criado por ou modificado por
+usamos
+
+```Ts
+BEGIN
+    -- Resolve user_expandido.id for the currently authenticated user
+    SELECT id INTO v_user_id
+    FROM public.user_expandido
+    WHERE user_id = auth.uid()
+    LIMIT 1;
+```

@@ -121,9 +121,25 @@ const handleAdd = () => {
     isModalOpen.value = true
 }
 
-const toggleExpand = (item: any) => {
-    console.log('Toggling item:', item.id, 'Current state:', item.isExpanded)
+const toggleExpand = async (item: any) => {
     item.isExpanded = !item.isExpanded
+    
+    if (item.isExpanded && (!item.itens || item.itens.length === 0)) {
+        // Fetch items logic
+        try {
+            item.isLoadingItems = true
+            const result = await $fetch(`/api/pedagogico/folder/${item.id}/items`, {
+                params: { id_empresa: appStore.company?.empresa_id }
+            }) as any
+            item.itens = result.items || []
+            item.itensLoaded = true
+        } catch (e) {
+            console.error('Error loading items:', e)
+            toast.showToast('Erro ao carregar itens.', 'error')
+        } finally {
+            item.isLoadingItems = false
+        }
+    }
 }
 
 const handleEditConteudo = (item: any) => {
@@ -141,10 +157,75 @@ const handleEditItem = (content: any, item: any) => {
     isItemModalOpen.value = true
 }
 
+import draggable from 'vuedraggable' // Add this import (check if it works with SSR or needs client-only)
+
+// ...
+
 const handleAddItem = (content: any) => {
     activeFolderId.value = content.id
     selectedItem.value = null
     isItemModalOpen.value = true
+}
+
+const handleReorder = async (folder: any) => {
+    // folder.itens is already mutated by draggable
+    const newOrder = folder.itens.map((item: any, index: number) => ({
+        id: item.id,
+        ordem: index + 1
+    }))
+
+    try {
+        await $fetch('/api/pedagogico/atividades/reorder', {
+            method: 'POST',
+            body: {
+                id_empresa: appStore.company?.empresa_id,
+                items: newOrder
+            }
+        })
+        // Optional: toast success? typically silent unless error
+    } catch (e) {
+        console.error('Error reordering:', e)
+        toast.showToast('Erro ao salvar nova ordem', 'error')
+    }
+}
+
+const handleToggleActive = async (item: any, parentList: any[]) => {
+    // Optimistic Update
+    const oldState = item.ativo
+    item.ativo = !item.ativo // Toggle local immediately
+
+    try {
+        await $fetch(`/api/pedagogico/atividades/${item.id}/toggle`, {
+            method: 'POST',
+            body: { ativo: item.ativo }
+        })
+    } catch (e) {
+        // Revert on error
+        item.ativo = oldState
+        console.error(e)
+        toast.showToast('Erro ao atualizar status', 'error')
+    }
+}
+
+const handleDeleteItem = async (folder: any, item: any) => {
+    if (!confirm('Tem certeza que deseja apagar este item?')) return
+
+    try {
+        await $fetch(`/api/pedagogico/atividades/${item.id}`, {
+            method: 'DELETE',
+            params: { id_empresa: appStore.company?.empresa_id }
+        })
+        
+        // Remove from list
+        if (folder && folder.itens) {
+            folder.itens = folder.itens.filter((i: any) => i.id !== item.id)
+        }
+        
+        toast.showToast('Item removido com sucesso!', 'success')
+    } catch (e) {
+        console.error('Error deleting:', e)
+        toast.showToast('Erro ao apagar item', 'error')
+    }
 }
 
 // Helpers
@@ -340,23 +421,62 @@ const dashboardStats = computed(() => {
 
                     <!-- Nested Items Area -->
                     <div v-show="item.isExpanded" class="bg-div-05/30 border-t border-div-15 p-4 space-y-2 animate-in slide-in-from-top-2 duration-200">
-                        <div v-for="subItem in item.itens" :key="subItem.id" class="bg-surface p-3 rounded-lg border border-div-15 flex items-center justify-between group/item hover:border-primary/30 transition-all hover:shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="text-lg bg-div-05 w-8 h-8 flex items-center justify-center rounded-md">{{ getItemIcon(subItem.tipo) }}</span>
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-bold text-text group-hover/item:text-primary transition-colors">{{ subItem.titulo }}</span>
-                                    <div class="flex items-center gap-2 text-[9px] text-secondary font-medium mt-0.5 uppercase tracking-tighter">
-                                        <span>{{ subItem.tipo }}</span>
-                                        <span v-if="subItem.pontuacao_maxima" class="text-orange-500">• {{ subItem.pontuacao_maxima }} pts</span>
+                        <div v-if="item.isLoadingItems" class="flex justify-center p-4">
+                             <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                        <p v-else-if="!item.itens || item.itens.length === 0" class="text-center text-xs text-secondary py-2 italic opacity-70">
+                            Nenhum item criado neste folder.
+                        </p>
+                        <draggable 
+                            v-else
+                            v-model="item.itens" 
+                            item-key="id"
+                            group="items"
+                            @end="handleReorder(item)"
+                            class="space-y-2"
+                            ghost-class="opacity-50"
+                        >
+                            <template #item="{ element: subItem }">
+                                <div class="bg-surface p-3 rounded-lg border border-div-15 flex items-center justify-between group/item hover:border-primary/30 transition-all hover:shadow-sm cursor-grab active:cursor-grabbing">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-lg bg-div-05 w-8 h-8 flex items-center justify-center rounded-md text-secondary/70">{{ getItemIcon(subItem.tipo) }}</span>
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-bold text-text group-hover/item:text-primary transition-colors">{{ subItem.titulo }}</span>
+                                            <div class="flex items-center gap-2 text-[9px] text-secondary font-medium mt-0.5 uppercase tracking-tighter">
+                                                <span>{{ subItem.tipo }}</span>
+                                                <span v-if="subItem.pontuacao_maxima" class="text-orange-500">• {{ subItem.pontuacao_maxima }} pts</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 opacity-100 group-hover/item:opacity-100 transition-opacity">
+                                        
+                                        <!-- Active Toggle -->
+                                        <div class="mr-2" title="Ativar/Desativar" @click.stop>
+                                            <input 
+                                                type="checkbox" 
+                                                :checked="subItem.ativo" 
+                                                @change="handleToggleActive(subItem, item.itens)"
+                                                class="toggle toggle-xs"
+                                                :class="subItem.ativo ? 'toggle-primary' : 'toggle-neutral opacity-50'"
+                                            />
+                                        </div>
+
+                                        <button @click="handleEditItem(item, subItem)" class="p-1.5 text-secondary hover:text-primary transition-colors rounded hover:bg-primary/5" title="Editar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        </button>
+                                        
+                                        <button @click="handleDeleteItem(item, subItem)" class="p-1.5 text-secondary hover:text-danger transition-colors rounded hover:bg-danger/5" title="Excluir">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                                        </button>
+
+                                        <div class="p-1.5 text-div-30 cursor-grab active:cursor-grabbing group-hover/item:text-secondary transition-colors" title="Arrastar para reordenar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                                <button @click="handleEditItem(item, subItem)" class="p-1.5 text-secondary hover:text-primary transition-colors rounded hover:bg-primary/5">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                </button>
-                            </div>
-                        </div>
+                            </template>
+                        </draggable>
+                        
                         <button @click="handleAddItem(item)" class="w-full py-2.5 border border-dashed border-div-15 hover:border-primary/40 rounded-lg text-[10px] font-bold text-secondary hover:text-primary transition-all uppercase tracking-widest bg-transparent hover:bg-primary/5">
                             + Adicionar Atividade
                         </button>

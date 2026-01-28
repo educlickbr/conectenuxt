@@ -7,7 +7,9 @@ export default defineEventHandler(async (event) => {
 
     const rpcMap: Record<string, string> = {
         matricula_turma: 'matricula_turma_get_por_matricula',
-        matriculas: 'matricula_get_paginado'
+        matriculas: 'matricula_get_paginado',
+        atribuicao_turmas: 'atrib_turmas_get_paginado',
+        atribuicao_componentes: 'atrib_componentes_get_paginado'
     }
 
     const rpcName = rpcMap[resource as string]
@@ -38,7 +40,21 @@ export default defineEventHandler(async (event) => {
             p_limite_itens_pagina: parseInt(query.limite as string) || 10,
             p_busca: (query.busca as string) || null,
         }
+    } else if (resource === 'atribuicao_turmas' || resource === 'atribuicao_componentes') {
+        rpcParams = {
+            p_id_empresa: id_empresa,
+            p_pagina: parseInt(query.pagina as string) || 1,
+            p_limite_itens_pagina: parseInt(query.limite as string) || 10,
+            p_busca: (query.busca as string) || null,
+            p_id_turma: query.id_turma || null,
+            p_id_professor: query.id_professor || null,
+            p_ano: query.ano ? parseInt(query.ano as string) : new Date().getFullYear(),
+            p_id_escola: query.id_escola || null,
+            p_id_ano_etapa: query.id_ano_etapa || null,
+            p_id_classe: query.id_classe || null
+        }
     }
+
 
     try {
         const { data, error } = await (client as any).rpc(rpcName, rpcParams)

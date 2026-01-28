@@ -167,6 +167,13 @@ const hasAccess = (allowedRoles) => {
                 <span class="text-[10px] text-secondary">Classes, Horários e Turmas</span>
               </div>
             </button>
+            <button @click="handleNavigation('/estrutura_academica/grupos')" class="menu-item group border-t border-[#6B82A70D]">
+              <div class="menu-icon bg-indigo-500/10 text-indigo-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+              <div class="flex flex-col text-left">
+                <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Grupos de Estudo</span>
+                <span class="text-[10px] text-secondary">Multiturmas e Extracurricular</span>
+              </div>
+            </button>
             <button @click="handleNavigation('/usuarios')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-purple-500/10 text-purple-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
               <div class="flex flex-col text-left">

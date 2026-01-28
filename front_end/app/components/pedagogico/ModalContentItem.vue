@@ -7,7 +7,7 @@ import ManagerField from '@/components/ManagerField.vue'
 const props = defineProps<{
     isOpen: boolean
     initialData?: any
-    folderId?: string
+    folderId?: string | null
 }>()
 
 const emit = defineEmits(['close', 'success'])
@@ -158,11 +158,11 @@ const moveQuestion = (index: number, direction: number) => {
 }
 
 // Watchers
-watch(() => props.isOpen, (val) => {
+watch(() => props.isOpen, async (val) => {
     if (val) {
         fetchImageHash()
         if (props.initialData) {
-            // Populate form
+            // Populate basic form first
             form.value = {
                 tipo: props.initialData.tipo || 'Material',
                 titulo: props.initialData.titulo,
@@ -174,8 +174,44 @@ watch(() => props.isOpen, (val) => {
                 tempo_questionario: props.initialData.tempo_questionario ?? undefined,
                 data_disponivel: props.initialData.data_disponivel ? props.initialData.data_disponivel.slice(0, 16) : '',
                 data_entrega_limite: props.initialData.data_entrega_limite ? props.initialData.data_entrega_limite.slice(0, 16) : '',
-                perguntas: props.initialData.perguntas || []
+                perguntas: props.initialData.perguntas || [] 
             }
+
+            // Populate selected book if available (from list view data)
+            if (props.initialData.livro) {
+                selectedBook.value = {
+                    id_edicao: props.initialData.livro.uuid,
+                    titulo_principal: props.initialData.livro.titulo,
+                    autor_principal: props.initialData.livro.autores,
+                    capa: props.initialData.livro.capa
+                }
+            } else if (props.initialData.livro_digital) {
+                 selectedBook.value = {
+                    id_edicao: props.initialData.id_bbtk_edicao,
+                    titulo_principal: props.initialData.livro_digital.titulo,
+                    capa: props.initialData.livro_digital.capa,
+                    autor_principal: ''
+                }
+            } else {
+                selectedBook.value = null
+            }
+
+            // If Questionário, fetch full details (questions are not in list view)
+            if (props.initialData.tipo === 'Questionário') {
+                try {
+                    const details = await $fetch(`/api/pedagogico/atividades/${props.initialData.id}`) as any
+                    if (details && details.perguntas) {
+                         form.value.perguntas = details.perguntas
+                         // Also update other potentially truncated fields if needed
+                         form.value.descricao = details.rich_text || form.value.descricao
+                         form.value.tempo_questionario = details.tempo_questionario
+                    }
+                } catch (e) {
+                    console.error('Error fetching quiz details:', e)
+                    toast.showToast('Erro ao carregar perguntas do questionário', 'error')
+                }
+            }
+        
         } else {
             // Reset
             form.value = {
@@ -197,11 +233,34 @@ watch(() => props.isOpen, (val) => {
     }
 })
 
-// Mock save for now as requested "não vamos fazer ele enviar nada ainda"
-const handleSave = () => {
-    console.log('Save triggered with payload:', form.value)
-    // emit('success') // Uncomment when ready
-    toast.showToast('Funcionalidade de salvar será implementada em breve.', 'info')
+const handleSave = async () => {
+    // Basic validation
+    if (!form.value.titulo) {
+        toast.showToast('O título é obrigatório.', 'error')
+        return
+    }
+
+    try {
+        const payload = {
+            id_empresa: appStore.company?.empresa_id,
+            folder_id: props.folderId,
+            ...form.value,
+            // Ensure ID is passed if editing (though prop name is initialData)
+            id: props.initialData?.id || null 
+        }
+
+        await $fetch('/api/pedagogico/atividades/upsert', {
+            method: 'POST',
+            body: payload
+        })
+
+        toast.showToast('Item salvo com sucesso!', 'success')
+        emit('success')
+        emit('close')
+    } catch (e: any) {
+        console.error('Error saving item:', e)
+        toast.showToast(e.statusMessage || 'Erro ao salvar item', 'error')
+    }
 }
 </script>
 

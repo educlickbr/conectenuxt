@@ -7,31 +7,35 @@ export default defineEventHandler(async (event) => {
     const user = await client.auth.getUser()
 
     if (!user.data.user) {
-         throw createError({
+        throw createError({
             statusCode: 401,
             statusMessage: 'Usuário não autenticado'
         })
     }
 
+    // Body validation
     const {
         id,
         id_empresa,
+        folder_id, // p_id_lms_conteudo
+        tipo,
         titulo,
-        descricao,
-        escopo,
-        id_turma,
-        id_aluno,
-        id_ano_etapa,
-        id_componente,
+        descricao, // rich_text
+        url_externa,
+        video_link,
+        id_bbtk_edicao,
+        pontuacao_maxima,
+        tempo_questionario,
         data_disponivel,
-        liberar_por,
-        visivel_para_alunos
+        data_entrega_limite,
+        perguntas,
+        ordem
     } = body
 
-    if (!id_empresa || !titulo || !escopo) {
+    if (!id_empresa || !titulo || !folder_id) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Campos obrigatórios faltando: id_empresa, titulo, escopo'
+            statusMessage: 'Campos obrigatórios faltando: id_empresa, titulo, folder_id'
         })
     }
 
@@ -39,44 +43,31 @@ export default defineEventHandler(async (event) => {
         p_id: id || null,
         p_id_empresa: id_empresa,
         p_criado_por: user.data.user.id,
-        p_escopo: escopo,
-        p_id_turma: (escopo === 'Turma' || escopo === 'Componente' || escopo === 'Aluno') ? id_turma : null,
-        p_id_aluno: escopo === 'Aluno' ? id_aluno : null,
-        p_id_ano_etapa: id_ano_etapa || null,
-        p_id_componente: escopo === 'Componente' ? id_componente : null,
-        p_id_meta_turma: null,
+        p_id_lms_conteudo: folder_id,
+        p_tipo: tipo,
         p_titulo: titulo,
-        p_descricao: descricao || null,
-        p_visivel_para_alunos: visivel_para_alunos,
+        p_caminho_arquivo: null, // Not used for now in this flow
+        p_url_externa: url_externa || null,
+        p_video_link: video_link || null,
+        p_rich_text: descricao || null, // Mapping 'descricao' from front to 'p_rich_text'
+        p_pontuacao_maxima: pontuacao_maxima || 0,
+        p_id_bbtk_edicao: id_bbtk_edicao || null,
+        p_ordem: ordem || 99,
         p_data_disponivel: data_disponivel || null,
-        p_liberar_por: liberar_por || 'Conteúdo'
+        p_data_entrega_limite: data_entrega_limite || null,
+        p_tempo_questionario: tempo_questionario || null,
+        p_perguntas: perguntas || null
     }
 
-    const { data, error } = await client.rpc('lms_conteudo_upsert', payload)
+    const { data, error } = await client.rpc('lms_item_upsert', payload)
 
     if (error) {
-        // Handle specific error codes if needed, e.g., foreign key violations
-        if (error.code === '23503') {
-             throw createError({
-                statusCode: 400,
-                statusMessage: 'Erro de Permissão: Usuário não vinculado corretamente.'
-            })
-        }
+        console.error('RPC Error:', error)
         throw createError({
             statusCode: 500,
             statusMessage: error.message
         })
     }
 
-    // Check for application-level errors captured by the RPC's exception handler
-    const result = data as any
-    if (result && result.success === false) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: result.message || 'Erro desconhecido ao salvar conteúdo.',
-            data: result.detail
-        })
-    }
-
-    return { success: true }
+    return { success: true, id: data }
 })

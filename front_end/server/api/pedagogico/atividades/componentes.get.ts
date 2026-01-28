@@ -21,12 +21,14 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const { data, error } = await client.rpc('carga_horaria_get', {
+        const { data: rawData, error } = await client.rpc('carga_horaria_get', {
             p_id_empresa: id_empresa,
             p_id_ano_etapa: id_ano_etapa
-        })
+        } as any)
 
         if (error) throw error
+        
+        const data = rawData as any
 
         // Normalize response (carga_horaria_get usually returns the items directly or in .itens depending on version, 
         // but based on [resource].get.ts logic for 'carga_horaria' sharing generic handler, verify structure.)

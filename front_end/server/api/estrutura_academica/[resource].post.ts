@@ -21,7 +21,11 @@ export default defineEventHandler(async (event) => {
         diario_presenca: 'diario_presenca_upsert_batch',
         plano_de_aulas: 'pl_plano_de_aulas_upsert',
         plano_de_aulas_itens: 'pl_plano_itens_upsert',
-        plano_referencias_batch: 'pl_plano_referencias_upsert_batch'
+        plano_referencias_batch: 'pl_plano_referencias_upsert_batch',
+        // Grupos de Estudo
+        grupos: 'grp_grupo_upsert',
+        tutores: 'grp_tutor_upsert', // Add Tutor Link
+        integrantes: 'grp_integrante_upsert' // Add Member Link
     }
 
     const rpcName = rpcMap[resource as string]
@@ -43,10 +47,6 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        // Prepare RPC parameters
-        // Standard signature for these legacy upserts: (p_data jsonb, p_id_empresa uuid)
-        // Except 'turmas_upsert' which might use p_turma instead of p_data
-
         let params: any = {}
 
         if (resource === 'turmas') {
@@ -62,33 +62,30 @@ export default defineEventHandler(async (event) => {
                 p_payload: payload
             }
         } else if (resource === 'plano_referencias_batch') {
-            // pl_plano_referencias_upsert_batch(p_id_empresa, p_id_aula, p_itens)
-            // Payload structure from ModalGerenciarAula: { id_aula, itens: [...] }
             params = {
                 p_id_empresa: id_empresa,
-                p_id_aula: body.id_aula || payload.id_aula, // Check how payload is structured logic below
-                p_itens: payload.itens // Modal passes { id_empresa, id_aula, itens: [...] } 
-                // Wait, index.post default extracts 'data' as 'payload'. 
-                // Modal sends: body: { id_empresa, id_aula, itens }. 
-                // So readBody(event) result 'body' has these keys.
-                // code line 35: const { id_empresa, data: payload } = body
-                // Modal line 210: body: { id_empresa, id_aula, itens: refPayload } -> NO 'data' key wrapping it?
-                // Modal code check: 
-                // await $fetch(..., { body: { id_empresa, id_aula, itens: ... } })
-                // So 'data' extraction line 35 will be undefined if strict. 
-                // But let's look at index.post code again.
+                p_id_aula: body.id_aula || payload?.id_aula,
+                p_itens: body.itens || payload?.itens
             }
-            // Correction: I need to verify payload structure.
-            // If body = { id_empresa, id_aula, itens }, then 'data' is undefined.
-            // But line 35 'const { id_empresa, data: payload } = body' implies standard structure expected is { id_empresa, data: ... }.
-            // I should update ModalGerenciarAula to conform or adjust here.
-            // Adjusting here is harder if 'payload' is const.
-            // Actually, I should update this block to use 'body' directly if needed.
-            // Let's assume for now I fix the mapping here but I might need to fix the Modal call structure or read from 'body' safely.
+        } else if (resource === 'tutores' || resource === 'integrantes') {
+            // Linkage Ops: grp_tutor_upsert(p_id_empresa, p_id_grupo, p_id_user, p_ano)
+            // Expecting payload to be the direct object with these fields if data: payload is used
             params = {
                 p_id_empresa: id_empresa,
-                p_id_aula: body.id_aula,
-                p_itens: body.itens
+                p_id_grupo: payload.id_grupo,
+                p_id_user: payload.id_user,
+                p_ano: payload.ano || null,
+                p_status: payload.status || 'ATIVO'
+            }
+        } else if (resource === 'grupos') {
+            // grp_grupo_upsert(p_id, p_id_empresa, p_nome_grupo, p_descricao, p_status)
+            params = {
+                p_id: payload.id || null,
+                p_id_empresa: id_empresa,
+                p_nome_grupo: payload.nome_grupo,
+                p_descricao: payload.descricao,
+                p_status: payload.status || 'ATIVO',
+                p_ano: payload.ano || new Date().getFullYear()
             }
         } else {
             // Standard: (p_data, p_id_empresa)
@@ -106,7 +103,6 @@ export default defineEventHandler(async (event) => {
         }
 
         // Check for logical error in JSON response
-        // Legacy RPCs often return object with 'status': 'error'
         if (data && data.status === 'error') {
             throw createError({
                 statusCode: 400,
