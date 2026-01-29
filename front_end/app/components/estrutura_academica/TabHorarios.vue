@@ -42,7 +42,10 @@ defineEmits(['edit', 'delete'])
         @delete="$emit('delete', item)"
       >
         <template #metadata>
-            <span class="opacity-70">{{ item.turno || 'Sem turno' }}</span>
+            <div class="flex gap-2">
+                 <span class="font-bold text-primary">{{ item.hora_completo }}</span>
+                 <span class="opacity-70 border-l border-current pl-2">{{ item.periodo || item.turno || 'Sem turno' }}</span>
+            </div>
         </template>
       </ManagerListItem>
     </div>

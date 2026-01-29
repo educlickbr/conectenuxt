@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         const { data, error } = await client.rpc('lms_conteudo_delete', {
             p_id: body.id,
             p_id_empresa: body.id_empresa
-        })
+        } as any)
 
         if (error) throw error
         return data

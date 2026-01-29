@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
         p_id_empresa: id_empresa,
         p_user_id: user.data.user.id,
         p_conteudo_id: id
-    })
+    } as any)
 
     if (error) {
         console.error('Error fetching items:', error)

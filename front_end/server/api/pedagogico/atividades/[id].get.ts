@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const { data, error } = await client.rpc('lms_item_get_detalhes', {
+    const { data: itemData, error } = await client.rpc('lms_item_get_detalhes', {
         p_id_item: id
     } as any)
 
@@ -24,5 +24,25 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    return data
+    // Hash Logic for Library Content (Covers/Files)
+    let imageBaseUrl = ''
+    try {
+        const { data: hashData } = await client.functions.invoke('hash_pasta_conecte', {
+            body: { path: '/biblio/' }
+        })
+        if (hashData && hashData.url) {
+            imageBaseUrl = hashData.url
+        }
+    } catch (e) {
+        console.error('Error fetching hash:', e)
+    }
+
+    if (!itemData) {
+        throw createError({ statusCode: 404, statusMessage: 'Item not found' })
+    }
+
+    return {
+        ...(typeof itemData === 'object' ? itemData : {}),
+        imageBaseUrl
+    }
 })

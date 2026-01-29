@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
         p_perguntas: perguntas || null
     }
 
-    const { data, error } = await client.rpc('lms_item_upsert', payload)
+    const { data, error } = await client.rpc('lms_item_upsert', payload as any)
 
     if (error) {
         console.error('RPC Error:', error)

@@ -5,6 +5,7 @@ import { useToastStore } from '@/stores/toast'
 import ManagerDashboard from '@/components/ManagerDashboard.vue'
 import ModalFolder from '@/components/pedagogico/ModalFolder.vue'
 import ModalContentItem from '@/components/pedagogico/ModalContentItem.vue'
+import ModalCorrecao from '@/components/pedagogico/ModalCorrecao.vue'
 
 // Layout
 definePageMeta({
@@ -19,6 +20,7 @@ const router = useRouter()
 // Tabs
 const tabs = [
   { id: 'atividades', label: 'Atividades' },
+  { id: 'envios', label: 'Envios' }, 
   { id: 'relatorios', label: 'Relatórios' },
 ]
 
@@ -33,12 +35,63 @@ const limit = ref(10)
 
 // Modal State
 const isModalOpen = ref(false)
+
+// Evaluations Data
+const { data: evaluationsData, refresh: refreshEvaluations, pending: isLoadingEvaluations } = await useFetch('/api/lms/evaluations', {
+    params: computed(() => ({
+        id_empresa: appStore.company?.empresa_id,
+        // In management view, we might want to filter by pending status initially or allow all
+    })),
+    watch: [() => currentTab.value],
+    immediate: true,
+    server: false
+})
+
+const evaluationsList = computed(() => evaluationsData.value || [])
+
+// Dashboard Stats (Moved to top)
+const dashboardStats = computed(() => {
+    if (currentTab.value === 'atividades') {
+        return [
+            { label: 'Total Folders', value: total.value },
+            { label: 'Global', value: items.value.filter(i => i.escopo === 'Global').length },
+            { label: 'Turmas', value: items.value.filter(i => i.escopo === 'Turma').length }
+        ]
+    } else if (currentTab.value === 'envios') {
+        const list = evaluationsList.value as any[]
+        return [
+            { label: 'Total Entregas', value: list.length },
+             { label: 'Pendentes', value: list.filter(s => s.status !== 'concluido' && s.status !== 'avaliado' && !s.nota).length },
+            { label: 'Avaliados', value: list.filter(s => s.nota !== null).length }
+        ]
+    }
+    return [
+       { label: 'Relatórios Gerados', value: 0 }
+    ]
+})
+
 const selectedFolder = ref<any>(null)
 
 // Item Modal State
 const isItemModalOpen = ref(false)
 const activeFolderId = ref<string | null>(null)
 const selectedItem = ref<any>(null)
+
+// Correction Modal State
+const isCorrectionModalOpen = ref(false)
+const selectedSubmission = ref<any>(null)
+
+const openCorrection = (submission: any) => {
+    selectedSubmission.value = submission
+    isCorrectionModalOpen.value = true
+}
+
+const handleCorrectionSuccess = () => {
+    refreshEvaluations()
+    // refreshAtividades() // Maybe not needed
+}
+
+// Data Fetching
 
 // Data Fetching
 const { data: atividadesData, refresh: refreshAtividades, pending: isLoading } = await useFetch('/api/pedagogico/atividades', {
@@ -254,19 +307,32 @@ const formatDate = (dateStr: string | null) => {
     return new Date(dateStr).toLocaleDateString('pt-BR')
 }
 
-// Dashboard Stats
-const dashboardStats = computed(() => {
-    if (currentTab.value === 'atividades') {
-        return [
-            { label: 'Total Folders', value: total.value },
-            { label: 'Global', value: items.value.filter(i => i.escopo === 'Global').length },
-            { label: 'Turmas', value: items.value.filter(i => i.escopo === 'Turma').length }
-        ]
+// Debugging
+const client = useSupabaseClient()
+const debugRLS = async () => {
+    console.log('--- DEBUG RLS START ---')
+    try {
+        const { data, error } = await client
+            .from('lms_submissao')
+            .select('*')
+            .eq('id_empresa', appStore.company?.empresa_id)
+            .limit(5)
+        
+        if (error) {
+            console.error('RLS/Query Error:', error)
+            toast.showToast(`Erro RLS: ${error.message}`, 'error')
+        } else {
+            console.log('Dados recebidos (lms_submissao):', data)
+            toast.showToast(`Sucesso! ${data?.length} registros encontrados.`, 'success')
+        }
+    } catch (e: any) {
+        console.error('Exception:', e)
+        toast.showToast('Erro desconhecido no Debug', 'error')
     }
-    return [
-       { label: 'Relatórios Gerados', value: 0 }
-    ]
-})
+    console.log('--- DEBUG RLS END ---')
+}
+
+// Dashboard Stats (Moved to top)
 </script>
 
 <template>
@@ -306,6 +372,13 @@ const dashboardStats = computed(() => {
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 <span class="hidden sm:inline">Novo</span>
+            </button>
+            <button 
+                @click="debugRLS"
+                class="bg-danger hover:bg-danger-hover text-white px-3 py-1.5 rounded text-xs font-bold transition-all shadow-sm flex items-center gap-1 shrink-0 ml-2"
+                title="Debug RLS"
+            >
+                🐞
             </button>
         </template>
 
@@ -355,6 +428,12 @@ const dashboardStats = computed(() => {
                 @close="isItemModalOpen = false"
                 @success="fetchItems"
             />
+            <ModalCorrecao
+                :is-open="isCorrectionModalOpen"
+                :submission="selectedSubmission"
+                @close="isCorrectionModalOpen = false"
+                @success="handleCorrectionSuccess"
+            />
         </template>
 
         <!-- Main Content (Default Slot) -->
@@ -376,7 +455,65 @@ const dashboardStats = computed(() => {
                  <p>Relatórios em construção.</p>
             </div>
 
-            <!-- List View -->
+            <!-- Evaluations Tab Content -->
+            <div v-else-if="currentTab === 'envios'" class="space-y-4 animate-in fade-in duration-300">
+                <div v-if="isLoadingEvaluations" class="flex justify-center p-12">
+                     <span class="loading loading-spinner text-primary"></span>
+                </div>
+                
+                <div v-else-if="!evaluationsList || evaluationsList.length === 0" class="flex flex-col items-center justify-center p-12 text-secondary text-center border border-dashed border-div-15 rounded-lg">
+                     <div class="text-4xl mb-2 opacity-50">✅</div>
+                     <p>Nenhuma entrega encontrada.</p>
+                </div>
+                
+                <div v-else class="overflow-x-auto bg-surface border border-div-15 rounded-lg shadow-sm">
+                    <table class="table w-full text-sm">
+                        <thead>
+                            <tr class="bg-div-05 text-secondary border-b border-div-15">
+                                <th class="font-bold">Aluno</th>
+                                <th class="font-bold">Turma</th>
+                                <th class="font-bold">Atividade</th>
+                                <th class="font-bold">Enviado em</th>
+                                <th class="font-bold text-center">Nota</th>
+                                <th class="font-bold text-center">Status</th>
+                                <th class="font-bold text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="sub in evaluationsList" :key="sub.id_submissao" class="hover:bg-div-05/30 transition-colors border-b border-div-15 last:border-0">
+                                <td class="font-medium text-text">{{ sub.aluno_nome }}</td>
+                                <td class="text-secondary text-xs">{{ sub.turma_nome || '-' }}</td>
+                                <td>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-xs">{{ sub.item_titulo }}</span>
+                                        <span class="text-[10px] text-secondary uppercase tracking-wider">{{ sub.conteudo_titulo }}</span>
+                                    </div>
+                                </td>
+                                <td class="text-secondary text-xs">{{ formatDate(sub.data_envio) }}</td>
+                                <td class="text-center font-bold">
+                                    <span v-if="sub.nota !== null" :class="sub.nota >= 6 ? 'text-success' : 'text-danger'">{{ sub.nota }}</span>
+                                    <span v-else class="text-secondary">-</span>
+                                </td>
+                                <td class="text-center">
+                                    <span v-if="sub.nota !== null" class="badge badge-success badge-outline badge-xs">Avaliado</span>
+                                    <span v-else class="badge badge-warning badge-outline badge-xs">Pendente</span>
+                                </td>
+                                <td class="px-3 py-4 text-sm text-right">
+                                    <button 
+                                        @click="openCorrection(sub)"
+                                        class="p-2 hover:bg-div-15 rounded-lg transition-colors text-primary"
+                                        title="Corrigir"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-check"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- List View (Atividades) -->
             <div v-else class="space-y-3">
                 <div v-for="item in items" :key="item.id" class="bg-surface rounded-lg border border-div-15 shadow-sm overflow-hidden transition-all duration-300 group hover:border-div-30">
                     <!-- Card Header -->

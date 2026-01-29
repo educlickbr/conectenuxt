@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
         p_pagina: 1,
         p_limite_itens_pagina: 1,
         p_ano: 2026
-    })
+    } as any)
     return { data, error }
 })
