@@ -38,7 +38,8 @@ export default defineEventHandler(async (event) => {
         tutores: 'grp_tutores_get_paginado',
         integrantes: 'grp_integrantes_get_paginado',
         candidatos_tutores: 'grp_candidatos_tutores_get',
-        candidatos_integrantes: 'grp_candidatos_integrantes_get'
+        candidatos_integrantes: 'grp_candidatos_integrantes_get',
+        diario_validar_dia: 'diario_validar_dia'
     }
 
     const rpcName = rpcMap[resource as string]
@@ -127,7 +128,8 @@ export default defineEventHandler(async (event) => {
         rpcParams = {
             p_id_empresa: id_empresa,
             p_id_escola: sanitizeParam(query.id_escola),
-            p_id_ano_etapa: sanitizeParam(query.id_ano_etapa)
+            p_id_ano_etapa: sanitizeParam(query.id_ano_etapa),
+            p_busca: (query.busca as string) || null
         }
     } else if (resource === 'calendarios') {
         rpcParams = {
@@ -194,6 +196,12 @@ export default defineEventHandler(async (event) => {
             p_id_empresa: id_empresa,
             p_busca: (query.busca as string) || null,
             p_limit: parseInt(query.limite as string) || 20 
+        }
+    } else if (resource === 'diario_validar_dia') {
+        rpcParams = {
+            p_id_empresa: id_empresa,
+            p_id_turma: query.id_turma,
+            p_data: query.data
         }
     } else {
         // Generic fallback

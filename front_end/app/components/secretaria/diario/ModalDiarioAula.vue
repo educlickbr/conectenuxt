@@ -94,42 +94,69 @@ const fetchAnosEtapas = async () => {
     }
 }
 
+// Abort controllers to prevent race conditions
+let abortControllerTurmas: AbortController | null = null
+let abortControllerComponentes: AbortController | null = null
+
 const fetchTurmas = async () => {
     if (!form.value.id_escola && !form.value.id_ano_etapa) { 
         turmas.value = []
         return
     }
     
+    // Abort previous request if running
+    if (abortControllerTurmas) abortControllerTurmas.abort()
+    abortControllerTurmas = new AbortController()
+
     try {
-         const { data }: any = await useFetch('/api/estrutura_academica/turmas', {
+        const data: any = await $fetch('/api/estrutura_academica/turmas_simple', {
             params: { 
                 id_empresa: appStore.company?.empresa_id, 
                 id_escola: form.value.id_escola,
-                id_ano_etapa: form.value.id_ano_etapa,
-                limite: 100 
-            }
+                id_ano_etapa: form.value.id_ano_etapa
+            },
+            signal: abortControllerTurmas.signal
         })
-        turmas.value = data.value?.items || []
-    } catch (e) {
+        turmas.value = data?.items || []
+    } catch (e: any) {
+        if (e.name === 'AbortError') return
         console.error(e)
     }
 }
 
 const fetchComponentes = async () => {
+    // We need ano_etapa to filter components by workload (carga_horaria)
+    if (!form.value.id_ano_etapa) {
+        componentes.value = []
+        return
+    }
+
+    // Abort previous request
+    if (abortControllerComponentes) abortControllerComponentes.abort()
+    abortControllerComponentes = new AbortController()
+
     isLoadingComponents.value = true
     try {
-        const client = useSupabaseClient()
-        const { data, error } = await client
-            .from('componente')
-            .select('uuid, nome')
-            .eq('id_empresa', appStore.company?.empresa_id)
-            .order('nome')
+        // Use generic API for carga_horaria which maps to carga_horaria_get RPC
+        const data: any = await $fetch('/api/estrutura_academica/carga_horaria', {
+            params: { 
+                id_empresa: appStore.company?.empresa_id,
+                id_ano_etapa: form.value.id_ano_etapa
+            },
+            signal: abortControllerComponentes.signal
+        })
+        
+        const items = data?.items || []
+        
+        componentes.value = items.map((i: any) => ({
+            id: i.id_componente || i.uuid || i.id, // Fallback
+            nome: i.componente_nome || i.nome
+        }))
 
-        if (error) throw error
-        componentes.value = data || []
-
-    } catch (e) {
+    } catch (e: any) {
+        if (e.name === 'AbortError') return
         console.error('Error fetching componentes:', e)
+        componentes.value = []
     } finally {
         isLoadingComponents.value = false
     }
@@ -174,8 +201,14 @@ watch(() => form.value.id_ano_etapa, () => {
         form.value.id_turma = null
         fetchTurmas()
         
+        // Fetch components for this new stage
+        form.value.id_componente = null
+        fetchComponentes()
+        
         // Also fetch plan items since they depend on Year/Stage too
-        if (form.value.id_componente) fetchPlanoItens()
+        // (Only if component was somehow kept? But we cleared it above. 
+        //  Wait, if component changed to null, fetchPlanoItens calls inside its own watcher or below?)
+        // Actually fetchPlanoItens depends on component. So if component is null, it clears items.
    }
 })
 
@@ -339,7 +372,7 @@ const handleSave = async () => {
                         :disabled="!form.id_escola || !form.id_ano_etapa || !!initialData"
                     >
                          <option :value="null" disabled>Selecione a turma...</option>
-                         <option v-for="t in turmas" :key="t.id" :value="t.id">{{ t.nome_turma }}</option>
+                         <option v-for="t in turmas" :key="t.id" :value="t.id">{{ t.nome }}</option>
                     </ManagerField>
 
                  </div>

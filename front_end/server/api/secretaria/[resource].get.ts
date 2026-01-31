@@ -6,10 +6,12 @@ export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
 
     const rpcMap: Record<string, string> = {
-        matricula_turma: 'matricula_turma_get_por_matricula',
+        matricula_turma: 'matricula_turma_get_historico',
         matriculas: 'matricula_get_paginado',
         atribuicao_turmas: 'atrib_turmas_get_paginado',
-        atribuicao_componentes: 'atrib_componentes_get_paginado'
+        atribuicao_componentes: 'atrib_componentes_get_paginado',
+        alunos_turma: 'get_alunos_turma',
+        diario_semanal: 'get_diario_semanal_aluno'
     }
 
     const rpcName = rpcMap[resource as string]
@@ -21,7 +23,7 @@ export default defineEventHandler(async (event) => {
     const id_empresa = query.id_empresa
 
     // Validation based on resource
-    if (!id_empresa) {
+    if (!id_empresa && resource !== 'alunos_turma') { // alunos_turma only needs id_turma
         throw createError({ statusCode: 400, statusMessage: 'ID da empresa é obrigatório.' })
     }
 
@@ -33,6 +35,22 @@ export default defineEventHandler(async (event) => {
             p_id_empresa: id_empresa,
             p_id_matricula: query.id_matricula
         }
+    } else if (resource === 'alunos_turma') {
+        if (!query.id_turma) throw createError({ statusCode: 400, statusMessage: 'ID da turma é obrigatório.' })
+        rpcParams = {
+            p_id_turma: query.id_turma
+        }
+    } else if (resource === 'diario_semanal') {
+         if (!query.id_turma || !query.id_matricula || !query.data_inicio || !query.data_fim) {
+            throw createError({ statusCode: 400, statusMessage: 'Faltam parâmetros para o diário semanal.' })
+         }
+         rpcParams = {
+            p_id_empresa: id_empresa,
+            p_id_turma: query.id_turma,
+            p_id_matricula: query.id_matricula,
+            p_data_inicio: query.data_inicio,
+            p_data_fim: query.data_fim
+         }
     } else if (resource === 'matriculas') {
         rpcParams = {
             p_id_empresa: id_empresa,
@@ -74,7 +92,7 @@ export default defineEventHandler(async (event) => {
         if (Array.isArray(result)) {
             items = result
         } else {
-            items = result.itens || []
+            items = result.itens || result.items || []
         }
 
         // Calculate pagination if not explicitly returned
@@ -90,7 +108,8 @@ export default defineEventHandler(async (event) => {
             items,
             total,
             pages,
-            resource
+            resource,
+            debug_info: result.debug_info // Pass through debug info if present
         }
     } catch (err: any) {
         throw createError({ statusCode: 500, statusMessage: err.message })

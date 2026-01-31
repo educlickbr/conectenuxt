@@ -38,8 +38,11 @@ const page = ref(1)
 const limit = ref(10)
 
 // --- BFF Data Fetching ---
-const { data: bffData, pending, error: bffError, refresh } = await useFetch(() => 
-  currentTabId.value === 'planejamento' ? undefined : `/api/estrutura_academica/${currentTabId.value}`, {
+const { data: bffData, pending, error: bffError, refresh } = await useFetch(() => { 
+  if (currentTabId.value === 'planejamento') return undefined
+  if (currentTabId.value === 'turmas') return '/api/estrutura_academica/turmas_simple'
+  return `/api/estrutura_academica/${currentTabId.value}`
+}, {
   query: computed(() => ({
     id_empresa: store.company?.empresa_id,
     pagina: page.value,

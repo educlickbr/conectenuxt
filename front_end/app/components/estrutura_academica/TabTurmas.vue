@@ -36,7 +36,7 @@ defineEmits(['edit', 'delete'])
         v-for="(item, index) in items"
         :key="item.id || item.uuid || index"
         :item="item"
-        :title="item.nome_turma || item.nome || 'Turma Sem Nome'"
+        :title="item.nome_composto || item.nome_turma || item.nome || 'Turma Sem Nome'"
         icon="👥"
         @edit="$emit('edit', item)"
         @delete="$emit('delete', item)"

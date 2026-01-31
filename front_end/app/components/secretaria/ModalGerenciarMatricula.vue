@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useToastStore } from '@/stores/toast'
 import ManagerField from '@/components/ManagerField.vue'
@@ -45,6 +45,7 @@ const isSaving = ref(false)
 const isAlocando = ref(false)
 const isLoadingHistorico = ref(false)
 const errorMessage = ref('')
+const turmaDropdownContainer = ref(null)
 
 
 // Initialize Form
@@ -116,7 +117,20 @@ const fetchHistorico = async () => {
 onMounted(() => {
     fetchAnosEtapas()
     if (props.isOpen) initForm()
+    fetchAnosEtapas()
+    if (props.isOpen) initForm()
+    document.addEventListener('click', handleClickOutside)
 })
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+})
+
+const handleClickOutside = (event) => {
+    if (turmaDropdownContainer.value && !turmaDropdownContainer.value.contains(event.target)) {
+        isTurmaSearchFocused.value = false
+    }
+}
 
 watch(() => props.isOpen, (val) => {
     if (val) initForm()
@@ -165,13 +179,12 @@ const fetchTurmasDisponiveis = async (query = '') => {
 
     isSearchingTurmas.value = true
     try {
-        const { items } = await $fetch('/api/estrutura_academica/turmas', {
+        const { items } = await $fetch('/api/estrutura_academica/turmas_simple', {
             query: {
                 id_empresa: appStore.company.empresa_id,
                 id_ano_etapa: formData.value.id_ano_etapa,
-                ano: formData.value.ano,
-                busca: query,
-                limite: 10
+                id_escola: null, // Optional
+                busca: query
             }
         })
         turmaResults.value = items || []
@@ -211,7 +224,7 @@ watch(turmaSearch, (query) => {
 
 const selectTurma = (turma) => {
     selectedTurma.value = turma
-    turmaSearch.value = `${turma.nome_turma} - ${turma.periodo}`
+    turmaSearch.value = turma.nome_composto || turma.nome
     turmaResults.value = []
 }
 
@@ -294,6 +307,7 @@ const getStatusColor = (status) => {
     }
     return colors[status] || '#ccc'
 }
+
 </script>
 
 <template>
@@ -405,7 +419,7 @@ const getStatusColor = (status) => {
 
                         <!-- Add allocation -->
                         <div class="flex flex-col md:flex-row gap-3 p-4 bg-div-10 rounded-lg border border-secondary/5">
-                            <div class="flex-1 relative">
+                            <div class="flex-1 relative" ref="turmaDropdownContainer">
                                 <label class="text-[10px] uppercase font-bold text-secondary mb-1 block">Buscar Turma</label>
                                 <input 
                                     type="text" 
@@ -413,7 +427,6 @@ const getStatusColor = (status) => {
                                     placeholder="Ex: 1º Ano A..."
                                     class="w-full bg-div-15 border border-secondary/20 rounded px-3 py-2 outline-none focus:border-primary transition-all text-xs"
                                     @focus="isTurmaSearchFocused = true"
-                                    @blur="setTimeout(() => isTurmaSearchFocused = false, 200)"
                                 />
                                 <div v-if="turmaResults.length > 0 && isTurmaSearchFocused" class="absolute top-full left-0 w-full mt-1 bg-surface border border-secondary/20 rounded shadow-xl z-50 overflow-hidden">
                                     <button 
@@ -423,12 +436,12 @@ const getStatusColor = (status) => {
                                         class="w-full text-left px-4 py-2 hover:bg-div-15 transition-colors flex items-center justify-between border-b border-secondary/5 last:border-0"
                                     >
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-bold">{{ turma.nome_turma }} - {{ turma.periodo }}</span>
-                                            <span class="text-[10px] text-secondary">{{ turma.nome_escola }}</span>
+                                            <span class="text-xs font-bold">{{ turma.nome_composto || turma.nome }}</span>
+                                            <span class="text-[10px] text-secondary">{{ turma.escola_nome }}</span>
                                         </div>
                                         <div class="flex flex-col items-end">
                                             <span class="text-[10px] font-mono opacity-50">{{ turma.ano }}</span>
-                                            <span class="text-[9px] opacity-30">{{ turma.hora_completo }}</span>
+                                            <span class="text-[9px] opacity-30">{{ turma.horario_completo || turma.turno }}</span>
                                         </div>
                                     </button>
                                 </div>

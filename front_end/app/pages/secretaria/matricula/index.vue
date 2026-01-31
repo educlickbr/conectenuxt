@@ -196,6 +196,18 @@ const getStatusColor = (status) => {
                 >
                     {{ item.status }}
                 </span>
+
+                <!-- Turma Badge -->
+                <div v-if="item.turma_nome_composto" class="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded bg-secondary/5 border border-secondary/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary/70"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span class="text-[10px] font-bold text-secondary/80">{{ item.turma_nome_composto }}</span>
+                </div>
+                <!-- Not Allocated Warning -->
+                <span v-else class="hidden sm:inline text-[10px] text-amber-500/80 font-medium flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Sem turma
+                </span>
+
                 <span class="text-[10px] text-secondary/60">Desde: {{ new Date(item.criado_em).toLocaleDateString() }}</span>
              </div>
           </template>

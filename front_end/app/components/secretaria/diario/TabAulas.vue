@@ -8,12 +8,27 @@ import ModalDiarioAula from '@/components/secretaria/diario/ModalDiarioAula.vue'
 const appStore = useAppStore()
 const toast = useToastStore()
 
+const route = useRoute()
+const router = useRouter()
+
 // State
 const filters = ref({
-    escola_id: null,
-    ano_etapa_id: null,
-    turma_id: null
+    escola_id: (route.query.id_escola as string) || null,
+    ano_etapa_id: (route.query.id_ano_etapa as string) || null,
+    turma_id: (route.query.id_turma as string) || null
 })
+
+// Sync filters to URL
+watch(filters, (newVal) => {
+    router.replace({
+        query: {
+            ...route.query,
+            id_escola: newVal.escola_id || undefined,
+            id_ano_etapa: newVal.ano_etapa_id || undefined,
+            id_turma: newVal.turma_id || undefined
+        }
+    })
+}, { deep: true })
 
 const isLoading = ref(false)
 const aulas = ref<any[]>([])
@@ -33,30 +48,16 @@ const fetchAulas = async () => {
 
     isLoading.value = true
     try {
-        const { data, error }: any = await useFetch('/api/estrutura_academica/diario_aulas', {
+        const data: any = await $fetch('/api/estrutura_academica/diario_aulas', {
             params: {
                 id_empresa: appStore.company.empresa_id,
                 id_turma: filters.value.turma_id || undefined, // undefined to exclude param if null
-                // Maybe filter by school/stage if turma not selected? 
-                // The RPC supports filtering by Turma ID directly.
-                // If Turma is not selected, we might want to support filtering by School... 
-                // But our RPC (diario_aula_get_paginado) ONLY accepts p_id_turma, p_id_componente, dates.
-                // It does NOT accept id_escola directly in the WHERE clause unless we add it. 
-                // (Wait, I checked the migration step 291: WHERE d.id_empresa = ... AND (p_id_turma IS NULL OR d.id_turma = p_id_turma))
-                // It does NOT filter by school. So if Turma is null, it returns ALL for the company! 
-                // That's risky for performance. 
-                // But let's assume the user selects a Turma. 
-                // We should probably enforce Turma selection for now or handle pagination well.
-                // Or update RPC to filter by school if needed.
-                // For now, let's ONLY fetch if Turma is selected to be safe and logical for a "Diário".
-                // User said "cada professor vai registrar...". Usually one class at a time.
             }
         })
 
-        if (error.value) throw error.value
-        aulas.value = data.value?.items || []
+        aulas.value = data?.items || []
 
-    } catch (e) {
+    } catch (e: any) {
         console.error(e)
         toast.showToast('Erro ao carregar aulas.', 'error')
     } finally {
@@ -83,6 +84,12 @@ const handleEdit = (aula: any) => {
 
 // Expose to parent
 defineExpose({ handleNew })
+
+onMounted(() => {
+    if (filters.value.turma_id) {
+        fetchAulas()
+    }
+})
 
 // Helper
 const formatDate = (dateStr: string) => {
@@ -120,14 +127,21 @@ const formatDate = (dateStr: string) => {
             </div>
 
             <div v-for="aula in aulas" :key="aula.id" 
-                class="group bg-surface hover:bg-surface-hover border border-div-15 rounded-xl p-5 transition-all relative"
+                class="group bg-surface hover:bg-surface-hover border border-div-15 rounded p-5 transition-all relative"
             >
                 <div class="flex items-start justify-between gap-4">
                     
                     <!-- Date Box -->
-                    <div class="flex flex-col items-center justify-center bg-div-30 rounded-lg w-14 h-14 shrink-0 border border-div-30">
-                        <span class="text-xs font-black text-secondary uppercase">{{ new Date(aula.data).toLocaleString('pt-BR', { month: 'short' }).replace('.', '') }}</span>
-                        <span class="text-xl font-bold text-text leading-none">{{ new Date(aula.data).getDate() }}</span>
+                    <div class="flex flex-col items-center justify-center bg-div-30 rounded w-14 h-14 shrink-0 border border-div-30">
+                        <!-- Date Fix: Parse YYYY-MM-DD manually to avoid timezone shift -->
+                         <div class="flex flex-col items-center leading-none">
+                            <span class="text-xs font-black text-secondary uppercase">
+                                {{ new Date(aula.data + 'T12:00:00').toLocaleString('pt-BR', { month: 'short' }).replace('.', '') }}
+                            </span>
+                            <span class="text-xl font-bold text-text">
+                                {{ aula.data.split('-')[2] }}
+                            </span>
+                         </div>
                     </div>
 
                     <!-- Content -->

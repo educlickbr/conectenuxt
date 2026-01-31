@@ -1,121 +1,89 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, watch, onMounted, computed, nextTick } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useToastStore } from '@/stores/toast'
 import MatrizFilterBar from '@/components/matriz_curricular/MatrizFilterBar.vue'
 import ManagerField from '@/components/ManagerField.vue'
 
-const props = defineProps<{
-    turmaId?: string
-}>()
-
-const route = useRoute()
-const router = useRouter()
 const appStore = useAppStore()
 const toast = useToastStore()
 
-// --- State ---
-const date = ref(new Date().toISOString().split('T')[0])
-const students = ref<any[]>([])
+const today = new Date().toISOString().split('T')[0]
+
+// Filters
+const filters = ref({
+    escola_id: null,
+    ano_etapa_id: null,
+    turma_id: null
+})
+const date = ref(today)
+const componente_id = ref<string | null>(null) // null = Geral
+
+// Data
 const isLoading = ref(false)
-const componente_id = ref<string | null>(null)
-const componentes_dia = ref<any[]>([])
+const students = ref<any[]>([])
+const dailyComponents = ref<any[]>([])
 const currentTurmaDetails = ref<any>(null)
 
-// Filters State (Restored for MatrizFilterBar)
-const filters = ref({
-    escola_id: (route.query.id_escola as string) || null,
-    ano_etapa_id: (route.query.id_ano_etapa as string) || null,
-    turma_id: props.turmaId || (route.query.id_turma as string) || null
-})
-
-// Validation State (New Logic)
-const diaValido = ref(true)
-const motivoInvalido = ref('')
-const detalhesInvalido = ref<any>(null)
-
-// Report Modal State (Old Design)
+// Modal for Report
 const isReportModalOpen = ref(false)
 const selectedStudentForReport = ref<any>(null)
 const reportText = ref('')
 
-// --- Computed ---
-const activeComponents = computed(() => {
-    return componentes_dia.value || []
-})
+// --- Fetchers ---
 
-const getDayName = computed(() => {
-    if (!date.value) return ''
-    const d = new Date(date.value + 'T12:00:00')
-    return d.toLocaleDateString('pt-BR', { weekday: 'long' })
-})
-
-const getInitials = (name: string) => {
-    if (!name) return '?'
-    const parts = name.trim().split(/\s+/)
-    if (parts.length >= 2) return ((parts[0] || '').charAt(0) + (parts[1] || '').charAt(0)).toUpperCase()
-    return name.slice(0, 2).toUpperCase()
-}
-
-// --- Fetchers (BFF Integration) ---
-
-const selectComponent = (id: string | null) => {
-    componente_id.value = id
-}
-
-const validateDay = async () => {
-    if (!appStore.company?.empresa_id || !filters.value.turma_id || !date.value) return
+const fetchDailyComponents = async () => {
+    if (!filters.value.turma_id || !date.value) {
+        dailyComponents.value = []
+        return
+    }
 
     try {
-        const response: any = await $fetch(`/api/estrutura_academica/diario_validar_dia`, {
-            params: {
-                id_empresa: appStore.company.empresa_id,
-                id_turma: filters.value.turma_id,
-                data: date.value
-            }
+        const client = useSupabaseClient()
+        // Cast to any to avoid TS errors with new RPC signature
+        const { data, error }: any = await (client as any).rpc('diario_get_componentes_dia', {
+            p_id_empresa: appStore.company?.empresa_id,
+            p_id_turma: filters.value.turma_id,
+            p_data: date.value
         })
-        
-        const result = response.items?.[0]
-        
-        if (result) {
-            diaValido.value = result.valido
-            motivoInvalido.value = result.motivo
-            detalhesInvalido.value = result.detalhes
-            componentes_dia.value = result.componentes || []
-        } else {
-            diaValido.value = false
-            motivoInvalido.value = 'Erro ao validar dia'
-            componentes_dia.value = []
-        }
 
-        // If current component selection is invalid for the new day, reset to null
-        if (componente_id.value && !componentes_dia.value.find((c: any) => c.id === componente_id.value)) {
+        if (error) throw error
+        
+        // Add "Geral" option implicitly handled by null selection, but we render buttons
+        dailyComponents.value = data.items || []
+        
+        // If current selected component is not in the new list, reset to General (null)
+        if (componente_id.value && !dailyComponents.value.find((c: any) => c.id_componente === componente_id.value)) {
             componente_id.value = null
         }
 
     } catch (e) {
-        console.error('Error validating day:', e)
-        diaValido.value = false
-        motivoInvalido.value = 'Erro de conexão'
+        console.error('Error fetching daily components:', e)
+        dailyComponents.value = []
     }
 }
 
 const fetchStudents = async () => {
-    if (!filters.value.turma_id || !appStore.company?.empresa_id) return
-    
+    if (!filters.value.turma_id || !date.value) {
+        students.value = []
+        return
+    }
+
     isLoading.value = true
     try {
-        const response: any = await $fetch('/api/estrutura_academica/diario_presenca', {
-            params: {
-                id_empresa: appStore.company.empresa_id,
-                id_turma: filters.value.turma_id,
-                data: date.value,
-                id_componente: componente_id.value // Can be null
-            }
-        })
+        const client = useSupabaseClient()
+        
+        const { data, error } = await (client as any)
+            .rpc('diario_presenca_get_por_turma', {
+                p_id_empresa: appStore.company?.empresa_id,
+                p_id_turma: filters.value.turma_id,
+                p_data: date.value,
+                p_id_componente: componente_id.value
+            })
 
-        students.value = response.items || []
+        if (error) throw error
+
+        students.value = data || []
         
         if (students.value.length > 0) {
             const first = students.value[0]
@@ -129,36 +97,42 @@ const fetchStudents = async () => {
 
     } catch (e) {
         console.error('Error fetching students:', e)
-        toast.showToast('Erro ao buscar alunos', 'error')
     } finally {
         isLoading.value = false
     }
 }
 
+// Watchers
+watch(() => filters.value.turma_id, () => {
+    fetchDailyComponents()
+    fetchStudents()
+})
+watch(date, async () => {
+    await fetchDailyComponents()
+    fetchStudents()
+})
+watch(componente_id, fetchStudents)
+
+
 // --- Actions ---
 
-const savePresence = async (student: any, status: string) => {
-    if (!diaValido.value) {
-        toast.showToast(`Dia inválido: ${motivoInvalido.value}`, 'warning')
-        return
-    }
-
-    // Optimistic Update
+const setPresence = async (student: any, status: 'P' | 'F' | 'A') => {
     const oldStatus = student.status
-    student.status = status
+    student.status = status // Optimistic
 
     try {
         const payload = [{
-            id: student.id_presenca,
+            id: student.id_presenca || undefined,
             id_matricula: student.id_matricula,
             id_turma: filters.value.turma_id,
-            data: date.value,
             id_componente: componente_id.value,
+            data: date.value,
             status: status,
-            observacao: student.observacao
+            observacao: student.observacao,
+            id_usuario: appStore.user?.id
         }]
 
-        await $fetch('/api/estrutura_academica/diario_presenca', {
+        await useFetch('/api/estrutura_academica/diario_presenca', {
             method: 'POST',
             body: {
                 id_empresa: appStore.company?.empresa_id,
@@ -166,13 +140,11 @@ const savePresence = async (student: any, status: string) => {
             }
         })
         
-        // Background refresh to ensure IDs are synced for subsequent updates
-        fetchStudents()
+        fetchStudents() // Refresh IDs
 
     } catch (e) {
-        console.error('Error saving presence:', e)
-        student.status = oldStatus // Revert
-        toast.showToast('Erro ao salvar presença', 'error')
+        student.status = oldStatus
+        toast.showToast('Erro ao salvar presença.', 'error')
     }
 }
 
@@ -184,28 +156,24 @@ const openReport = (student: any) => {
 
 const saveReport = async () => {
     if (!selectedStudentForReport.value) return
-    if (!diaValido.value) {
-         toast.showToast(`Dia inválido: ${motivoInvalido.value}`, 'warning')
-         return
-    }
     
     const student = selectedStudentForReport.value
-    // Optimistic
-    const oldObs = student.observacao
     student.observacao = reportText.value
+    const currentStatus = student.status || 'P'
     
     try {
-        const payload = [{
-            id: student.id_presenca,
+         const payload = [{
+            id: student.id_presenca || undefined,
             id_matricula: student.id_matricula,
             id_turma: filters.value.turma_id,
-            data: date.value,
             id_componente: componente_id.value,
-            status: student.status || 'P',
-            observacao: reportText.value
+            data: date.value,
+            status: currentStatus,
+            observacao: reportText.value,
+            id_usuario: appStore.user?.id
         }]
 
-        await $fetch('/api/estrutura_academica/diario_presenca', {
+        await useFetch('/api/estrutura_academica/diario_presenca', {
             method: 'POST',
             body: {
                 id_empresa: appStore.company?.empresa_id,
@@ -214,47 +182,28 @@ const saveReport = async () => {
         })
         
         isReportModalOpen.value = false
-        toast.showToast('Observação salva', 'success')
+        toast.showToast('Relatório salvo.', 'success')
         fetchStudents()
         
     } catch (e) {
-        student.observacao = oldObs
-        toast.showToast('Erro ao salvar observação', 'error')
+        toast.showToast('Erro ao salvar relatório.', 'error')
     }
 }
 
-// --- Watchers ---
+const getInitials = (name: string) => {
+    if (!name) return '?'
+    const parts = name.trim().split(/\s+/)
+    if (parts.length >= 2) return ((parts[0] || '').charAt(0) + (parts[1] || '').charAt(0)).toUpperCase()
+    return name.slice(0, 2).toUpperCase()
+}
 
-// Watch filters.turma_id to fetch/validate
-watch(() => filters.value.turma_id, async (newVal) => {
-    if (newVal) {
-        // Sync URL if needed
-        const query = { ...route.query, id_turma: newVal, id_escola: filters.value.escola_id, id_ano_etapa: filters.value.ano_etapa_id }
-        router.replace({ query })
-        
-        await validateDay()
-        await fetchStudents()
-    }
+// Helpers for Component UI
+const getDayName = computed(() => {
+    if (!date.value) return ''
+    const d = new Date(date.value + 'T12:00:00') // Force noon to avoid timezone issues
+    return d.toLocaleDateString('pt-BR', { weekday: 'long' })
 })
 
-watch(date, async () => {
-    await validateDay()
-    await fetchStudents()
-})
-
-watch(componente_id, fetchStudents)
-
-onMounted(async () => {
-    // If props provided (e.g. from modal), sync to filters
-    if (props.turmaId) {
-        filters.value.turma_id = props.turmaId
-    }
-    
-    if (filters.value.turma_id) {
-        await validateDay()
-        await fetchStudents()
-    }
-})
 </script>
 
 <template>
@@ -262,8 +211,7 @@ onMounted(async () => {
         
         <!-- Header Controls -->
         <div class="flex flex-col gap-6 mb-8">
-            <!-- Filter Bar -->
-            <MatrizFilterBar v-if="!props.turmaId" v-model="filters" />
+            <MatrizFilterBar v-model="filters" />
             
             <div class="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between border-b pb-6 border-secondary/10">
                 <!-- Date Picker -->
@@ -287,82 +235,64 @@ onMounted(async () => {
                     <div class="flex items-center gap-2">
                         <!-- Geral Option -->
                         <button 
-                            @click="selectComponent(null)"
+                            @click="componente_id = null"
                             class="px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap border"
                             :class="componente_id === null 
                                 ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
                                 : 'bg-surface text-secondary border-div-15 hover:border-primary/50'"
                         >
-                            Dia Inteiro
+                            Geral (Dia Inteiro)
                         </button>
 
                         <div class="h-6 w-px bg-div-15 mx-2"></div>
 
                         <!-- Scheduled Components -->
                         <button 
-                            v-for="comp in activeComponents" 
-                            :key="comp.id"
-                            @click="selectComponent(comp.id)"
+                            v-for="comp in dailyComponents" 
+                            :key="comp.id_componente"
+                            @click="componente_id = comp.id_componente"
                             class="px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap border flex items-center gap-2"
-                            :class="componente_id === comp.id 
+                            :class="componente_id === comp.id_componente 
                                 ? 'bg-white text-primary border-primary ring-2 ring-primary/20' 
                                 : 'bg-surface text-secondary border-div-15 hover:border-primary/50'"
-                            :style="componente_id === comp.id ? { borderColor: comp.cor } : {}"
+                            :style="componente_id === comp.id_componente ? { borderColor: comp.cor } : {}"
                         >
                             <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: comp.cor || '#ccc' }"></span>
-                            {{ comp.nome }} ({{ comp.aula }}ª)
+                            {{ comp.nome }}
                         </button>
                         
-                        <div v-if="activeComponents.length === 0" class="text-xs text-secondary italic px-2">
-                            Sem aulas na Matriz hoje.
+                        <div v-if="dailyComponents.length === 0" class="text-xs text-secondary italic px-2">
+                            Sem aulas cadastradas na Matriz para hoje.
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Global Validation/Action Bar REMOVED HERE -->
         </div>
 
-        <!-- Warning No Turma -->
+        <!-- Warning -->
         <div v-if="!filters.turma_id" class="py-12 text-center border-2 border-dashed border-secondary/10 rounded-xl bg-surface/50">
             <p class="text-secondary font-medium">Selecione uma turma acima para iniciar a chamada.</p>
         </div>
 
-        <!-- Warning Invalid Day -->
-        <div v-else-if="!diaValido" class="py-16 flex flex-col items-center justify-center text-center border-2 border-dashed border-warning/30 rounded-xl bg-warning/5 gap-6">
-            <div class="w-20 h-20 rounded-full bg-warning/10 flex items-center justify-center text-warning mb-2 animate-in fade-in zoom-in-75 duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-            </div>
-            <div class="max-w-md">
-                <h3 class="font-bold text-2xl text-text mb-2">{{ motivoInvalido === 'feriado' ? 'Feriado' : motivoInvalido === 'evento' ? 'Evento Escolar' : 'Dia não Letivo' }}</h3>
-                <p class="text-base text-secondary/80 leading-relaxed bg-surface px-4 py-2 rounded-lg border border-div-15 inline-block">
-                    {{ detalhesInvalido?.mensagem || 'Não é possível registrar frequência neste dia.' }}
-                    <span v-if="detalhesInvalido?.nome" class="block font-bold mt-1 text-primary">{{ detalhesInvalido.nome }}</span>
-                </p>
-            </div>
-        </div>
-
-        <!-- Student List (Grid Layout from Old Design) -->
+        <!-- List -->
         <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-             <div v-if="isLoading" class="col-span-full py-12 flex justify-center">
+             <div v-if="isLoading && students.length === 0" class="col-span-full py-12 text-center text-secondary">
                 <div class="animate-pulse flex flex-col items-center gap-3">
                     <div class="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
-                    <span class="text-sm font-medium text-secondary">Carregando alunos...</span>
+                    <span class="text-sm font-medium">Carregando alunos...</span>
                 </div>
              </div>
              
-             <div v-else-if="students.length === 0" class="col-span-full py-12 text-center text-secondary border border-dashed border-div-15 rounded-xl">
+             <div v-if="!isLoading && students.length === 0" class="col-span-full py-12 text-center text-secondary">
                  Nenhum aluno encontrado nesta turma.
              </div>
 
-             <div v-else v-for="student in students" :key="student.id_matricula" 
+             <div v-for="student in students" :key="student.id_matricula" 
                 class="group bg-surface border border-div-15 rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative flex flex-col"
             >
                 <!-- Card Header -->
-                <div class="p-4 flex items-center gap-4 relative bg-gradient-to-br from-white to-background dark:from-surface dark:to-surface-hover/50"> 
+                <div class="p-4 flex items-center gap-4 relative bg-gradient-to-br from-white to-background dark:from-surface dark:to-surface"> 
                     <!-- Status Badge -->
                     <div class="absolute top-4 right-4 text-[10px] font-bold px-2 py-1 rounded-md border shadow-sm backdrop-blur-sm"
                         :class="[
@@ -395,8 +325,8 @@ onMounted(async () => {
                         </h4>
                         <div class="text-[10px] text-secondary flex flex-wrap gap-x-2 leading-none opacity-80">
                              <span v-if="currentTurmaDetails">{{ currentTurmaDetails.nome_turma }}</span>
-                             <span v-if="componente_id" class="text-primary font-bold">• {{ activeComponents.find(c => c.id === componente_id)?.nome }}</span>
-                             <span v-else>• Dia Inteiro</span>
+                             <span v-if="componente_id" class="text-primary font-bold">• {{ dailyComponents.find(c => c.id_componente === componente_id)?.nome }}</span>
+                             <span v-else>• Geral</span>
                         </div>
                     </div>
                 </div>
@@ -404,59 +334,68 @@ onMounted(async () => {
                 <!-- Controls Body -->
                 <div class="px-4 pb-4">
                     <div class="flex items-center gap-3">
+                        
+                        <!-- Presente (Success) -->
                         <button 
-                            @click="savePresence(student, 'P')" 
+                            @click="setPresence(student, 'P')" 
                             class="flex-1 h-9 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
                             :class="[
                                 student.status === 'P' 
                                 ? '!bg-success !text-white !border-success ring-1 ring-success shadow-sm' 
-                                : 'bg-success/5 text-success border-success/30 hover:bg-success hover:text-white'
+                                : 'bg-success/20 text-success border-success/30 hover:bg-success hover:text-white'
                             ]"
                         >
                             P
                         </button>
+
+                        <!-- Falta (Danger) -->
                         <button 
-                            @click="savePresence(student, 'F')" 
+                            @click="setPresence(student, 'F')" 
                             class="flex-1 h-9 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
                             :class="[
                                 student.status === 'F'
                                 ? '!bg-danger !text-white !border-danger ring-1 ring-danger shadow-sm' 
-                                : 'bg-danger/5 text-danger border-danger/30 hover:bg-danger hover:text-white'
+                                : 'bg-danger/20 text-danger border-danger/30 hover:bg-danger hover:text-white'
                             ]"
                         >
                             F
                         </button>
+
+                        <!-- Abono (Secondary) -->
                         <button 
-                            @click="savePresence(student, 'A')" 
+                            @click="setPresence(student, 'A')" 
                             class="flex-1 h-9 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative overflow-hidden border"
                              :class="[
                                 student.status === 'A'
                                 ? '!bg-secondary !text-white !border-secondary ring-1 ring-secondary shadow-sm' 
-                                : 'bg-secondary/5 text-secondary border-secondary/30 hover:bg-secondary hover:text-white'
+                                : 'bg-secondary/20 text-secondary border-secondary/30 hover:bg-secondary hover:text-white'
                             ]"
+                            title="Falta Abonada/Justificada"
                         >
                             A
                         </button>
+
                     </div>
                 </div>
 
                 <!-- Footer -->
                 <button 
                     @click="openReport(student)"
-                    class="w-full py-3 text-xs font-semibol transition-colors flex items-center justify-center gap-2 border-t border-div-15 bg-surface hover:bg-surface-hover group-hover:border-primary/10"
-                    :class="student.observacao ? 'text-primary' : 'text-secondary/70'"
+                    class="w-full py-3 text-xs font-semibold transition-colors flex items-center justify-center gap-2 border-t border-div-15 bg-surface hover:bg-surface-hover group-hover:border-primary/10"
+                    :class="student.observacao ? 'text-primary' : 'text-secondary'"
                 >
                     <span v-if="student.observacao" class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                     </span>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    {{ student.observacao ? 'Ver Observação' : 'Adicionar Observação' }}
+                    {{ student.observacao ? 'Observação Salva' : 'Adicionar Observação' }}
                 </button>
+
             </div>
+
         </div>
 
-        <!-- Report Modal (From Old Design) -->
+        <!-- Report Modal -->
         <div v-if="isReportModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4">
              <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="isReportModalOpen = false"></div>
              <div class="relative bg-surface rounded-xl shadow-2xl p-6 w-full max-w-lg border border-div-15 scale-100 animate-in fade-in zoom-in-95 duration-200">

@@ -51,13 +51,6 @@ onMounted(() => {
     fetchEvents()
 })
 
-// Generate all months for the current year context
-// If we have events spanning multiple years, we might want to handle that.
-// For now, let's focus on the year of the events or current year.
-// Strategy: Find min/max year from events, or default to current year.
-// Simple approach: Show current year and next year? Or just a dynamic list of months covering the events range + gaps.
-// User Request: "podemos colocar todos os meses já isso nos ajuda a criar qualquer evento em qualquer mês"
-
 // Generate Timeline Months (Full Year)
 const timelineMonths = computed(() => {
     let minYear = currentYear.value
@@ -70,10 +63,17 @@ const timelineMonths = computed(() => {
         const start = new Date(evt.data_inicio)
         const end = new Date(evt.data_fim)
         
+        // Safety check for invalid dates
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+             return
+        }
+        
         let curr = new Date(start)
         let isFirstDay = true
         
-        while (curr <= end) {
+        // Safety Break (limit 366 days expansion per event)
+        let safeCounter = 0
+        while (curr <= end && safeCounter < 366) {
              const entryDate = curr.toISOString()
              
              allEntries.push({
@@ -86,13 +86,18 @@ const timelineMonths = computed(() => {
              
              curr.setDate(curr.getDate() + 1)
              isFirstDay = false
+             safeCounter++
         }
     })
 
     if (allEntries.length > 0) {
         const years = allEntries.map(e => new Date(e.displayDate).getUTCFullYear())
-        minYear = Math.min(minYear, ...years)
-        maxYear = Math.max(maxYear, ...years)
+            .filter(y => !isNaN(y)) // Filter NaNs
+        
+        if (years.length > 0) {
+            minYear = Math.min(minYear, ...years)
+            maxYear = Math.max(maxYear, ...years)
+        }
     }
 
     const months = []
@@ -104,14 +109,14 @@ const timelineMonths = computed(() => {
             
             // Filter entries for this month
             const monthEntries = allEntries.filter(e => e.displayDate.startsWith(key))
-            monthEntries.sort((a, b) => new Date(a.displayDate) - new Date(b.displayDate))
+            monthEntries.sort((a, b) => new Date(a.displayDate).getTime() - new Date(b.displayDate).getTime())
 
             months.push({
                 key,
                 label: date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' }),
                 monthName: date.toLocaleDateString('pt-BR', { month: 'long', timeZone: 'UTC' }),
                 year: y,
-                events: monthEntries, // Changed from 'eventos' to 'events' to match existing ref
+                events: monthEntries,
                 isPast: new Date() > new Date(y, m + 1, 0),
                 isCurrent: key === new Date().toISOString().slice(0, 7)
             })
@@ -123,7 +128,6 @@ const timelineMonths = computed(() => {
 
 // Actions
 const toggleMonth = (key) => {
-    // Toggle capability
     if (expandedMonths.value[key] === undefined) {
         expandedMonths.value[key] = true
     } else {
@@ -146,20 +150,18 @@ const toggleAllMonths = () => {
 
 const handleAddInMonth = (monthKey) => {
     selectedEvent.value = {
-        data_inicio: `${monthKey}-01` // Default to 1st of that month
+        data_inicio: `${monthKey}-01`
     }
     isModalOpen.value = true
 }
 
 const handleEdit = (evt) => {
-    // When editing, pass the original event, not the flattened entry
     const originalEvent = events.value.find(e => e.id === evt.id)
     selectedEvent.value = originalEvent || evt
     isModalOpen.value = true
 }
 
 const handleDelete = (evt) => {
-    // When deleting, pass the original event, not the flattened entry
     const originalEvent = events.value.find(e => e.id === evt.id)
     eventToDelete.value = originalEvent || evt
     isConfirmOpen.value = true
@@ -194,7 +196,6 @@ const handleSuccess = () => {
 
 // Helpers
 const getDay = (dateStr) => {
-    // Force specific timezone interpretation
     const date = new Date(dateStr)
     return new Intl.DateTimeFormat('pt-BR', { day: 'numeric', timeZone: 'America/Sao_Paulo' }).format(date)
 }
@@ -264,9 +265,9 @@ const getWeekDay = (dateStr) => {
                              :class="parseInt(month.key.split('-')[1]) % 2 !== 0 ? '-right-[2rem]' : '-left-[2rem]'"
                         ></div>
 
-                         <div 
+                        <div 
                             class="rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer transition-all group-hover:bg-div-15"
-                             @click="toggleMonth(month.key)"
+                            @click="toggleMonth(month.key)"
                         >
                             <div class="flex items-center gap-4 flex-1">
                                 <!-- Month Name -->
@@ -328,7 +329,7 @@ const getWeekDay = (dateStr) => {
                         </div>
 
                         <div 
-                            v-for="(evt, idx) in month.eventos" 
+                            v-for="(evt, idx) in month.events" 
                             :key="evt.uniqueKey"
                             class="relative w-full transition-all hover:-translate-y-0.5"
                         >   
