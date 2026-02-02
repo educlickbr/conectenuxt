@@ -139,7 +139,7 @@ const fetchStudents = async () => {
 
 const savePresence = async (student: any, status: string) => {
     if (!diaValido.value) {
-        toast.showToast(`Dia inválido: ${motivoInvalido.value}`, 'warning')
+        toast.showToast(`Dia inválido: ${motivoInvalido.value}`, 'error')
         return
     }
 
@@ -185,7 +185,7 @@ const openReport = (student: any) => {
 const saveReport = async () => {
     if (!selectedStudentForReport.value) return
     if (!diaValido.value) {
-         toast.showToast(`Dia inválido: ${motivoInvalido.value}`, 'warning')
+         toast.showToast(`Dia inválido: ${motivoInvalido.value}`, 'error')
          return
     }
     

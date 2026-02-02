@@ -5,7 +5,7 @@ import { useToastStore } from '@/stores/toast'
 import ManagerDashboard from '@/components/ManagerDashboard.vue'
 import ModalFolder from '@/components/pedagogico/ModalFolder.vue'
 import ModalContentItem from '@/components/pedagogico/ModalContentItem.vue'
-import ModalCorrecao from '@/components/pedagogico/ModalCorrecao.vue'
+import ModalVisualizarEnvio from '@/components/pedagogico/ModalVisualizarEnvio.vue'
 
 // Layout
 definePageMeta({
@@ -79,10 +79,12 @@ const selectedItem = ref<any>(null)
 
 // Correction Modal State
 const isCorrectionModalOpen = ref(false)
-const selectedSubmission = ref<any>(null)
+const selectedSubmissionId = ref<string | null>(null)
+
+
 
 const openCorrection = (submission: any) => {
-    selectedSubmission.value = submission
+    selectedSubmissionId.value = submission.id_submissao
     isCorrectionModalOpen.value = true
 }
 
@@ -308,29 +310,7 @@ const formatDate = (dateStr: string | null) => {
 }
 
 // Debugging
-const client = useSupabaseClient()
-const debugRLS = async () => {
-    console.log('--- DEBUG RLS START ---')
-    try {
-        const { data, error } = await client
-            .from('lms_submissao')
-            .select('*')
-            .eq('id_empresa', appStore.company?.empresa_id)
-            .limit(5)
-        
-        if (error) {
-            console.error('RLS/Query Error:', error)
-            toast.showToast(`Erro RLS: ${error.message}`, 'error')
-        } else {
-            console.log('Dados recebidos (lms_submissao):', data)
-            toast.showToast(`Sucesso! ${data?.length} registros encontrados.`, 'success')
-        }
-    } catch (e: any) {
-        console.error('Exception:', e)
-        toast.showToast('Erro desconhecido no Debug', 'error')
-    }
-    console.log('--- DEBUG RLS END ---')
-}
+
 
 // Dashboard Stats (Moved to top)
 </script>
@@ -373,13 +353,7 @@ const debugRLS = async () => {
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 <span class="hidden sm:inline">Novo</span>
             </button>
-            <button 
-                @click="debugRLS"
-                class="bg-danger hover:bg-danger-hover text-white px-3 py-1.5 rounded text-xs font-bold transition-all shadow-sm flex items-center gap-1 shrink-0 ml-2"
-                title="Debug RLS"
-            >
-                🐞
-            </button>
+
         </template>
 
         <!-- Tabs Slot -->
@@ -428,9 +402,10 @@ const debugRLS = async () => {
                 @close="isItemModalOpen = false"
                 @success="fetchItems"
             />
-            <ModalCorrecao
+            <ModalVisualizarEnvio
                 :is-open="isCorrectionModalOpen"
-                :submission="selectedSubmission"
+                :submission-id="selectedSubmissionId"
+                :initial-data="null"
                 @close="isCorrectionModalOpen = false"
                 @success="handleCorrectionSuccess"
             />
@@ -466,50 +441,79 @@ const debugRLS = async () => {
                      <p>Nenhuma entrega encontrada.</p>
                 </div>
                 
-                <div v-else class="overflow-x-auto bg-surface border border-div-15 rounded-lg shadow-sm">
-                    <table class="table w-full text-sm">
-                        <thead>
-                            <tr class="bg-div-05 text-secondary border-b border-div-15">
-                                <th class="font-bold">Aluno</th>
-                                <th class="font-bold">Turma</th>
-                                <th class="font-bold">Atividade</th>
-                                <th class="font-bold">Enviado em</th>
-                                <th class="font-bold text-center">Nota</th>
-                                <th class="font-bold text-center">Status</th>
-                                <th class="font-bold text-right">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="sub in evaluationsList" :key="sub.id_submissao" class="hover:bg-div-05/30 transition-colors border-b border-div-15 last:border-0">
-                                <td class="font-medium text-text">{{ sub.aluno_nome }}</td>
-                                <td class="text-secondary text-xs">{{ sub.turma_nome || '-' }}</td>
-                                <td>
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-xs">{{ sub.item_titulo }}</span>
-                                        <span class="text-[10px] text-secondary uppercase tracking-wider">{{ sub.conteudo_titulo }}</span>
+                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div 
+                        v-for="sub in evaluationsList" 
+                        :key="sub.id_submissao" 
+                        class="bg-surface border border-div-15 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group flex flex-col overflow-hidden relative"
+                    >
+                        <!-- Top Accent (Status) -->
+                        <div 
+                            class="h-1 w-full" 
+                            :class="sub.nota !== null ? 'bg-success' : 'bg-warning'"
+                        ></div>
+
+                        <!-- Card Content -->
+                        <div class="p-5 flex flex-col flex-1 gap-4">
+                            
+                            <!-- Header: User & Class -->
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
+                                        {{ sub.aluno_nome?.charAt(0) }}
                                     </div>
-                                </td>
-                                <td class="text-secondary text-xs">{{ formatDate(sub.data_envio) }}</td>
-                                <td class="text-center font-bold">
-                                    <span v-if="sub.nota !== null" :class="sub.nota >= 6 ? 'text-success' : 'text-danger'">{{ sub.nota }}</span>
-                                    <span v-else class="text-secondary">-</span>
-                                </td>
-                                <td class="text-center">
-                                    <span v-if="sub.nota !== null" class="badge badge-success badge-outline badge-xs">Avaliado</span>
-                                    <span v-else class="badge badge-warning badge-outline badge-xs">Pendente</span>
-                                </td>
-                                <td class="px-3 py-4 text-sm text-right">
-                                    <button 
-                                        @click="openCorrection(sub)"
-                                        class="p-2 hover:bg-div-15 rounded-lg transition-colors text-primary"
-                                        title="Corrigir"
+                                    <div class="flex flex-col min-w-0">
+                                        <h3 class="font-bold text-text text-sm truncate leading-tight">{{ sub.aluno_nome }}</h3>
+                                        <div class="flex items-center gap-1.5 text-secondary text-[11px] mt-0.5">
+                                            <span>{{ sub.turma_nome || 'Sem Turma' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Activity Info -->
+                            <div class="flex-1 space-y-2">
+                                <div class="flex items-center gap-2">
+                                     <span class="text-[10px] bg-div-05 border border-div-15 px-1.5 py-0.5 rounded text-secondary uppercase tracking-wider font-bold truncate max-w-[120px]">
+                                        {{ sub.escopo || 'Atividade' }}
+                                     </span>
+                                     <span class="text-[11px] text-secondary">{{ formatDate(sub.data_envio) }}</span>
+                                </div>
+                                <h4 class="text-sm font-bold text-text line-clamp-2 leading-relaxed" :title="sub.item_titulo">
+                                    {{ sub.item_titulo }}
+                                </h4>
+                                <div class="text-[11px] text-secondary line-clamp-1 italic">
+                                    {{ sub.conteudo_titulo }}
+                                </div>
+                            </div>
+
+                            <!-- Footer: Status & Action -->
+                            <div class="pt-4 border-t border-div-15 flex items-center justify-between mt-auto">
+                                <div class="flex items-center gap-2">
+                                    <span 
+                                        class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md border"
+                                        :class="sub.nota !== null 
+                                            ? 'bg-success/10 text-success border-success/20' 
+                                            : 'bg-warning/10 text-warning border-warning/20'"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-check"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                        {{ sub.nota !== null ? 'Avaliado' : 'Pendente' }}
+                                    </span>
+                                    <span v-if="sub.nota !== null" class="text-sm font-bold text-text">
+                                        {{ sub.nota }} pts
+                                    </span>
+                                </div>
+                                
+                                <button 
+                                    @click="openCorrection(sub)"
+                                    class="text-xs font-bold text-primary hover:text-primary-hover hover:underline flex items-center gap-1 transition-colors"
+                                >
+                                    {{ sub.nota !== null ? 'Ver Detalhes' : 'Corrigir' }}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
 

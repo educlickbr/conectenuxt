@@ -39,6 +39,11 @@ watch(bffData, (newData) => {
     store.profile = newData.profile
     store.company = newData.company
     store.role = newData.role
+    
+    // Fetch permissions now that we have user context
+    if (import.meta.client) {
+        store.fetchPermissions()
+    }
   }
 }, { immediate: true })
 

@@ -152,38 +152,38 @@ const hasAccess = (allowedRoles) => {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         <!-- Section: Administrativo -->
-        <div v-if="hasAccess([ROLES.ADMIN])" class="space-y-4">
+        <div v-if="appStore.hasPermission('ilha:administrativo')" class="space-y-4">
           <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Administrativo</h3>
           <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
-            <button @click="handleNavigation('/infraestrutura')" class="menu-item group">
-              <div class="menu-icon bg-blue-500/10 text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
+            <button @click="handleNavigation('/infraestrutura')" v-if="appStore.hasPermission('botao:infraestrutura')" class="menu-item group">
+              <div class="menu-icon bg-purple-500/10 text-purple-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
               <div class="flex flex-col text-left">
                 <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Infraestrutura</span>
                 <span class="text-[10px] text-secondary">Escolas e Prédios</span>
               </div>
             </button>
-            <button @click="handleNavigation('/estrutura_academica')" class="menu-item group border-t border-[#6B82A70D]">
-              <div class="menu-icon bg-orange-500/10 text-orange-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div>
+            <button @click="handleNavigation('/estrutura_academica')" v-if="appStore.hasPermission('botao:estrutura_academica')" class="menu-item group border-t border-[#6B82A70D]">
+              <div class="menu-icon bg-purple-500/10 text-purple-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div>
               <div class="flex flex-col text-left">
                 <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Estrutura Acadêmica</span>
                 <span class="text-[10px] text-secondary">Classes, Horários e Turmas</span>
               </div>
             </button>
-            <button @click="handleNavigation('/estrutura_academica/grupos')" class="menu-item group border-t border-[#6B82A70D]">
-              <div class="menu-icon bg-indigo-500/10 text-indigo-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+            <button @click="handleNavigation('/estrutura_academica/grupos')" v-if="appStore.hasPermission('botao:grupos_estudo')" class="menu-item group border-t border-[#6B82A70D]">
+              <div class="menu-icon bg-purple-500/10 text-purple-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
               <div class="flex flex-col text-left">
                 <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Grupos de Estudo</span>
                 <span class="text-[10px] text-secondary">Multiturmas e Extracurricular</span>
               </div>
             </button>
-            <button @click="handleNavigation('/usuarios')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/usuarios')" v-if="appStore.hasPermission('botao:usuarios')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-purple-500/10 text-purple-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
               <div class="flex flex-col text-left">
                 <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Usuários</span>
                 <span class="text-[10px] text-secondary">Gestão de Equipe</span>
               </div>
             </button>
-            <button @click="handleNavigation('/admin/avaliacao')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/admin/avaliacao')" v-if="appStore.hasPermission('botao:parametrizar_avaliacao')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-purple-500/10 text-purple-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
               <div class="flex flex-col text-left">
                 <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Parametrizar Avaliação</span>
@@ -194,26 +194,26 @@ const hasAccess = (allowedRoles) => {
         </div>
 
         <!-- Section: Secretaria -->
-        <div v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="space-y-4">
+        <div v-if="appStore.hasPermission('ilha:secretaria')" class="space-y-4">
           <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Secretaria</h3>
           <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
-            <button @click="handleNavigation('/secretaria/matricula')" class="menu-item group">
+            <button @click="handleNavigation('/secretaria/matricula')" v-if="appStore.hasPermission('botao:matricula')" class="menu-item group">
               <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Matrícula</span>
             </button>
-            <button @click="handleNavigation('/secretaria/diario')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/secretaria/diario')" v-if="appStore.hasPermission('botao:diario_classe')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Diário de Classe</span>
             </button>
-            <button @click="handleNavigation('/matriz_curricular')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/matriz_curricular')" v-if="appStore.hasPermission('botao:matriz_curricular')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Matriz Curricular</span>
             </button>
-            <button @click="handleNavigation('/secretaria/atribuicao')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/secretaria/atribuicao')" v-if="appStore.hasPermission('botao:atribuicao')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Atribuição</span>
             </button>
-            <button @click="handleNavigation('/secretaria/avaliacao')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/secretaria/avaliacao')" v-if="appStore.hasPermission('botao:lancamento_avaliacao')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-amber-500/10 text-amber-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Lançamento de Avaliação</span>
             </button>
@@ -221,22 +221,22 @@ const hasAccess = (allowedRoles) => {
         </div>
 
         <!-- Section: Biblioteca -->
-        <div v-if="hasAccess([ROLES.ADMIN])" class="space-y-4">
+        <div v-if="appStore.hasPermission('ilha:biblioteca')" class="space-y-4">
           <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Biblioteca</h3>
           <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
-            <button @click="handleNavigation('/biblioteca/catalogo')" class="menu-item group">
+            <button @click="handleNavigation('/biblioteca/catalogo')" v-if="appStore.hasPermission('botao:catalogo')" class="menu-item group">
               <div class="menu-icon bg-emerald-500/10 text-emerald-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Catálogo</span>
             </button>
-            <button @click="handleNavigation('/biblioteca/obras')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/biblioteca/obras')" v-if="appStore.hasPermission('botao:gestao_livros')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-emerald-500/10 text-emerald-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Gestão de Livros</span>
             </button>
-            <button @click="handleNavigation('/biblioteca/inventario')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/biblioteca/inventario')" v-if="appStore.hasPermission('botao:inventario')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-emerald-500/10 text-emerald-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Inventário</span>
             </button>
-            <button @click="handleNavigation('/biblioteca/reservas')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/biblioteca/reservas')" v-if="appStore.hasPermission('botao:reservas')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-emerald-500/10 text-emerald-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Reservas</span>
             </button>
@@ -247,22 +247,19 @@ const hasAccess = (allowedRoles) => {
         <div class="space-y-4">
           <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Aprendizado</h3>
           <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
-            <button @click="handleNavigation('/pedagogico/gestao-atividades')" v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="menu-item group">
+            <button @click="handleNavigation('/pedagogico/gestao-atividades')" v-if="appStore.hasPermission('botao:gestao_atividades')" class="menu-item group">
               <div class="menu-icon bg-sky-500/10 text-sky-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Gestão de Atividades</span>
             </button>
-            <button @click="handleNavigation('/lms-consumo')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/lms-consumo')" v-if="appStore.hasPermission('botao:conteudo_digital')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-sky-500/10 text-sky-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Conteúdo Digital</span>
             </button>
-            <button @click="handleNavigation('/biblioteca')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="handleNavigation('/biblioteca')" v-if="appStore.hasPermission('botao:biblioteca_digital')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-sky-500/10 text-sky-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Biblioteca Digital</span>
             </button>
-            <button @click="handleNavigation('/lms-avaliacao')" v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="menu-item group border-t border-[#6B82A70D]">
-              <div class="menu-icon bg-sky-500/10 text-sky-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
-              <span class="text-sm font-bold text-text group-hover:text-primary">Avaliação de Atividades</span>
-            </button>
+
           </div>
         </div>
 

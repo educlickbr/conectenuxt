@@ -17,7 +17,8 @@ export const useAppStore = defineStore('app', {
         initialized: false,
         isLoading: false,
         isMenuOpen: false,
-        isDark: false
+        isDark: false,
+        permissions: [] as string[] // Store permission keys (e.g. 'ilha:biblioteca', 'botao:gestao_livros')
     }),
     actions: {
         async initSession() {
@@ -27,6 +28,10 @@ export const useAppStore = defineStore('app', {
                 this.profile = data.profile
                 this.company = data.company
                 this.role = data.role
+                
+                // Fetch Permissions
+                await this.fetchPermissions()
+                
                 this.initialized = true
             } catch (err) {
                 // Silently fail, data retrieval errors handled by state
@@ -43,6 +48,27 @@ export const useAppStore = defineStore('app', {
 
             // Re-fetch to get public company data for the login page
             await this.initSession()
+        },
+        async fetchPermissions() {
+            try {
+                const data = await $fetch('/api/me/permissions') as any
+                // Map permissions to a simple string array for easy checking
+                // Format: "escopo:nome" -> "ilha:biblioteca", "botao:gestao_livros"
+                this.permissions = data.permissions.map((p: any) => {
+                    if (p.escopo === 'ilha') return `ilha:${p.ilha}`
+                    if (p.escopo === 'botao') return `botao:${p.botao}`
+                    return `${p.escopo}:${p.ilha}` // Fallback
+                })
+            } catch (e) {
+                console.error('Error fetching permissions', e)
+                this.permissions = []
+            }
+        },
+        hasPermission(permissionKey: string) {
+            // PermissionKey example: 'ilha:biblioteca' or 'botao:gestao_livros'
+            // If checking just 'biblioteca', we might need a helper, but let's be explicit first.
+            if (!this.permissions) return false
+            return this.permissions.includes(permissionKey)
         },
         hasRole(allowedRoles: string[]) {
             if (!this.role) return false
