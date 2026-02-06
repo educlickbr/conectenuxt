@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useToastStore } from '@/stores/toast'
 import ManagerField from '@/components/ManagerField.vue'
@@ -37,6 +37,16 @@ const cdus = ref<any[]>([])
 const autores = ref<any[]>([])
 const editoras = ref<any[]>([])
 
+const categoriasOptions = computed(() => categorias.value.map(c => ({ label: c.nome, value: c.uuid })))
+const cdusOptions = computed(() => cdus.value.map(c => ({ label: `${c.codigo} - ${c.nome}`, value: c.uuid })))
+const autoresOptions = computed(() => autores.value.map(a => ({ label: a.nome_completo, value: a.uuid })))
+const editorasOptions = computed(() => editoras.value.map(e => ({ label: e.nome, value: e.uuid })))
+
+const tipoLivroOptions = [
+    { label: 'Impresso', value: 'Impresso' },
+    { label: 'Digital', value: 'Digital' }
+]
+
 // Helpers
 const resetForm = () => {
     formObra.value = {
@@ -54,7 +64,7 @@ const resetForm = () => {
 const loadData = async () => {
     isLoading.value = true
     try {
-        const obraId = props.initialData?.id || 'novo'
+        const obraId = props.initialData?.uuid || 'novo'
         
         const data: any = await $fetch(`/api/biblioteca/obras/${obraId}`, {
             params: { id_empresa: appStore.company?.empresa_id }
@@ -163,6 +173,59 @@ const toggleExpand = (ed: any) => {
 const getEditoraName = (uuid: string) => {
     return editoras.value.find(e => e.uuid === uuid)?.nome || 'Selecione Editora'
 }
+
+const handleFileUpload = async (event: Event, edition: any, type: 'capa' | 'pdf') => {
+    const input = event.target as HTMLInputElement
+    if (!input.files || input.files.length === 0) return
+
+    const file = input.files[0]
+    if (!file) return
+    
+    // Reset input value to allow re-selection
+    input.value = ''
+
+    if (type === 'capa') {
+        if (!file.type.startsWith('image/')) {
+            toast.showToast('Por favor selecione uma imagem.', 'error')
+            return
+        }
+        edition.uploadingCapa = true
+    } else {
+        if (file.type !== 'application/pdf') {
+             toast.showToast('Por favor selecione um arquivo PDF.', 'error')
+             return
+        }
+        edition.uploadingPdf = true
+    }
+
+    try {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('type', type === 'capa' ? 'image' : 'document')
+
+        const response: any = await $fetch('/api/storage/upload-client', {
+            method: 'POST',
+            body: formData
+        })
+
+        if (response.success && response.file) {
+            if (type === 'capa') {
+                edition.id_arquivo_capa = response.file.id
+                // edition.arquivo_capa = response.file.path // Optional: purely for UI feedback if needed immediate
+            } else {
+                edition.id_arquivo_livro = response.file.id
+                // edition.arquivo_pdf = response.file.path
+            }
+            toast.showToast(`${type === 'capa' ? 'Capa' : 'PDF'} enviado com sucesso!`, 'success')
+        }
+    } catch (e: any) {
+        console.error('Upload error:', e)
+        toast.showToast(e.message || 'Erro ao enviar arquivo.', 'error')
+    } finally {
+        if (type === 'capa') edition.uploadingCapa = false
+        else edition.uploadingPdf = false
+    }
+}
 </script>
 
 <template>
@@ -228,44 +291,32 @@ const getEditoraName = (uuid: string) => {
                                 class="col-span-1 md:col-span-2"
                             />
 
-                            <div class="col-span-1 flex flex-col gap-1.5">
-                                <label class="text-xs font-bold text-secondary uppercase tracking-wider">Autor Principal</label>
-                                <div class="relative">
-                                    <select v-model="formObra.id_autoria" class="w-full h-10 px-3 pl-3 pr-8 bg-input-bg border border-div-15 rounded-lg text-sm text-text appearance-none cursor-pointer focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
-                                        <option value="" disabled>Selecione um autor</option>
-                                        <option v-for="a in autores" :key="a.uuid" :value="a.uuid">{{ a.nome_completo }}</option>
-                                    </select>
-                                    <span class="absolute right-3 top-3 text-secondary pointer-events-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                                    </span>
-                                </div>
-                            </div>
+                            <ManagerField
+                                v-model="formObra.id_autoria"
+                                label="Autor Principal"
+                                type="select"
+                                :options="autoresOptions"
+                                placeholder="Selecione um autor"
+                                class="col-span-1"
+                            />
 
-                            <div class="col-span-1 flex flex-col gap-1.5">
-                                <label class="text-xs font-bold text-secondary uppercase tracking-wider">Categoria</label>
-                                <div class="relative">
-                                    <select v-model="formObra.categoria_uuid" class="w-full h-10 px-3 pl-3 pr-8 bg-input-bg border border-div-15 rounded-lg text-sm text-text appearance-none cursor-pointer focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
-                                        <option value="" disabled>Selecione uma categoria</option>
-                                        <option v-for="c in categorias" :key="c.uuid" :value="c.uuid">{{ c.nome }}</option>
-                                    </select>
-                                    <span class="absolute right-3 top-3 text-secondary pointer-events-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                                    </span>
-                                </div>
-                            </div>
+                            <ManagerField
+                                v-model="formObra.categoria_uuid"
+                                label="Categoria"
+                                type="select"
+                                :options="categoriasOptions"
+                                placeholder="Selecione uma categoria"
+                                class="col-span-1"
+                            />
 
-                            <div class="col-span-1 md:col-span-2 flex flex-col gap-1.5">
-                                <label class="text-xs font-bold text-secondary uppercase tracking-wider">CDU</label>
-                                <div class="relative">
-                                    <select v-model="formObra.cdu_uuid" class="w-full h-10 px-3 pl-3 pr-8 bg-input-bg border border-div-15 rounded-lg text-sm text-text appearance-none cursor-pointer focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
-                                        <option value="" disabled>Selecione um CDU</option>
-                                        <option v-for="d in cdus" :key="d.uuid" :value="d.uuid">{{ d.codigo }} - {{ d.nome }}</option>
-                                    </select>
-                                    <span class="absolute right-3 top-3 text-secondary pointer-events-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                                    </span>
-                                </div>
-                            </div>
+                            <ManagerField
+                                v-model="formObra.cdu_uuid"
+                                label="CDU"
+                                type="select"
+                                :options="cdusOptions"
+                                placeholder="Selecione um CDU"
+                                class="col-span-1 md:col-span-2"
+                            />
                         </div>
                     </div>
 
@@ -303,56 +354,103 @@ const getEditoraName = (uuid: string) => {
                              
                              <!-- Edition Body -->
                              <div v-show="ed.expanded" class="p-5 border-t border-[#6B82A71A] bg-div-05/30 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                                <div class="col-span-1 flex flex-col gap-1.5">
-                                    <label class="text-xs font-bold text-secondary uppercase tracking-wider">Editora</label>
-                                    <div class="relative">
-                                        <select v-model="ed.editora_uuid" class="w-full h-10 px-3 pl-3 pr-8 bg-input-bg border border-div-15 rounded-lg text-sm text-text appearance-none cursor-pointer focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
-                                            <option value="" disabled>Selecione</option>
-                                            <option v-for="e in editoras" :key="e.uuid" :value="e.uuid">{{ e.nome }}</option>
-                                        </select>
-                                        <span class="absolute right-3 top-3 text-secondary pointer-events-none">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                                        </span>
+                                <ManagerField
+                                    v-model="ed.tipo_livro"
+                                    label="Tipo de Livro"
+                                    type="select"
+                                    :options="tipoLivroOptions"
+                                    class="col-span-1 md:col-span-2"
+                                    :required="true"
+                                />
+
+                                <div v-if="ed.tipo_livro" class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <ManagerField
+                                        v-model="ed.editora_uuid"
+                                        label="Editora"
+                                        type="select"
+                                        :options="editorasOptions"
+                                        placeholder="Selecione"
+                                        class="col-span-1"
+                                    />
+
+                                    <ManagerField
+                                        v-model="ed.ano_lancamento"
+                                        label="Ano Lançamento"
+                                        type="number"
+                                        class="col-span-1"
+                                    />
+
+                                    <ManagerField
+                                        v-model="ed.isbn"
+                                        label="ISBN"
+                                        type="text"
+                                        class="col-span-1 md:col-span-2"
+                                    />
+
+                                    <!-- File Uploads -->
+                                    <div class="col-span-1 border border-dashed border-[#6B82A74D] rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 relative bg-background hover:bg-div-05 transition-colors group">
+                                         <span class="text-xs font-bold text-secondary uppercase">Capa do Livro</span>
+                                         <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            class="absolute inset-0 opacity-0 cursor-pointer"
+                                            @change="(e) => handleFileUpload(e, ed, 'capa')"
+                                            :disabled="ed.uploadingCapa"
+                                         >
+                                         <div v-if="ed.uploadingCapa" class="flex flex-col items-center gap-1">
+                                             <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                             <span class="text-[10px] text-secondary">Enviando...</span>
+                                         </div>
+                                         <div v-else-if="ed.id_arquivo_capa || ed.arquivo_capa" class="text-success flex flex-col items-center">
+                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                             <span class="text-xs font-bold">Capa Enviada</span>
+                                             <button @click.stop="ed.id_arquivo_capa = null; ed.arquivo_capa = null" class="text-[10px] underline text-danger mt-1 hover:text-red-600 relative z-10">Remover</button>
+                                         </div>
+                                         <div v-else class="flex flex-col items-center text-secondary group-hover:text-primary">
+                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                             <span class="text-xs mt-1">Clique para inserir capa</span>
+                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="col-span-1 flex flex-col gap-1.5">
-                                    <label class="text-xs font-bold text-secondary uppercase tracking-wider">Ano Lançamento</label>
-                                    <input v-model="ed.ano_lancamento" type="number" class="w-full h-10 px-3 bg-input-bg border border-div-15 rounded-lg text-sm text-text focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
-                                </div>
-
-                                <div class="col-span-1 flex flex-col gap-1.5">
-                                    <label class="text-xs font-bold text-secondary uppercase tracking-wider">ISBN</label>
-                                    <input v-model="ed.isbn" type="text" class="w-full h-10 px-3 bg-input-bg border border-div-15 rounded-lg text-sm text-text focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
-                                </div>
-
-                                <div class="col-span-1 flex flex-col gap-1.5">
-                                    <label class="text-xs font-bold text-secondary uppercase tracking-wider">Tipo</label>
-                                    <div class="relative">
-                                        <select v-model="ed.tipo_livro" class="w-full h-10 px-3 pl-3 pr-8 bg-input-bg border border-div-15 rounded-lg text-sm text-text appearance-none cursor-pointer focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
-                                            <option value="Impresso">Impresso</option>
-                                            <option value="Digital">Digital</option>
-                                        </select>
-                                        <span class="absolute right-3 top-3 text-secondary pointer-events-none">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                                        </span>
+                                    <div v-if="ed.tipo_livro === 'Digital'" class="col-span-1 border border-dashed border-[#6B82A74D] rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 relative bg-background hover:bg-div-05 transition-colors group">
+                                         <span class="text-xs font-bold text-secondary uppercase">Arquivo PDF</span>
+                                         <input 
+                                            type="file" 
+                                            accept="application/pdf"
+                                            class="absolute inset-0 opacity-0 cursor-pointer"
+                                            @change="(e) => handleFileUpload(e, ed, 'pdf')"
+                                            :disabled="ed.uploadingPdf"
+                                         >
+                                          <div v-if="ed.uploadingPdf" class="flex flex-col items-center gap-1">
+                                             <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                             <span class="text-[10px] text-secondary">Enviando PDF...</span>
+                                         </div>
+                                         <div v-else-if="ed.id_arquivo_livro || ed.arquivo_pdf" class="text-success flex flex-col items-center">
+                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                             <span class="text-xs font-bold">PDF Anexado</span>
+                                             <button @click.stop="ed.id_arquivo_livro = null; ed.arquivo_pdf = null" class="text-[10px] underline text-danger mt-1 hover:text-red-600 relative z-10">Remover</button>
+                                         </div>
+                                         <div v-else class="flex flex-col items-center text-secondary group-hover:text-primary">
+                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                             <span class="text-xs mt-1">Clique para inserir PDF</span>
+                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="col-span-1 md:col-span-2 flex gap-6 pt-2">
-                                    <label class="flex items-center gap-2 cursor-pointer select-none group">
-                                        <div class="relative flex items-center">
-                                            <input type="checkbox" v-model="ed.livro_retiravel" class="peer h-4 w-4 rounded border-secondary/30 text-primary focus:ring-primary cursor-pointer transition-all">
-                                        </div>
-                                        <span class="text-sm text-text group-hover:text-primary transition-colors">Permite Retirada</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer select-none group">
-                                        <div class="relative flex items-center">
-                                            <input type="checkbox" v-model="ed.livro_recomendado" class="peer h-4 w-4 rounded border-secondary/30 text-primary focus:ring-primary cursor-pointer transition-all">
-                                        </div>
-                                        <span class="text-sm text-text group-hover:text-primary transition-colors">Obra Recomendada</span>
-                                    </label>
-                                 </div>
+                                    <div class="col-span-1 md:col-span-2 flex gap-6 pt-2 border-t border-[#6B82A71A] mt-2">
+                                        <label class="flex items-center gap-2 cursor-pointer select-none group">
+                                            <div class="relative flex items-center">
+                                                <input type="checkbox" v-model="ed.livro_retiravel" class="peer h-4 w-4 rounded border-secondary/30 text-primary focus:ring-primary cursor-pointer transition-all">
+                                            </div>
+                                            <span class="text-sm text-text group-hover:text-primary transition-colors">Permite Retirada</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer select-none group">
+                                            <div class="relative flex items-center">
+                                                <input type="checkbox" v-model="ed.livro_recomendado" class="peer h-4 w-4 rounded border-secondary/30 text-primary focus:ring-primary cursor-pointer transition-all">
+                                            </div>
+                                            <span class="text-sm text-text group-hover:text-primary transition-colors">Obra Recomendada</span>
+                                        </label>
+                                     </div>
+                                </div>
                              </div>
                         </div>
                     </div>

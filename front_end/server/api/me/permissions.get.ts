@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     // Fetch Company via RPC
     const { data: companyData, error: companyError } = await client.rpc('buscar_empresa_por_dominio_publico', {
         p_dominio: lookupDomain
-    })
+    } as any)
 
     if (companyError) {
         console.error('[PERMISSIONS] Company RPC Error:', companyError)

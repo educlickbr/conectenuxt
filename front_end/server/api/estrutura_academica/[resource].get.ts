@@ -13,7 +13,8 @@ export default defineEventHandler(async (event) => {
     // Consolidated RPC Map
     const rpcMap: Record<string, string> = {
         classes: 'classe_get_paginado',
-        ano_etapa: 'ano_etapa_get_paginado',
+        ano_etapas: 'ano_etapa_get_paginado', // Added
+        ano_etapa: 'ano_etapa_get_paginado', // Legacy support just in case
         horarios: 'horarios_escola_get_paginado',
         turmas: 'atrib_turmas_get_paginado', // UPDATED
         componentes: 'componente_get_paginado',

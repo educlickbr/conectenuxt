@@ -24,34 +24,9 @@ const pdfUrl = computed(() => {
 
 const isOpeningPdf = ref(false)
 
-const openPdf = async () => {
-    if (!props.item?.pdf) return
-
-    isOpeningPdf.value = true
-    
-    // Open window immediately to prevent popup blocker, then redirect
-    const newWindow = window.open('', '_blank')
-    if (newWindow) {
-        newWindow.document.write('<html><head><title>Carregando...</title></head><body style="background:#1a1a1a;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;">Carregando documento...</body></html>')
-    }
-
-    try {
-        // Fetch fresh hash
-        const { url } = await $fetch('/api/biblioteca/hash')
-        
-        if (url && newWindow) {
-            newWindow.location.href = `${url}${props.item.pdf}`
-        } else if (newWindow) {
-            newWindow.close()
-            alert('Erro ao gerar link seguro.')
-        }
-    } catch (e) {
-        console.error('Error opening PDF:', e)
-        if (newWindow) newWindow.close()
-        alert('Erro ao abrir o documento.')
-    } finally {
-        isOpeningPdf.value = false
-    }
+const openPdf = () => {
+    if (!props.item?.pdfUrl) return
+    window.open(props.item.pdfUrl, '_blank')
 }
 
 const openCover = () => {

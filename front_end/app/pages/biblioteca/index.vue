@@ -29,6 +29,30 @@ const showReservaModal = ref(false)
 const selectedItem = ref<any>(null)
 
 const imageBaseUrl = ref('')
+const r2Token = ref<any>(null)
+
+// R2 Token Handling
+const fetchR2Token = async () => {
+    try {
+        const tokenData = await $fetch('/api/storage/token', {
+            query: { scope: '/' } 
+        })
+        r2Token.value = tokenData
+    } catch (e) {
+        console.error('Erro ao obter token R2:', e)
+    }
+}
+
+const getR2ImageUrl = (path: string) => {
+    if (!path || !r2Token.value) return ''
+    // If path is full URL (old Bunny), return it (fallback)
+    if (path.startsWith('http')) return path
+    
+    // Construct signed URL
+    const { worker_url, token, expires, scope } = r2Token.value
+    return `${worker_url}/${path}?token=${encodeURIComponent(token)}&expires=${expires}&scope=${encodeURIComponent(scope)}`
+}
+
 
 const fetchItems = async () => {
     isLoading.value = true
@@ -43,6 +67,7 @@ const fetchItems = async () => {
             }
         })
         
+        // Legacy fallback
         if (result.imageBaseUrl) {
             imageBaseUrl.value = result.imageBaseUrl
         }
@@ -50,9 +75,9 @@ const fetchItems = async () => {
         items.value = (result.items || []).map((item: any) => ({
              ...item,
              id: item.id_edicao, // Ensure id is mapped
-             // Construct full URLs if hash is available
-             capaUrl: item.capa && imageBaseUrl.value ? `${imageBaseUrl.value}${item.capa}` : null,
-             pdfUrl: item.pdf && imageBaseUrl.value ? `${imageBaseUrl.value}${item.pdf}` : null
+             // Construct full URLs
+             capaUrl: getR2ImageUrl(item.capa),
+             pdfUrl: getR2ImageUrl(item.pdf)
         }))
         totalPages.value = result.pages || 0
 
@@ -130,7 +155,8 @@ const dashboardStats = computed(() => [
   { label: 'Página Atual', value: page.value }
 ])
 
-onMounted(() => {
+onMounted(async () => {
+    await fetchR2Token()
     fetchItems()
 })
 </script>

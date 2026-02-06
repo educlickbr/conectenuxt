@@ -31,25 +31,12 @@ export default defineEventHandler(async (event) => {
     const result = (Array.isArray(data) ? data[0] : data) as any
 
     // Get Base URL for images
-    let imageBaseUrl = ''
-    try {
-        const { data: hashData, error: hashError } = await client.functions.invoke('hash_pasta_conecte', {
-            body: { 
-                path: '/biblio/',
-                // we interpret user_id from the context if needed, but the client is already authenticated
-            }
-        })
-        if (!hashError && hashData && hashData.url) {
-            imageBaseUrl = hashData.url
-        }
-    } catch (e) {
-        console.error('Error fetching image hash:', e)
-    }
+
 
     return {
         items: result?.itens || [],
         total: result?.qtd_itens || 0,
         pages: result?.qtd_paginas || 0,
-        imageBaseUrl
+
     }
 })

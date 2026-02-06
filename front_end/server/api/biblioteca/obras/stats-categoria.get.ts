@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
     const { data, error } = await client.rpc('bbtk_dashboard_get_obras_por_categoria', {
         p_id_empresa: id_empresa
-    })
+    }as any)
 
     if (error) {
         console.error('RPC Error bbtk_dashboard_get_obras_por_categoria:', error)

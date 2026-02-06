@@ -220,6 +220,34 @@ const hasAccess = (allowedRoles) => {
           </div>
         </div>
 
+        <!-- Section: Merenda (Alimentação Escolar) -->
+        <div v-if="appStore.hasPermission('ilha:merenda')" class="space-y-4">
+          <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Merenda</h3>
+          <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
+            <button @click="handleNavigation('/merenda/base')" v-if="appStore.hasPermission('botao:merenda_base')" class="menu-item group">
+              <div class="menu-icon bg-orange-500/10 text-orange-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path><circle cx="12" cy="12" r="9"></circle><path d="M10 8h4"></path><path d="M10 12h4"></path><path d="M10 16h4"></path></svg></div>
+              <div class="flex flex-col text-left">
+                <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Base de Dados</span>
+                <span class="text-[10px] text-secondary">Tipos, Alimentos e Pratos</span>
+              </div>
+            </button>
+            <button @click="handleNavigation('/merenda/receituario')" v-if="appStore.hasPermission('botao:merenda_receituario')" class="menu-item group border-t border-[#6B82A70D]">
+              <div class="menu-icon bg-orange-500/10 text-orange-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+               <div class="flex flex-col text-left">
+                <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Receituário</span>
+                <span class="text-[10px] text-secondary">Fichas Técnicas</span>
+              </div>
+            </button>
+            <button @click="handleNavigation('/merenda/cardapio')" v-if="appStore.hasPermission('botao:merenda_cardapio')" class="menu-item group border-t border-[#6B82A70D]">
+              <div class="menu-icon bg-orange-500/10 text-orange-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+               <div class="flex flex-col text-left">
+                <span class="text-sm font-bold text-text group-hover:text-primary transition-colors">Cardápio</span>
+                <span class="text-[10px] text-secondary">Calendário Semanal</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
         <!-- Section: Biblioteca -->
         <div v-if="appStore.hasPermission('ilha:biblioteca')" class="space-y-4">
           <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Biblioteca</h3>
@@ -244,7 +272,7 @@ const hasAccess = (allowedRoles) => {
         </div>
 
         <!-- Section: Aprendizado -->
-        <div class="space-y-4">
+        <div v-if="appStore.hasPermission('ilha:aprendizado')" class="space-y-4">
           <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Aprendizado</h3>
           <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
             <button @click="handleNavigation('/pedagogico/gestao-atividades')" v-if="appStore.hasPermission('botao:gestao_atividades')" class="menu-item group">
@@ -264,18 +292,18 @@ const hasAccess = (allowedRoles) => {
         </div>
 
         <!-- Section: Interação -->
-        <div class="space-y-4">
+        <div v-if="appStore.hasPermission('ilha:interacao')" class="space-y-4">
           <h3 class="text-xs font-black text-secondary tracking-[0.2em] uppercase px-1">Interação</h3>
           <div class="bg-div-15 border border-[#6B82A71A] rounded overflow-hidden shadow-sm">
-            <button @click="openExternalLink('https://salas.conecte-rv.app/27jVggY/biblioteca-caruaru')" class="menu-item group">
+            <button @click="openExternalLink('https://salas.conecte-rv.app/27jVggY/biblioteca-caruaru')" v-if="appStore.hasPermission('botao:ambiente_3d')" class="menu-item group">
               <div class="menu-icon bg-pink-500/10 text-pink-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Ambiente 3D</span>
             </button>
-            <button @click="openExternalLink('https://meet-caruaru.conectetecnologia.com/')" class="menu-item group border-t border-[#6B82A70D]">
+            <button @click="openExternalLink('https://meet-caruaru.conectetecnologia.com/')" v-if="appStore.hasPermission('botao:meeting')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-pink-500/10 text-pink-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Meeting</span>
             </button>
-             <button @click="openExternalLink('http://caruaru-1.conectetecnologia.com/site/home/home.htm')" v-if="hasAccess([ROLES.ADMIN, ROLES.PROFESSOR])" class="menu-item group border-t border-[#6B82A70D]">
+             <button @click="openExternalLink('http://caruaru-1.conectetecnologia.com/site/home/home.htm')" v-if="appStore.hasPermission('botao:portal_pedagogico')" class="menu-item group border-t border-[#6B82A70D]">
               <div class="menu-icon bg-pink-500/10 text-pink-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
               <span class="text-sm font-bold text-text group-hover:text-primary">Portal Pedagógico</span>
             </button>

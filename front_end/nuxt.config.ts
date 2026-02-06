@@ -17,6 +17,11 @@ export default defineNuxtConfig({
     }
   },
 
+  runtimeConfig: {
+    workerUrl: process.env.WORKER_URL,
+    workerAuthSecret: process.env.WORKER_AUTH_SECRET,
+  },
+
   css: ['~/assets/css/style.css'],
 
   future: {

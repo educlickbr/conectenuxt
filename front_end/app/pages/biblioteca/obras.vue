@@ -21,9 +21,32 @@ const limit = ref(12)
 const search = ref('')
 const isLoading = ref(false)
 const imageBaseUrl = ref('')
+const r2Token = ref<any>(null)
 
 const isModalOpen = ref(false)
 const selectedItem = ref<any>(null)
+
+// R2 Token Handling
+const fetchR2Token = async () => {
+    try {
+        const tokenData = await $fetch('/api/storage/token', {
+            query: { scope: '/' } 
+        })
+        r2Token.value = tokenData
+    } catch (e) {
+        console.error('Erro ao obter token R2:', e)
+    }
+}
+
+const getR2ImageUrl = (path: string) => {
+    if (!path || !r2Token.value) return ''
+    // If path is full URL (old Bunny), return it (fallback)
+    if (path.startsWith('http')) return path
+    
+    // Construct signed URL
+    const { worker_url, token, expires, scope } = r2Token.value
+    return `${worker_url}/${path}?token=${encodeURIComponent(token)}&expires=${expires}&scope=${encodeURIComponent(scope)}`
+}
 
 const fetchItems = async () => {
     isLoading.value = true
@@ -42,6 +65,7 @@ const fetchItems = async () => {
         total.value = result.total || 0
         totalPages.value = result.pages || 0
         
+        // Legacy support if API still returns it, but we prefer getR2ImageUrl
         if (result.imageBaseUrl) {
             imageBaseUrl.value = result.imageBaseUrl
         }
@@ -73,7 +97,8 @@ watch(search, () => {
 })
 
 // Initial Load
-onMounted(() => {
+onMounted(async () => {
+    await fetchR2Token() // Fetch token first
     fetchItems()
     fetchStats()
 })
@@ -91,8 +116,8 @@ const fetchStats = async () => {
             params: {
                 id_empresa: appStore.company?.empresa_id
             }
-        })
-        statsCategories.value = result as any[]
+        } as any) // Fix type
+        statsCategories.value = result
     } catch (e) {
         console.error('Erro ao carregar estatísticas:', e)
     }
@@ -104,7 +129,7 @@ const categoryStats = computed(() => {
     const totalWorks = statsCategories.value.reduce((acc, curr) => acc + Number(curr.quantidade), 0)
     
     return statsCategories.value
-        .map((item) => ({ 
+        .map((item: any) => ({ 
             label: item.categoria_nome || 'Sem Categoria', 
             value: Number(item.quantidade),
             percentage: totalWorks > 0 ? Math.round((Number(item.quantidade) / totalWorks) * 100) : 0
@@ -213,8 +238,8 @@ const categoryStats = computed(() => {
                 >
                     <!-- Cover Image Section (Fixed Aspect Ratio) -->
                     <div class="aspect-[2/3] w-full relative bg-div-05 overflow-hidden border-b border-div-15">
-                        <div v-if="item.capa_imagem && imageBaseUrl" class="w-full h-full">
-                                <img :src="`${imageBaseUrl}${item.capa_imagem}`" alt="Capa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div v-if="item.capa_imagem" class="w-full h-full">
+                                <img :src="getR2ImageUrl(item.capa_imagem)" alt="Capa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         </div>
                         <div v-else class="w-full h-full flex flex-col items-center justify-center p-4 text-center text-secondary">
                             <span class="text-3xl opacity-20 mb-2">📖</span>
