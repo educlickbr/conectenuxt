@@ -15,7 +15,7 @@ const props = defineProps({
 
 defineEmits(['edit', 'delete'])
 
-const formatDate = (date: string) => {
+const formatDate = (date: string | Date) => {
   if (!date) return ''
   return new Date(date).toLocaleDateString('pt-BR', { 
     day: '2-digit', 

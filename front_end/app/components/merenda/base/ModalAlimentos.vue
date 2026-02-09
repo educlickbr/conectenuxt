@@ -16,10 +16,11 @@ const toast = useToastStore()
 // Options for Selects
 const UNIT_OPTIONS = [
     { value: 'KG', label: 'Quilograma (KG)' },
-    { value: 'L', label: 'Litro (L)' },
-    { value: 'UN', label: 'Unidade (UN)' },
-    { value: 'MAÇO', label: 'Maço' },
-    { value: 'PCT', label: 'Pacote' },
+    { value: 'GR', label: 'Gramas (GR)' },
+    { value: 'LITRO', label: 'Litro (L)' },
+    { value: 'ML', label: 'Mililitros (ML)' },
+    { value: 'UNIDADE', label: 'Unidade (UN)' },
+    { value: 'FARDO', label: 'Fardo' },
     { value: 'CX', label: 'Caixa' }
 ]
 

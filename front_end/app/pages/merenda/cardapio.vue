@@ -16,13 +16,25 @@ const route = useRoute()
 const router = useRouter()
 
 // --- Tabs Config ---
-const TABS = [
+interface Tab {
+    id: string
+    label: string
+    api: string | null
+}
+
+interface ApiResponse {
+  data?: any[]
+  total?: number
+  [key: string]: any
+}
+
+const TABS: Tab[] = [
   { id: 'ciclos', label: 'Ciclos', api: 'merenda/cardapios' },
   { id: 'escala', label: 'Escala Semanal', api: null }
 ]
 
-const currentTabId = ref(route.query.tab || 'ciclos')
-const currentTab = computed(() => TABS.find(t => t.id === currentTabId.value) || TABS[0])
+const currentTabId = ref<string>((route.query.tab as string) || 'ciclos')
+const currentTab = computed<Tab>(() => TABS.find(t => t.id === currentTabId.value) || TABS[0]!)
 
 // --- Search State ---
 const search = ref('')
@@ -30,10 +42,10 @@ const page = ref(1)
 const limit = ref(10)
 
 // --- BFF Data Fetching ---
-const { data: bffData, pending, error: bffError, refresh } = await useFetch(() => { 
+const { data: bffData, pending, error: bffError, refresh } = await useFetch<ApiResponse>((() => { 
   if (!currentTab.value.api) return null
   return `/api/${currentTab.value.api}`
-}, {
+}) as any, {
   query: computed(() => ({
     id_empresa: store.company?.empresa_id,
     page: page.value,
@@ -45,16 +57,21 @@ const { data: bffData, pending, error: bffError, refresh } = await useFetch(() =
 })
 
 const items = computed(() => {
-    if (!bffData.value) return []
-    if (bffData.value.data && Array.isArray(bffData.value.data)) return bffData.value.data
-    if (Array.isArray(bffData.value)) return bffData.value
+    const response = bffData.value as ApiResponse | null
+    if (!response) return []
+    if (response.data && Array.isArray(response.data)) return response.data
+    if (Array.isArray(response)) return response
     return []
 })
 
-const total = computed(() => bffData.value?.total || items.value.length)
+const total = computed(() => {
+    const response = bffData.value as ApiResponse | null
+    return response?.total || items.value.length
+})
 const pagesTotal = computed(() => {
-    if (!bffData.value?.total) return 1
-    return Math.ceil(bffData.value.total / limit.value)
+    const response = bffData.value as ApiResponse | null
+    if (!response?.total) return 1
+    return Math.ceil(response.total / limit.value)
 })
 
 const isLoading = computed(() => pending.value)
@@ -66,7 +83,7 @@ watch(currentTabId, (newId) => {
   router.push({ query: { ...route.query, tab: newId } })
 })
 
-const switchTab = (tabId) => {
+const switchTab = (tabId: string) => {
   currentTabId.value = tabId
 }
 
@@ -76,13 +93,13 @@ import ModalEscalaSemanal from '@/components/merenda/cardapio/ModalEscalaSemanal
 import ModalConfirmacao from '@/components/ModalConfirmacao.vue'
 
 const isModalCicloOpen = ref(false)
-const selectedItem = ref(null)
+const selectedItem = ref<any>(null)
 
 const isModalEscalaOpen = ref(false)
-const selectedEscala = ref(null)
+const selectedEscala = ref<any>(null)
 
 const handleNew = () => {
-    selectedItem.value = null
+    selectedItem.value = undefined
     if (currentTabId.value === 'ciclos') {
         isModalCicloOpen.value = true
     } else {
@@ -90,7 +107,7 @@ const handleNew = () => {
     }
 }
 
-const handleEdit = (item) => {
+const handleEdit = (item: any) => {
     if (currentTabId.value === 'ciclos') {
         selectedItem.value = item
         isModalCicloOpen.value = true
@@ -107,9 +124,9 @@ const handleSuccess = () => {
 // --- Delete Logic ---
 const isConfirmOpen = ref(false)
 const isDeleting = ref(false)
-const itemToDelete = ref(null)
+const itemToDelete = ref<any>(null)
 
-const handleDelete = (item) => {
+const handleDelete = (item: any) => {
     itemToDelete.value = item
     isConfirmOpen.value = true
 }
@@ -121,11 +138,11 @@ const confirmDelete = async () => {
         let resource = ''
         if (currentTabId.value === 'ciclos') resource = 'cardapios'
 
-        const { success } = await $fetch(`/api/merenda/${resource}/delete`, {
+        const { success } = await $fetch<any>(`/api/merenda/${resource}/delete`, {
             method: 'POST',
             body: {
                 id: itemToDelete.value.id,
-                id_empresa: store.company.empresa_id
+                id_empresa: store.company?.empresa_id
             }
         })
 

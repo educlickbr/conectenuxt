@@ -4,7 +4,6 @@ import { useToastStore } from '@/stores/toast'
 // Import Tab Components
 import TabTipos from '@/components/merenda/base/TabTipos.vue'
 import TabAlimentos from '@/components/merenda/base/TabAlimentos.vue'
-import TabPratos from '@/components/merenda/base/TabPratos.vue'
 
 // Import ManagerDashboard (Assuming it's a globally available or common component, matching estrutura_academica patterns)
 import ManagerDashboard from '@/components/ManagerDashboard.vue'
@@ -23,8 +22,7 @@ const router = useRouter()
 // --- Tabs Config ---
 const TABS = [
   { id: 'tipos', label: 'Tipos de Refeição', api: 'merenda/refeicaotipos' },
-  { id: 'alimentos', label: 'Alimentos', api: 'merenda/alimentos' },
-  { id: 'pratos', label: 'Pratos', api: 'merenda/pratos' }
+  { id: 'alimentos', label: 'Alimentos', api: 'merenda/alimentos' }
 ]
 
 const currentTabId = ref(route.query.tab || 'tipos')
@@ -85,11 +83,9 @@ const switchTab = (tabId) => {
 // --- Modals State ---
 import ModalTipos from '@/components/merenda/base/ModalTipos.vue'
 import ModalAlimentos from '@/components/merenda/base/ModalAlimentos.vue'
-import ModalPratos from '@/components/merenda/base/ModalPratos.vue'
 
 const isModalTiposOpen = ref(false)
 const isModalAlimentosOpen = ref(false)
-const isModalPratosOpen = ref(false)
 const selectedItem = ref(null)
 
 const handleNew = () => {
@@ -98,8 +94,6 @@ const handleNew = () => {
         isModalTiposOpen.value = true
     } else if (currentTabId.value === 'alimentos') {
         isModalAlimentosOpen.value = true
-    } else if (currentTabId.value === 'pratos') {
-        isModalPratosOpen.value = true
     } else {
         toast.showToast(`Novo ${currentTab.value.label} em desenvolvimento`, 'info')
     }
@@ -111,8 +105,6 @@ const handleEdit = (item) => {
         isModalTiposOpen.value = true
     } else if (currentTabId.value === 'alimentos') {
         isModalAlimentosOpen.value = true
-    } else if (currentTabId.value === 'pratos') {
-        isModalPratosOpen.value = true
     } else {
         toast.showToast(`Editar ${item.nome} em desenvolvimento`, 'info')
     }
@@ -143,7 +135,6 @@ const confirmDelete = async () => {
         let resource = ''
         if (currentTabId.value === 'tipos') resource = 'refeicaotipos'
         if (currentTabId.value === 'alimentos') resource = 'alimentos'
-        if (currentTabId.value === 'pratos') resource = 'pratos'
 
         const { success } = await $fetch(`/api/merenda/${resource}/delete`, {
             method: 'POST',
@@ -182,7 +173,6 @@ const dashboardStats = computed(() => [
       <div class="w-10 h-10 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0 text-xl">
         <svg v-if="currentTabId === 'tipos'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
         <svg v-if="currentTabId === 'alimentos'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 0 0-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7z"/><path d="M8.64 14l-2.05 2.04"/><path d="M15.34 15l-2.46-.61"/><path d="M15.34 15l.61 2.46"/><path d="M15.34 15l-6.7-6.7"/></svg>
-        <svg v-if="currentTabId === 'pratos'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.55a2 2 0 0 1 2.43 1.45l.45 1.81"/></svg>
       </div>
     </template>
 
@@ -264,13 +254,6 @@ const dashboardStats = computed(() => [
             @edit="handleEdit" 
             @delete="handleDelete" 
         />
-        <TabPratos 
-            v-if="currentTabId === 'pratos'" 
-            :items="items" 
-            :is-loading="isLoading"
-            @edit="handleEdit" 
-            @delete="handleDelete" 
-        />
     </div>
 
     <!-- Pagination -->
@@ -296,12 +279,6 @@ const dashboardStats = computed(() => [
             @success="handleSuccess"
         />
 
-        <ModalPratos
-            :is-open="isModalPratosOpen"
-            :initial-data="selectedItem"
-            @close="isModalPratosOpen = false"
-            @success="handleSuccess"
-        />
 
         <ModalConfirmacao
             :is-open="isConfirmOpen"

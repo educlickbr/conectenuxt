@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/app'
 import { useToastStore } from '@/stores/toast'
-import ManagerListItem from '@/components/ManagerListItem.vue'
+import ManagerDashboard from '@/components/ManagerDashboard.vue'
 import ModalConfirmacao from '@/components/ModalConfirmacao.vue'
 
+// Import Tab Components
+import TabPratos from '@/components/merenda/receituario/TabPratos.vue'
+import TabReceitas from '@/components/merenda/receituario/TabReceitas.vue'
+
+// Page Meta
 definePageMeta({
     permission: 'botao:merenda_receituario',
     layout: false
@@ -11,44 +16,88 @@ definePageMeta({
 
 const appStore = useAppStore()
 const toast = useToastStore()
+const route = useRoute()
+const router = useRouter()
 
-// --- Data Fetching ---
+// --- Tabs Config ---
+const TABS = [
+  { id: 'pratos', label: 'Pratos', api: 'merenda/pratos' },
+  { id: 'receitas', label: 'Receitas', api: 'merenda/fichastecnicas' }
+]
+
+const currentTabId = ref(route.query.tab || 'pratos')
+const currentTab = computed(() => TABS.find(t => t.id === currentTabId.value) || TABS[0])
+
+// --- Search/Pagination State ---
 const search = ref('')
 const page = ref(1)
 const limit = ref(10)
 
-const { data: fichasData, pending, refresh } = await useFetch('/api/merenda/fichastecnicas', {
+// --- BFF Data Fetching ---
+const { data: bffData, pending, refresh } = await useFetch<any>(() => `/api/${currentTab.value?.api}`, {
     query: computed(() => ({
-        id_empresa: appStore.company?.empresa_id
+        id_empresa: appStore.company?.empresa_id,
+        page: page.value,
+        limit: limit.value,
+        search: search.value || null
     })),
-    watch: [() => appStore.company?.empresa_id]
+    watch: [currentTabId, page, search, () => appStore.company?.empresa_id],
+    immediate: true
 })
 
-const allFichas = computed(() => fichasData.value || [])
+const items = computed(() => {
+    if (!bffData.value) return []
+    // If it's paginated object { data: [], total: ... }
+    if (bffData.value.data && Array.isArray(bffData.value.data)) return bffData.value.data
+    // If it's straight array
+    if (Array.isArray(bffData.value)) return bffData.value
+    return []
+})
 
-// Filter by search
-const fichas = computed(() => {
-    if (!search.value) return allFichas.value
-    return allFichas.value.filter(f => 
-        f.prato_nome.toLowerCase().includes(search.value.toLowerCase())
-    )
+const total = computed(() => (bffData.value as any)?.total || items.value.length)
+const pagesTotal = computed(() => {
+    const t = (bffData.value as any)?.total
+    if (!t) return 1
+    return Math.ceil(t / limit.value)
 })
 
 const isLoading = computed(() => pending.value)
 
-// --- Modal State ---
-import ModalFichaTecnica from '@/components/merenda/receituario/ModalFichaTecnica.vue'
+// --- Watchers ---
+watch(currentTabId, (newId) => {
+  page.value = 1
+  search.value = ''
+  router.push({ query: { ...route.query, tab: newId } })
+})
 
-const isModalOpen = ref(false)
-const selectedFicha = ref(null)
-
-const handleNew = () => {
-    toast.showToast('Selecione um prato existente para editar sua ficha técnica', 'info')
+const switchTab = (tabId: string) => {
+  currentTabId.value = tabId
 }
 
-const handleEdit = (ficha) => {
-    selectedFicha.value = ficha
-    isModalOpen.value = true
+// --- Modals State ---
+import ModalPratos from '@/components/merenda/receituario/ModalPratos.vue'
+import ModalFichaTecnica from '@/components/merenda/receituario/ModalFichaTecnica.vue'
+
+const isModalPratosOpen = ref(false)
+const isModalReceitaOpen = ref(false)
+const selectedItem = ref<any>(null)
+
+const handleNew = () => {
+    selectedItem.value = null
+    if (currentTabId.value === 'pratos') {
+        isModalPratosOpen.value = true
+    } else {
+        toast.showToast('Selecione um prato na aba Receitas para detalhar sua ficha técnica', 'info')
+    }
+}
+
+const handleEdit = (item: any) => {
+    selectedItem.value = item
+    if (currentTabId.value === 'pratos') {
+        isModalPratosOpen.value = true
+    } else {
+        isModalReceitaOpen.value = true
+    }
 }
 
 const handleSuccess = () => {
@@ -58,23 +107,47 @@ const handleSuccess = () => {
 // --- Delete Logic ---
 const isConfirmOpen = ref(false)
 const isDeleting = ref(false)
-const fichaToDelete = ref(null)
+const itemToDelete = ref<any>(null)
 
-const handleDelete = (ficha) => {
-    fichaToDelete.value = ficha
-    isConfirmOpen.value = true
+const handleDelete = (item: any) => {
+    itemToDelete.value = item
+    if (currentTabId.value === 'pratos') {
+        isConfirmOpen.value = true
+    } else {
+        toast.showToast('Para remover ingredientes, edite a ficha técnica', 'info')
+    }
 }
 
 const confirmDelete = async () => {
-    // For now, just show a message - deletion is handled via batch upsert
-    toast.showToast('Para remover ingredientes, edite a ficha técnica', 'info')
-    isConfirmOpen.value = false
+    if (!itemToDelete.value) return 
+    isDeleting.value = true
+    try {
+        const { success } = await $fetch(`/api/merenda/pratos/delete`, {
+            method: 'POST',
+            body: {
+                id: itemToDelete.value.id,
+                id_empresa: appStore.company.empresa_id
+            }
+        })
+
+        if (success) {
+            toast.showToast('Prato excluído com sucesso!')
+            isConfirmOpen.value = false
+            itemToDelete.value = null
+            refresh()
+        }
+    } catch (err) {
+        console.error(err)
+        toast.showToast('Erro ao excluir prato.', 'error')
+    } finally {
+        isDeleting.value = false
+    }
 }
 
 // Stats
 const dashboardStats = computed(() => [
-    { label: 'Total de Pratos', value: fichas.value.length },
-    { label: 'Com Receita', value: fichas.value.filter(f => f.ingredientes_count > 0).length }
+    { label: 'Total', value: total.value },
+    { label: 'Página', value: page.value }
 ])
 </script>
 
@@ -83,18 +156,18 @@ const dashboardStats = computed(() => [
         <!-- Header Icon -->
         <template #header-icon>
             <div class="w-10 h-10 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/><path d="M3 21h18"/></svg>
+                <svg v-if="currentTabId === 'pratos'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.55a2 2 0 0 1 2.43 1.45l.45 1.81"/></svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/><path d="M3 21h18"/></svg>
             </div>
         </template>
 
-        <!-- Header Title -->
         <template #header-title>
-            Receituário
+            <span class="capitalize">{{ currentTab?.label }}</span>
         </template>
 
         <!-- Header Subtitle -->
         <template #header-subtitle>
-            Fichas Técnicas e Composição de Pratos
+            Receituário e Gestão de Pratos
         </template>
 
         <!-- Header Actions -->
@@ -110,82 +183,92 @@ const dashboardStats = computed(() => [
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
             </div>
+
+            <button v-if="currentTabId === 'pratos'" @click="handleNew" class="bg-primary hover:bg-primary/90 text-white px-4 py-1.5 rounded text-xs font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-1 shrink-0">
+                <span>+</span> <span class="hidden sm:inline">Novo</span>
+            </button>
         </template>
 
-        <!-- Sidebar -->
-        <template #sidebar>
-            <div class="bg-div-15 p-6 rounded border border-div-30">
-                <h3 class="text-[10px] font-black text-secondary uppercase tracking-[0.2em] mb-4">Estatísticas</h3>
-                <div class="flex flex-col gap-3">
-                    <div v-for="stat in dashboardStats" :key="stat.label" class="flex items-center justify-between">
-                        <span class="text-xs text-secondary">{{ stat.label }}</span>
-                        <span class="text-lg font-black text-primary">{{ stat.value }}</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Tabs -->
+        <template #tabs>
+          <button
+            v-for="tab in TABS"
+            :key="tab.id"
+            @click="switchTab(tab.id)"
+            :class="[
+              'relative px-4 py-3 text-sm font-bold transition-all whitespace-nowrap outline-none',
+              currentTabId === tab.id ? 'text-primary' : 'text-secondary hover:text-text'
+            ]"
+          >
+            {{ tab.label }}
+            <div v-if="currentTabId === tab.id" class="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full" />
+          </button>
+        </template>
 
-            <div class="bg-orange-500/5 p-4 rounded border border-orange-500/10 mt-4">
-                <h4 class="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] mb-2">Receituário</h4>
-                <p class="text-[11px] text-orange-500/70 leading-relaxed font-medium">
-                    Gerencie os ingredientes e quantidades de cada prato. Clique em um prato para editar sua ficha técnica.
-                </p>
-            </div>
+        <template #sidebar>
+            <ManagerDashboard 
+                :title="`Receituário: ${currentTab?.label}`" 
+                :stats="dashboardStats"
+            >
+                <template #extra>
+                    <div class="bg-orange-500/5 p-4 rounded border border-orange-500/10">
+                        <h4 class="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] mb-2">Orientações</h4>
+                        <p v-if="currentTabId === 'pratos'" class="text-[11px] text-orange-500/70 leading-relaxed font-medium">
+                            Gerencie aqui o nome dos pratos e seu modo de preparo básico.
+                        </p>
+                        <p v-else class="text-[11px] text-orange-500/70 leading-relaxed font-medium">
+                            Selecione um prato para detalhar seus ingredientes e as quantidades necessárias na ficha técnica.
+                        </p>
+                    </div>
+                </template>
+            </ManagerDashboard>
         </template>
 
         <!-- Content -->
-        <div class="w-full p-6">
-            <!-- Loading State -->
-            <div v-if="isLoading && fichas.length === 0" class="flex flex-col items-center justify-center py-20 gap-4 opacity-50">
-                <div class="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                <p class="text-xs font-bold uppercase tracking-widest text-secondary">Carregando Fichas...</p>
-            </div>
+        <div class="w-full">
+            <TabPratos 
+                v-if="currentTabId === 'pratos'" 
+                :items="items" 
+                :is-loading="isLoading"
+                @edit="handleEdit" 
+                @delete="handleDelete" 
+            />
+            <TabReceitas 
+                v-if="currentTabId === 'receitas'" 
+                :items="items" 
+                :is-loading="isLoading"
+                @edit="handleEdit" 
+                @delete="handleDelete" 
+            />
+        </div>
 
-            <!-- Empty State -->
-            <div v-else-if="!isLoading && fichas.length === 0" class="flex flex-col items-center justify-center py-20 text-center text-secondary bg-div-15 rounded border border-div-30/50">
-                <div class="w-16 h-16 bg-div-15 rounded-full flex items-center justify-center mb-4 text-secondary text-2xl">
-                    📋
-                </div>
-                <p>Nenhum prato encontrado. Cadastre pratos na Base de Dados primeiro.</p>
-            </div>
-
-            <!-- Data List -->
-            <div v-else class="flex flex-col gap-2">
-                <ManagerListItem
-                    v-for="(ficha, index) in fichas"
-                    :key="ficha.prato_id || index"
-                    :item="ficha"
-                    :title="ficha.prato_nome"
-                    @edit="handleEdit(ficha)"
-                    @delete="handleDelete(ficha)"
-                >
-                    <template #icon>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/><path d="M3 21h18"/></svg>
-                    </template>
-                    <template #metadata>
-                        <span class="text-[10px] bg-div-15 px-2 py-0.5 rounded text-secondary font-black uppercase tracking-wider">
-                            {{ ficha.ingredientes_count || 0 }} Ingredientes
-                        </span>
-                        <span v-if="ficha.total_gramagem" class="text-[10px] text-secondary font-medium">
-                            Total: {{ ficha.total_gramagem }}g
-                        </span>
-                    </template>
-                </ManagerListItem>
-            </div>
+        <!-- Pagination -->
+        <div v-if="!isLoading && pagesTotal > 1" class="flex items-center justify-center gap-4 mt-6 py-4">
+            <button @click="page--" :disabled="page === 1" class="px-4 py-2 text-xs font-bold text-secondary disabled:opacity-30">Anterior</button>
+            <span class="text-[11px] font-black bg-div-15 px-3 py-1 rounded-full border border-secondary/10">{{ page }} / {{ pagesTotal }}</span>
+            <button @click="page++" :disabled="page >= pagesTotal" class="px-4 py-2 text-xs font-bold text-secondary disabled:opacity-30">Próxima</button>
         </div>
 
         <!-- Modals -->
         <template #modals>
+            <ModalPratos
+                :is-open="isModalPratosOpen"
+                :initial-data="selectedItem"
+                @close="isModalPratosOpen = false"
+                @success="handleSuccess"
+            />
+
             <ModalFichaTecnica
-                :is-open="isModalOpen"
-                :initial-data="selectedFicha"
-                @close="isModalOpen = false"
+                :is-open="isModalReceitaOpen"
+                :initial-data="selectedItem"
+                @close="isModalReceitaOpen = false"
                 @success="handleSuccess"
             />
 
             <ModalConfirmacao
                 :is-open="isConfirmOpen"
-                title="Excluir Ficha?"
-                :message="`Deseja realmente excluir a ficha técnica de <b>${fichaToDelete?.prato_nome || 'este prato'}</b>?`"
+                title="Excluir Prato?"
+                :message="`Deseja realmente excluir o prato <b>${itemToDelete?.nome || 'este prato'}</b>?`"
                 confirm-text="Sim, excluir"
                 :is-loading="isDeleting"
                 @close="isConfirmOpen = false"

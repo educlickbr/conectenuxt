@@ -17,6 +17,7 @@ const formData = ref({
     id: null,
     nome: '',
     modo_preparo: '',
+    rendimento: 1,
     ativo: true
 })
 const isSaving = ref(false)
@@ -29,6 +30,7 @@ const initForm = () => {
             id: props.initialData.id,
             nome: props.initialData.nome || '',
             modo_preparo: props.initialData.modo_preparo || '',
+            rendimento: props.initialData.rendimento || 1,
             ativo: props.initialData.ativo ?? true
         }
     } else {
@@ -36,6 +38,7 @@ const initForm = () => {
             id: null,
             nome: '',
             modo_preparo: '',
+            rendimento: 1,
             ativo: true
         }
     }
@@ -66,6 +69,7 @@ const handleSave = async () => {
             id: formData.value.id,
             nome: formData.value.nome,
             modo_preparo: formData.value.modo_preparo,
+            rendimento: formData.value.rendimento,
             ativo: formData.value.ativo
         }
 
@@ -124,12 +128,25 @@ const handleSave = async () => {
                         <span>{{ errorMessage }}</span>
                     </div>
 
-                    <ManagerField 
-                        label="Nome do Prato"
-                        v-model="formData.nome"
-                        placeholder="Ex: Arroz com Legumes"
-                        required
-                    />
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-3">
+                            <ManagerField 
+                                label="Nome do Prato"
+                                v-model="formData.nome"
+                                placeholder="Ex: Arroz com Legumes"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <ManagerField 
+                                label="Rendimento (Pessoas)"
+                                v-model="formData.rendimento"
+                                type="number"
+                                placeholder="Ex: 50"
+                                required
+                            />
+                        </div>
+                    </div>
 
                     <ManagerField 
                         label="Modo de Preparo"
