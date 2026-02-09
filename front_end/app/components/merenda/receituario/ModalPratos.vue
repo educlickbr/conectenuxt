@@ -128,25 +128,20 @@ const handleSave = async () => {
                         <span>{{ errorMessage }}</span>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="md:col-span-3">
-                            <ManagerField 
-                                label="Nome do Prato"
-                                v-model="formData.nome"
-                                placeholder="Ex: Arroz com Legumes"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <ManagerField 
-                                label="Rendimento (Pessoas)"
-                                v-model="formData.rendimento"
-                                type="number"
-                                placeholder="Ex: 50"
-                                required
-                            />
-                        </div>
-                    </div>
+                    <ManagerField 
+                        label="Nome do Prato"
+                        v-model="formData.nome"
+                        placeholder="Ex: Arroz com Legumes"
+                        required
+                    />
+
+                    <ManagerField 
+                        label="Rendimento (Pessoas)"
+                        v-model="formData.rendimento"
+                        type="number"
+                        placeholder="Ex: 50"
+                        required
+                    />
 
                     <ManagerField 
                         label="Modo de Preparo"
