@@ -52,9 +52,43 @@ const isSaving = ref(false)
 const errorMessage = ref('')
 
 // Initialize form
-const initForm = () => {
+const availableNutrients = ref([])
+const foodNutrients = ref({}) // Map: nutriente_id -> quantidade
+
+const fetchNutrients = async () => {
+    try {
+        const data = await $fetch('/api/merenda/nutrientes', {
+            params: { id_empresa: appStore.company.empresa_id }
+        })
+        availableNutrients.value = data || []
+    } catch (err) {
+        console.error('Erro ao buscar nutrientes:', err)
+        toast.showToast('Erro ao carregar lista de nutrientes.', 'error')
+    }
+}
+
+const initForm = async () => {
+    await fetchNutrients()
+    foodNutrients.value = {}
+
+    // Initialize all nutrients with 0.00
+    availableNutrients.value.forEach(n => {
+        foodNutrients.value[n.id] = 0 // Default 0
+    })
+
     if (props.initialData) {
-        const nutri = props.initialData.valor_nutricional_100g || {}
+        
+        // Map existing nutrients from initialData
+        if (props.initialData.nutrientes && Array.isArray(props.initialData.nutrientes)) {
+            props.initialData.nutrientes.forEach(n => {
+                // If data comes as INT (e.g. 105), we divide by 100 -> 1.05
+                // If it comes as numeric (old data), we might need to handle it, but migration should have fixed it.
+                // Assuming API returns the raw integer value now.
+                const val = Number(n.quantidade_100g) || 0
+                foodNutrients.value[n.nutriente_id] = val / 100
+            })
+        } 
+        
         formData.value = { 
             id: props.initialData.id,
             nome: props.initialData.nome || '',
@@ -62,12 +96,6 @@ const initForm = () => {
             categoria: props.initialData.categoria || 'Estocável',
             preco_medio: props.initialData.preco_medio || 0,
             ata_registro_ref: props.initialData.ata_registro_ref || '',
-            
-            nutri_kcal: nutri.kcal || 0,
-            nutri_carboidratos: nutri.carboidratos || 0,
-            nutri_proteinas: nutri.proteinas || 0,
-            nutri_gorduras: nutri.gorduras || 0,
-
             ativo: props.initialData.ativo ?? true
         }
     } else {
@@ -78,10 +106,6 @@ const initForm = () => {
             categoria: 'Estocável',
             preco_medio: 0,
             ata_registro_ref: '',
-            nutri_kcal: 0,
-            nutri_carboidratos: 0,
-            nutri_proteinas: 0,
-            nutri_gorduras: 0,
             ativo: true
         }
     }
@@ -108,13 +132,12 @@ const handleSave = async () => {
     errorMessage.value = ''
 
     try {
-        // Construct Nutritional JSONB
-        const valor_nutricional_100g = {
-            kcal: Number(formData.value.nutri_kcal),
-            carboidratos: Number(formData.value.nutri_carboidratos),
-            proteinas: Number(formData.value.nutri_proteinas),
-            gorduras: Number(formData.value.nutri_gorduras)
-        }
+        // Construct Nutrients Array for Payload
+        // Multiply by 100 to save as Integer
+        const nutrientesPayload = availableNutrients.value.map(n => ({
+            nutriente_id: n.id,
+            quantidade_100g: Math.round(Number(foodNutrients.value[n.id] || 0) * 100)
+        })).filter(n => n.quantidade_100g > 0)
 
         const payload = {
             id: formData.value.id,
@@ -123,7 +146,8 @@ const handleSave = async () => {
             categoria: formData.value.categoria,
             preco_medio: Number(formData.value.preco_medio),
             ata_registro_ref: formData.value.ata_registro_ref,
-            valor_nutricional_100g: valor_nutricional_100g,
+            // valor_nutricional_100g: {}, // Deprecated, sending empty or omitted
+            nutrientes: nutrientesPayload,
             ativo: formData.value.ativo
         }
 
@@ -139,8 +163,9 @@ const handleSave = async () => {
             toast.showToast('Alimento salvo com sucesso!')
             emit('success')
             emit('close')
-        } else {
+        } else { // Handle API returning error object or success:false
              if (error) throw new Error(message || 'Erro ao salvar.')
+             // Assuming structure check
              toast.showToast('Alimento salvo com sucesso!')
              emit('success')
              emit('close')
@@ -229,34 +254,20 @@ const handleSave = async () => {
                             <div class="h-px bg-div-15 flex-1"></div>
                         </div>
 
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-2 gap-4">
                             <ManagerField 
-                                label="Kcal"
-                                v-model="formData.nutri_kcal"
+                                v-for="nutri in availableNutrients"
+                                :key="nutri.id"
+                                :label="`${nutri.nome} (${nutri.unidade})`"
+                                v-model="foodNutrients[nutri.id]"
                                 type="number"
-                                placeholder="0"
+                                step="0.01"
+                                placeholder="0.00"
                             />
-                            <ManagerField 
-                                label="Carboidratos (g)"
-                                v-model="formData.nutri_carboidratos"
-                                type="number"
-                                step="0.1"
-                                placeholder="0.0"
-                            />
-                            <ManagerField 
-                                label="Proteínas (g)"
-                                v-model="formData.nutri_proteinas"
-                                type="number"
-                                step="0.1"
-                                placeholder="0.0"
-                            />
-                            <ManagerField 
-                                label="Gorduras (g)"
-                                v-model="formData.nutri_gorduras"
-                                type="number"
-                                step="0.1"
-                                placeholder="0.0"
-                            />
+                            
+                            <div v-if="availableNutrients.length === 0" class="col-span-full text-center py-4 text-xs text-secondary">
+                                Nenhum nutriente cadastrado. Cadastre nutrientes na aba "Nutrientes" para preencher aqui.
+                            </div>
                         </div>
                     </div>
                 </div>

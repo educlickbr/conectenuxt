@@ -4,6 +4,7 @@ import { useToastStore } from '@/stores/toast'
 // Import Tab Components
 import TabTipos from '@/components/merenda/base/TabTipos.vue'
 import TabAlimentos from '@/components/merenda/base/TabAlimentos.vue'
+import TabNutrientes from '@/components/merenda/base/TabNutrientes.vue'
 
 // Import ManagerDashboard (Assuming it's a globally available or common component, matching estrutura_academica patterns)
 import ManagerDashboard from '@/components/ManagerDashboard.vue'
@@ -22,6 +23,7 @@ const router = useRouter()
 // --- Tabs Config ---
 const TABS = [
   { id: 'tipos', label: 'Tipos de Refeição', api: 'merenda/refeicaotipos' },
+  { id: 'nutrientes', label: 'Nutrientes', api: 'merenda/nutrientes' },
   { id: 'alimentos', label: 'Alimentos', api: 'merenda/alimentos' }
 ]
 
@@ -83,9 +85,11 @@ const switchTab = (tabId) => {
 // --- Modals State ---
 import ModalTipos from '@/components/merenda/base/ModalTipos.vue'
 import ModalAlimentos from '@/components/merenda/base/ModalAlimentos.vue'
+import ModalNutrientes from '@/components/merenda/base/ModalNutrientes.vue'
 
 const isModalTiposOpen = ref(false)
 const isModalAlimentosOpen = ref(false)
+const isModalNutrientesOpen = ref(false)
 const selectedItem = ref(null)
 
 const handleNew = () => {
@@ -94,6 +98,8 @@ const handleNew = () => {
         isModalTiposOpen.value = true
     } else if (currentTabId.value === 'alimentos') {
         isModalAlimentosOpen.value = true
+    } else if (currentTabId.value === 'nutrientes') {
+        isModalNutrientesOpen.value = true
     } else {
         toast.showToast(`Novo ${currentTab.value.label} em desenvolvimento`, 'info')
     }
@@ -105,6 +111,8 @@ const handleEdit = (item) => {
         isModalTiposOpen.value = true
     } else if (currentTabId.value === 'alimentos') {
         isModalAlimentosOpen.value = true
+    } else if (currentTabId.value === 'nutrientes') {
+        isModalNutrientesOpen.value = true
     } else {
         toast.showToast(`Editar ${item.nome} em desenvolvimento`, 'info')
     }
@@ -135,6 +143,7 @@ const confirmDelete = async () => {
         let resource = ''
         if (currentTabId.value === 'tipos') resource = 'refeicaotipos'
         if (currentTabId.value === 'alimentos') resource = 'alimentos'
+        if (currentTabId.value === 'nutrientes') resource = 'nutrientes'
 
         const { success } = await $fetch(`/api/merenda/${resource}/delete`, {
             method: 'POST',
@@ -172,6 +181,7 @@ const dashboardStats = computed(() => [
     <template #header-icon>
       <div class="w-10 h-10 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0 text-xl">
         <svg v-if="currentTabId === 'tipos'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+        <svg v-if="currentTabId === 'nutrientes'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         <svg v-if="currentTabId === 'alimentos'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 0 0-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7z"/><path d="M8.64 14l-2.05 2.04"/><path d="M15.34 15l-2.46-.61"/><path d="M15.34 15l.61 2.46"/><path d="M15.34 15l-6.7-6.7"/></svg>
       </div>
     </template>
@@ -231,7 +241,7 @@ const dashboardStats = computed(() => [
           <div class="bg-orange-500/5 p-4 rounded border border-orange-500/10">
             <h4 class="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] mb-2">Base de Dados</h4>
             <p class="text-[11px] text-orange-500/70 leading-relaxed font-medium">
-              Gerencie os elementos fundamentais para a composição do cardápio: Tipos de refeição, Ingredientes e Pratos.
+              Gerencie os elementos fundamentais para a composição do cardápio: Tipos de refeição, Alimentos e Nutrientes.
             </p>
           </div>
         </template>
@@ -246,6 +256,13 @@ const dashboardStats = computed(() => [
             :is-loading="isLoading"
             @edit="handleEdit" 
             @delete="handleDelete" 
+        />
+        <TabNutrientes
+            v-if="currentTabId === 'nutrientes'"
+            :items="items"
+            :is-loading="isLoading"
+            @edit="handleEdit"
+            @delete="handleDelete"
         />
         <TabAlimentos 
             v-if="currentTabId === 'alimentos'" 
@@ -276,6 +293,13 @@ const dashboardStats = computed(() => [
             :is-open="isModalAlimentosOpen"
             :initial-data="selectedItem"
             @close="isModalAlimentosOpen = false"
+            @success="handleSuccess"
+        />
+
+        <ModalNutrientes
+            :is-open="isModalNutrientesOpen"
+            :initial-data="selectedItem"
+            @close="isModalNutrientesOpen = false"
             @success="handleSuccess"
         />
 

@@ -85,15 +85,21 @@ const getAlimentoUnit = (alimentoId) => {
 
 const getUnitLabel = (alimentoId) => {
     const unit = getAlimentoUnit(alimentoId)
-    if (unit === 'UNIDADE') return 'Quantidade'
-    if (unit === 'LITRO') return 'Volume'
-    return 'Gramagem'
+    if (!unit) return 'Quantidade'
+    if (['UNIDADE', 'UN'].includes(unit)) return 'Quantidade (Unidades)'
+    if (unit === 'KG') return 'Medida em Kg'
+    if (['GR', 'G'].includes(unit)) return 'Medida em G'
+    if (['L', 'LITRO'].includes(unit)) return 'Medida em Litros'
+    return `Medida em ${unit}`
 }
 
 const calculatePerCapita = (item) => {
     const yield_val = props.initialData?.rendimento || 1
     const total = parseFloat(item.quantidade) || 0
-    return (total / yield_val).toFixed(4)
+    const value = (total / yield_val)
+    
+    // Format logic: if integer, show integer, else 4 decimals
+    return value.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })
 }
 
 const handleSave = async () => {
@@ -216,16 +222,18 @@ const handleSave = async () => {
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-black text-secondary uppercase tracking-wider mb-1 block">
-                                        {{ getUnitLabel(item.alimento_id) }} (Total Receita)
+                                        {{ getUnitLabel(item.alimento_id) }}
                                     </label>
                                     <input 
                                         v-model="item.quantidade"
                                         type="number" 
-                                        step="0.01" 
+                                        step="0.0001" 
                                         class="w-full px-3 py-2 bg-background border border-secondary/30 rounded text-sm" 
-                                        placeholder="0.00"
+                                        placeholder="0.0000"
                                     >
-                                    <span class="text-[9px] text-secondary mt-1 block">Per capita: {{ calculatePerCapita(item) }}</span>
+                                    <span class="text-[9px] text-secondary mt-1 block">
+                                        Per capita: <strong class="text-primary">{{ calculatePerCapita(item) }} {{ getAlimentoUnit(item.alimento_id) }}</strong>
+                                    </span>
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="text-[10px] font-black text-secondary uppercase tracking-wider mb-1 block">Modo de Preparo Complementar</label>

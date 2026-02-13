@@ -1,0 +1,8 @@
+dialog.default.folder=/home/eikmeier/.local/share/DBeaverData/drivers
+driver.selector.orderBy=score
+eclipse.preferences.version=1
+resultset.presentation.active=spreadsheet
+sample.database.canceled=true
+tipOfTheDayInitializer.notFirstRun=true
+ui.auto.update.check.time=1771006716705
+ui.drivers.home=/home/eikmeier/.local/share/DBeaverData/drivers
